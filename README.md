@@ -82,5 +82,3 @@ Sigue estos pasos para configurar el entorno de desarrollo en tu máquina:
 Este proyecto está bajo la licencia MIT, lo que significa que puedes usarlo y modificarlo libremente siempre que se incluya la atribución correspondiente. Para más detalles, consulta el archivo `LICENSE`.
 
 ---
-
-¡Gracias por contribuir a IesConnect! 🚀
