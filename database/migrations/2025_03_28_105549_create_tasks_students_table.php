@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('tasks_students', function (Blueprint $table) {
             $table->id();
+            $table->double('easy');
+            $table->double('medium');
+            $table->double('hard');
             $table->timestamps();
         });
     }

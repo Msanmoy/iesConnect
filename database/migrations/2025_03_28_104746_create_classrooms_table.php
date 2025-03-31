@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('classrooms', function (Blueprint $table) {
             $table->id();
+            $table->string('group');
+            $table->string('year')->nullable(false);
+            $table->boolean('deleted')->default(false);
             $table->timestamps();
         });
     }
