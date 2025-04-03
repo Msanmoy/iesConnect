@@ -11,10 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tasks_students', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        // No need to create a separate table since we're using single table inheritance
     }
 
     /**
@@ -22,6 +19,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tasks_students');
+        // No table to drop
     }
 };
+

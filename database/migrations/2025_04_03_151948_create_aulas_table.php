@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('questions', function (Blueprint $table) {
+        Schema::create('aulas', function (Blueprint $table) {
             $table->id();
+            $table->string('grupo');
+            $table->string('anio');
+            $table->foreignId('propietario_id')->constrained('usuarios');
+            $table->foreignId('clase_id')->constrained('clases');
+            $table->boolean('eliminado')->default(false);
             $table->timestamps();
         });
     }
@@ -22,6 +27,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('questions');
+        Schema::dropIfExists('aulas');
     }
 };
+

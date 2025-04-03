@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('phases', function (Blueprint $table) {
+        Schema::create('fases', function (Blueprint $table) {
             $table->id();
+            $table->smallInteger('nivel');
+            $table->string('nombre_archivo')->nullable();
+            $table->foreignId('tarea_id')->constrained('tareas')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -22,6 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('phases');
+        Schema::dropIfExists('fases');
     }
 };
+

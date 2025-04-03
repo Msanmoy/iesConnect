@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('classrooms', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        // No need to create a separate table since we're using single table inheritance
+        Schema::table('usuarios', function (Blueprint $table) {
+            $table->string('aula')->nullable();
         });
     }
 
@@ -22,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('classrooms');
+        Schema::table('usuarios', function (Blueprint $table) {
+            $table->dropColumn('aula');
+        });
     }
 };
+

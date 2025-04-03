@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('themes', function (Blueprint $table) {
+        Schema::create('respuestas', function (Blueprint $table) {
             $table->id();
+            $table->text('respuesta');
+            $table->boolean('correcta');
+            $table->foreignId('pregunta_id')->constrained('preguntas')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -22,6 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('themes');
+        Schema::dropIfExists('respuestas');
     }
 };
+

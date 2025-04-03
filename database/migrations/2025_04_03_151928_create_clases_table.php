@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('clases', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('asignatura_id')->constrained('asignaturas');
+            $table->foreignId('curso_id')->constrained('cursos');
             $table->timestamps();
+
+            $table->unique(['asignatura_id', 'curso_id']);
         });
     }
 
@@ -22,6 +26,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('clases');
     }
 };
+
