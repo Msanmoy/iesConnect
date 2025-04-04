@@ -1,0 +1,8 @@
+@font-face {
+  font-display: swap;
+  font-family: 'Cabin';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/cabin-v27-latin-regular.woff2') format('woff2');
+}
+
