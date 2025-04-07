@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
 
-class Usuario extends Authenticatable
+class Usuario extends Authenticatable implements CanResetPassword
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, CanResetPasswordTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -32,6 +34,7 @@ class Usuario extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
     /**
@@ -41,6 +44,8 @@ class Usuario extends Authenticatable
      */
     protected $casts = [
         'blocked' => 'boolean',
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     /**
@@ -54,15 +59,49 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Scope a query to only include users of a given role.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string  $rol
-     * @return \Illuminate\Database\Eloquent\Builder
+     * Get the estudiante record associated with the user.
      */
-    public function scopeOfRol($query, $rol)
+    public function estudiante()
     {
-        return $query->where('rol', $rol);
+        return $this->hasOne(Estudiante::class, 'id');
+    }
+
+    /**
+     * Get the profesor record associated with the user.
+     */
+    public function profesor()
+    {
+        return $this->hasOne(Profesor::class, 'id');
+    }
+
+    /**
+     * Determine if the user is a student.
+     *
+     * @return bool
+     */
+    public function isEstudiante()
+    {
+        return $this->rol === 'ESTUDIANTE';
+    }
+
+    /**
+     * Determine if the user is a teacher.
+     *
+     * @return bool
+     */
+    public function isProfesor()
+    {
+        return $this->rol === 'PROFESOR';
+    }
+
+    /**
+     * Get the email address that should be used for password reset.
+     *
+     * @return string
+     */
+    public function getEmailForPasswordReset()
+    {
+        return $this->email;
     }
 }
 
