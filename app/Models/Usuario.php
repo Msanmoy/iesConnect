@@ -103,5 +103,16 @@ class Usuario extends Authenticatable implements CanResetPassword
     {
         return $this->email;
     }
+
+    public function aulas()
+    {
+        return $this->belongsToMany(
+            Aula::class,
+            'aula_estudiante',
+            'estudiante_id',
+            'aula_id'
+        );
+    }
+
 }
 

@@ -40,11 +40,7 @@ Route::get('/profile', function() {
 })->name('profile')->middleware('auth');
 
 // Application routes
-Route::get('/clases/asignaturas', function() {
-    // This is a placeholder. You should implement a controller for this.
-    return view('clases.asignaturas');
-})->name('clases.asignaturas');
-
+Route::get('/clases/asignaturas', [\App\Http\Controllers\UserController::class, 'index'])->name('clases.asignaturas');
 Route::get('/calendario', function() {
     // This is a placeholder. You should implement a controller for this.
     return view('calendario.index');
@@ -105,10 +101,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/clases/asignaturas', function () {
-        return view('clases.asignaturas');
-    })->name('clases.asignaturas');
-
     Route::post('/clases/unirse', function () {
         // Lógica para unirse a una clase
         return redirect()->route('clases.asignaturas');

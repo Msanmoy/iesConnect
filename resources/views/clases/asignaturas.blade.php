@@ -49,10 +49,9 @@
                     <i class="bi bi-journal-plus"></i>
                 </button>
                 <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-black"
                        data-bs-toggle="dropdown">
-                        <img src="{{ asset('images/EjemploPerfilUsuario.png') }}" alt="Profile" class="rounded-circle"
-                             style="height: 40px;">
+                        {{ Auth::user()->nombre_completo }}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{{ route('profile') }}">Perfil</a></li>
@@ -119,93 +118,27 @@
 
 <main class="d-flex justify-content-center mt-4">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 container-xxl">
-        <div class="col">
-            <a href="{{ route('clases.biologia') }}" class="text-decoration-none">
-                <div class="card">
-                    <img src="{{ asset('images/biologia.jpg') }}" class="card-img-top w-100 object-fit-cover" alt="..."
-                         style="height: 180px;">
-                    <div class="card-body">
-                        <h5 class="card-title text-black">Biología</h5>
-                        <p class="card-text m-0 text-black">Tareas Pendientes:</p>
-                        <ul class="list-unstyled text-info">
-                            <a href="{{ route('clases.tarea', ['id' => 1]) }}" class="text-decoration-none">
-                                <li>Presentación ciclo celular</li>
-                            </a>
-                        </ul>
+        @foreach ($asignaturas as $asignatura)
+            <div class="col">
+                <a href="{{ route('clases.' . $asignatura->slug) }}" class="text-decoration-none">
+                    <div class="card">
+                        <img src="{{ asset('images/' . $asignatura->imagen) }}" class="card-img-top w-100 object-fit-cover" alt="..."
+                             style="height: 180px;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $asignatura->nombre }}</h5>
+                            <p class="card-text m-0">Tareas Pendientes:</p>
+                            <ul class="list-unstyled text-info">
+                                @foreach ($asignatura->tareas ?? [] as $tarea)
+                                    <a href="{{ route('clases.tarea', ['id' => $tarea->id]) }}" class="text-decoration-none">
+                                        <li>{{ $tarea->titulo }}</li>
+                                    </a>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ route('clases.matematicas') }}" class="text-decoration-none">
-                <div class="card">
-                    <img src="{{ asset('images/matematicas.jpg') }}" class="card-img-top w-100 object-fit-cover" alt="..."
-                         style="height: 180px;">
-                    <div class="card-body">
-                        <h5 class="card-title">Matemáticas</h5>
-                        <p class="card-text m-0">Tareas Pendientes:</p>
-                        <ul class="list-unstyled text-info">
-                        </ul>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ route('clases.historia') }}" class="text-decoration-none">
-                <div class="card">
-                    <img src="{{ asset('images/historia.jpg') }}" class="card-img-top w-100 object-fit-cover" alt="..."
-                         style="height: 180px;">
-                    <div class="card-body">
-                        <h5 class="card-title">Historia</h5>
-                        <p class="card-text m-0">Tareas Pendientes:</p>
-                        <ul class="list-unstyled text-info">
-                        </ul>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ route('clases.educacion-fisica') }}" class="text-decoration-none">
-                <div class="card">
-                    <img src="{{ asset('images/educacionFisica.jpg') }}" class="card-img-top w-100 object-fit-cover" alt="..."
-                         style="height: 180px;">
-                    <div class="card-body">
-                        <h5 class="card-title">Educación Física</h5>
-                        <p class="card-text m-0">Tareas Pendientes:</p>
-                        <ul class="list-unstyled text-info">
-                        </ul>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ route('clases.tecnologia') }}" class="text-decoration-none">
-                <div class="card">
-                    <img src="{{ asset('images/herramientas.jpg') }}" class="card-img-top w-100 object-fit-cover" alt="..."
-                         style="height: 180px;">
-                    <div class="card-body">
-                        <h5 class="card-title">Tecnología</h5>
-                        <p class="card-text m-0">Tareas Pendientes:</p>
-                        <ul class="list-unstyled text-info">
-                        </ul>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ route('clases.informatica') }}" class="text-decoration-none">
-                <div class="card">
-                    <img src="{{ asset('images/informatica.jpg') }}" class="card-img-top w-100 object-fit-cover" alt="..."
-                         style="height: 180px;">
-                    <div class="card-body">
-                        <h5 class="card-title">Informática</h5>
-                        <p class="card-text m-0">Tareas Pendientes:</p>
-                        <ul class="list-unstyled text-info">
-                        </ul>
-                    </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+        @endforeach
     </div>
 </main>
 
