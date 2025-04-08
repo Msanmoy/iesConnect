@@ -104,7 +104,7 @@ class Usuario extends Authenticatable implements CanResetPassword
         return $this->email;
     }
 
-    public function aulas()
+    public function aulas(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             Aula::class,

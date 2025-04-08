@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Asignaturas</title>
+    <title>{{ $asignatura->nombre }} - IESConnect</title>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap"
           rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <!--  Bootstrap Icons -->
 </head>
 
 <body>
@@ -45,9 +44,6 @@
 
             <!-- Parte derecha -->
             <div class="d-flex align-items-center border-start ms-auto">
-                <button class="btn me-3 border-0" data-bs-toggle="modal" data-bs-target="#anadirAsignatura">
-                    <i class="bi bi-journal-plus"></i>
-                </button>
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
                        data-bs-toggle="dropdown">
@@ -68,36 +64,6 @@
         </div>
     </nav>
 
-    <!-- Modal Añadir Asignatura -->
-
-    <div class="modal fade" id="anadirAsignatura" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modalLabel">Unirse a Asignatura</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="POST" action="{{ route('clases.unirse') }}">
-                    @csrf
-                    <div class="modal-body">
-                        <label for="codigoClase" class="form-label">Código de Asignatura</label>
-                        <input type="text" id="codigoClase" name="codigo_clase" class="form-control" placeholder="Código de Asignatura">
-
-                        <p class="mt-3 text-muted">
-                            Para iniciar sesión con un código de Asignatura:<br>
-                            • Usa una cuenta autorizada<br>
-                            • Usa un código de clase con números, sin espacios ni símbolos
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn border-black" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn border-black">Unirme</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- Menú lateral -->
     <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
         <div class="offcanvas-header">
@@ -117,29 +83,71 @@
     </div>
 </header>
 
-<main class="d-flex justify-content-center mt-4">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 container-xxl">
-        @foreach ($asignaturas as $asignatura)
-            <div class="col">
-                <a href="{{ route('clases.asignatura', ['slug' => $asignatura->slug]) }}" class="text-decoration-none">
-                    <div class="card">
-                        <img src="{{ asset('images/' . $asignatura->imagen) }}" class="card-img-top w-100 object-fit-cover" alt="..."
-                             style="height: 180px;">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $asignatura->nombre }}</h5>
-                            <p class="card-text m-0">Tareas Pendientes:</p>
-                            <ul class="list-unstyled text-info">
-                                @foreach ($asignatura->tareas ?? [] as $tarea)
-                                    <a href="{{ route('clases.tarea', ['id' => $tarea->id]) }}" class="text-decoration-none">
-                                        <li>{{ $tarea->titulo }}</li>
-                                    </a>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </a>
+<main class="container-xl my-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>{{ $asignatura->nombre }}</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Tareas Pendientes</h5>
+                </div>
+                <div class="card-body">
+                    @if($asignatura->tareas->count() > 0)
+                        <ul class="list-group list-group-flush">
+                            @foreach($asignatura->tareas as $tarea)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <a href="{{ route('clases.tarea', ['id' => $tarea->id]) }}" class="text-decoration-none">
+                                            <h6 class="mb-1">{{ $tarea->nombre }}</h6>
+                                        </a>
+                                        <small class="text-muted">Fecha límite: {{ $tarea->created_at->format('d/m/Y') }}</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">Pendiente</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-muted mb-0">No hay tareas pendientes.</p>
+                    @endif
+                </div>
             </div>
-        @endforeach
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recursos</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-0">No hay recursos disponibles.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Información</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Profesor:</strong> Por determinar</p>
+                    <p><strong>Horario:</strong> Por determinar</p>
+                    <p><strong>Aula:</strong> Por determinar</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Próximos Eventos</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-0">No hay eventos próximos.</p>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 

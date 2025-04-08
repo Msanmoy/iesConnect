@@ -133,4 +133,46 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/clases/tarea/{id}', function ($id) {
         return view('clases.tarea', ['id' => $id]);
     })->name('clases.tarea');
+    Route::get('/calendario', function () {
+        return view('calendario.index');
+    })->name('calendario');
+});
+
+Route::middleware(['auth'])->group(function () {
+    // Ruta para mostrar todas las asignaturas
+    Route::get('/clases/asignaturas', function () {
+        // En una implementación real, cargaríamos las asignaturas desde la base de datos
+        $asignaturas = App\Models\Asignatura::with(['tareas' => function($query) {
+            $query->where('visible', true)
+                ->where('eliminado', false)
+                ->orderBy('created_at', 'desc');
+        }])->get();
+
+        return view('clases.asignaturas', compact('asignaturas'));
+    })->name('clases.asignaturas');
+
+    // Ruta para mostrar una asignatura específica por slug
+    Route::get('/clases/asignatura/{slug}', function ($slug) {
+        $asignatura = App\Models\Asignatura::where('slug', $slug)->firstOrFail();
+        return view('clases.asignatura', compact('asignatura'));
+    })->name('clases.asignatura');
+
+    // Ruta para unirse a una clase
+    Route::post('/clases/unirse', function () {
+        // Lógica para unirse a una clase
+        return redirect()->route('clases.asignaturas');
+    })->name('clases.unirse');
+
+    // Ruta para ver una tarea específica
+    Route::get('/clases/tarea/{id}', function ($id) {
+        $tarea = App\Models\Tarea::findOrFail($id);
+        return view('clases.tarea', compact('tarea'));
+    })->name('clases.tarea');
+
+    // Ruta del calendario
+    Route::get('/calendario', function () {
+        // En una implementación real, aquí cargaríamos los eventos del usuario
+        // desde la base de datos
+        return view('calendario.index');
+    })->name('calendario');
 });

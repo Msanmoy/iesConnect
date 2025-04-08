@@ -9,6 +9,7 @@ use App\Models\Curso;
 use App\Models\Usuario;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,17 +20,26 @@ class DatabaseSeeder extends Seeder
     {
          Usuario::factory(100)->create();
 
-        DB::table('asignaturas')->insert([
-            ['nombre' => 'Lengua'],
-            ['nombre' => 'Matematicas'],
-            ['nombre' => 'Biologia'],
-            ['nombre' => 'Geografia'],
-            ['nombre' => 'Historia'],
-            ['nombre' => 'Economia'],
-            ['nombre' => 'Francés'],
-            ['nombre' => 'Geologia'],
-            ['nombre' => 'Inglés'],
-        ]);
+
+        $asignaturas = [
+            'Lengua',
+            'Matematicas',
+            'Biologia',
+            'Geografia',
+            'Historia',
+            'Economia',
+            'Francés',
+            'Geologia',
+            'Inglés',
+        ];
+
+        foreach ($asignaturas as $nombre) {
+            Asignatura::create([
+                'nombre' => $nombre,
+                'slug' => Str::slug($nombre),
+                'imagen' => 'images/' . strtolower(Str::slug($nombre)) . '.jpg',
+            ]);
+        }
 
         DB::table('cursos')->insert([
             ['nombre' => '1ºESO'],
