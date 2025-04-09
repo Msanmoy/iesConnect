@@ -49,6 +49,9 @@
         </div>
 
         <div class="d-flex align-items-center border-start ms-auto">
+
+            @stack('header-actions')
+
             <button class="btn me-3 border-0">
                 <i class="bi bi-bell"></i>
             </button>
