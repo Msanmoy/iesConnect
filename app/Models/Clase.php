@@ -58,7 +58,7 @@ class Clase extends Model
      */
     public function getNombreAttribute()
     {
-        return "{$this->curso->nombre} {$this->asignatura->nombre}";
+        return "{$this->curso?->nombre} {$this->asignatura?->nombre}";
     }
 }
 

@@ -15,6 +15,7 @@ class TareaEstudiante extends Pivot
      * @var bool
      */
     public $incrementing = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.

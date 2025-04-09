@@ -36,14 +36,6 @@ class Estudiante extends Usuario
     }
 
     /**
-     * The classrooms that belong to the student.
-     */
-    public function aulas()
-    {
-        return $this->belongsToMany(Aula::class, 'aula_estudiante');
-    }
-
-    /**
      * The tasks that belong to the student.
      */
     public function tareas()

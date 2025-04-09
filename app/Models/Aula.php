@@ -78,7 +78,7 @@ class Aula extends Model
      */
     public function getNombreAttribute()
     {
-        return "{$this->clase->nombre} {$this->grupo} {$this->anio}";
+        return "{$this->clase?->nombre} {$this->grupo} {$this->anio}";
     }
 
     /**

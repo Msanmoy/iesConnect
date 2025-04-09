@@ -37,7 +37,7 @@ class Asignatura extends Model
 
         // También actualizar el slug si se modifica el nombre
         static::updating(function ($asignatura) {
-            if ($asignatura->isDirty('nombre') && empty($asignatura->slug)) {
+            if ($asignatura->isDirty('nombre')) {
                 $asignatura->slug = Str::slug($asignatura->nombre);
             }
         });
