@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asignatura;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AsignaturaController extends Controller
@@ -43,11 +44,7 @@ class AsignaturaController extends Controller
         $asignatura = new Asignatura();
         $asignatura->nombre = $request->nombre;
         $asignatura->slug = Str::slug($request->nombre);
-
-        if ($request->hasFile('imagen')) {
-            $imagenPath = $request->file('imagen')->store('public/images/asignaturas');
-            $asignatura->imagen = str_replace('public/', '', $imagenPath);
-        }
+        $asignatura->imagen = $this->manejarImagen($request);
 
         $asignatura->save();
 
@@ -84,16 +81,7 @@ class AsignaturaController extends Controller
 
         $asignatura->nombre = $request->nombre;
         $asignatura->slug = Str::slug($request->nombre);
-
-        if ($request->hasFile('imagen')) {
-            // Eliminar imagen anterior si existe
-            if ($asignatura->imagen) {
-                Storage::delete('public/' . $asignatura->imagen);
-            }
-
-            $imagenPath = $request->file('imagen')->store('public/images/asignaturas');
-            $asignatura->imagen = str_replace('public/', '', $imagenPath);
-        }
+        $asignatura->imagen = $this->manejarImagen($request, $asignatura);
 
         $asignatura->save();
 
@@ -121,5 +109,22 @@ class AsignaturaController extends Controller
 
         return redirect()->route('asignaturas.index')
             ->with('success', 'Asignatura eliminada correctamente.');
+    }
+
+    /**
+     * Maneja la subida y eliminación de imágenes.
+     */
+    private function manejarImagen(Request $request, ?Asignatura $asignatura = null): ?string
+    {
+        if (!$request->hasFile('imagen')) {
+            return $asignatura?->imagen;
+        }
+
+        if ($asignatura?->imagen) {
+            Storage::delete('public/' . $asignatura->imagen);
+        }
+
+        $path = $request->file('imagen')->store('public/images/asignaturas');
+        return str_replace('public/', '', $path);
     }
 }

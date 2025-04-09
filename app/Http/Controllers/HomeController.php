@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class HomeController extends Controller
 {
     /**
-     * Create a new controller instance.
-     *
-     * @return void
+     * Crea una nueva instancia del controlador.
      */
     public function __construct()
     {
@@ -17,11 +15,9 @@ class HomeController extends Controller
     }
 
     /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
+     * Muestra el panel principal de la aplicación.
      */
-    public function index()
+    public function index(): View
     {
         return view('home');
     }

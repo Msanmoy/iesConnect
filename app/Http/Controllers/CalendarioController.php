@@ -10,81 +10,64 @@ class CalendarioController extends Controller
 {
     /**
      * Mostrar la vista del calendario con los eventos del usuario.
-     *
-     * @return \Illuminate\View\View
      */
     public function index()
     {
-        // Obtener el usuario autenticado
         $usuario = Auth::user();
-
-        // Obtener el mes y año actual o los proporcionados en la solicitud
         $mes = request('mes', date('m'));
         $anio = request('anio', date('Y'));
 
-        // Obtener todos los eventos del usuario para el mes seleccionado
-        $eventos = Evento::where('usuario_id', $usuario->id)
-            ->whereYear('fecha', $anio)
-            ->whereMonth('fecha', $mes)
-            ->orderBy('fecha')
-            ->get();
+        $eventos = $this->obtenerEventosPorFecha($usuario->id, $anio, $mes);
 
-        return view('calendario.index', [
-            'eventos' => $eventos,
-            'mes' => $mes,
-            'anio' => $anio
-        ]);
+        return view('calendario.index', compact('eventos', 'mes', 'anio'));
     }
 
     /**
      * Obtener eventos en formato JSON para actualizar el calendario dinámicamente.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function getEventos(Request $request)
     {
         $usuario = Auth::user();
-        $mes = $request->input('mes');
-        $anio = $request->input('anio');
-
-        $eventos = Evento::where('usuario_id', $usuario->id)
-            ->whereYear('fecha', $anio)
-            ->whereMonth('fecha', $mes)
-            ->orderBy('fecha')
-            ->get();
+        $eventos = $this->obtenerEventosPorFecha(
+            $usuario->id,
+            $request->input('anio'),
+            $request->input('mes')
+        );
 
         return response()->json($eventos);
     }
 
     /**
      * Filtrar eventos por tipo y/o asignatura.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function filtrarEventos(Request $request)
     {
         $usuario = Auth::user();
-        $tipo = $request->input('tipo');
-        $asignaturaId = $request->input('asignatura_id');
-        $mes = $request->input('mes', date('m'));
-        $anio = $request->input('anio', date('Y'));
 
-        $query = Evento::where('usuario_id', $usuario->id)
-            ->whereYear('fecha', $anio)
-            ->whereMonth('fecha', $mes);
-
-        if ($tipo && $tipo !== 'todos') {
-            $query->where('tipo', $tipo);
-        }
-
-        if ($asignaturaId && $asignaturaId !== 'todas') {
-            $query->where('asignatura_id', $asignaturaId);
-        }
-
-        $eventos = $query->orderBy('fecha')->get();
+        $eventos = Evento::where('usuario_id', $usuario->id)
+            ->whereYear('fecha', $request->input('anio', date('Y')))
+            ->whereMonth('fecha', $request->input('mes', date('m')))
+            ->when($request->filled('tipo') && $request->input('tipo') !== 'todos', function ($query) use ($request) {
+                $query->where('tipo', $request->input('tipo'));
+            })
+            ->when($request->filled('asignatura_id') && $request->input('asignatura_id') !== 'todas', function ($query) use ($request) {
+                $query->where('asignatura_id', $request->input('asignatura_id'));
+            })
+            ->orderBy('fecha')
+            ->get();
 
         return response()->json($eventos);
+    }
+
+    /**
+     * Obtiene los eventos de un usuario para un mes y año determinados.
+     */
+    private function obtenerEventosPorFecha(int $usuarioId, string $anio, string $mes)
+    {
+        return Evento::where('usuario_id', $usuarioId)
+            ->whereYear('fecha', $anio)
+            ->whereMonth('fecha', $mes)
+            ->orderBy('fecha')
+            ->get();
     }
 }
