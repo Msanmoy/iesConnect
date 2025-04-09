@@ -8,7 +8,7 @@ Este proyecto se ha desarrollado utilizando las siguientes tecnologías:
 
 - **Backend:** PHP, Laravel
 - **Base de Datos:** MySQL
-- **Frontend:** JavaScript, TailWindCSS
+- **Frontend:** JavaScript, Bootstrap5
 
 ## ✨ Características Principales
 
