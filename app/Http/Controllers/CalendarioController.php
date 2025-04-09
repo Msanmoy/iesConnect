@@ -25,17 +25,21 @@ class CalendarioController extends Controller
     /**
      * Obtener eventos en formato JSON para actualizar el calendario dinámicamente.
      */
-    public function getEventos(Request $request)
+    public function eventos(Request $request)
     {
-        $usuario = Auth::user();
-        $eventos = $this->obtenerEventosPorFecha(
-            $usuario->id,
-            $request->input('anio'),
-            $request->input('mes')
-        );
+        $user = Auth::user();
+
+        $mes = $request->query('mes');
+        $anio = $request->query('anio');
+
+        $eventos = Evento::where('usuario_id', $user->id)
+            ->whereMonth('fecha', $mes)
+            ->whereYear('fecha', $anio)
+            ->get();
 
         return response()->json($eventos);
     }
+
 
     /**
      * Filtrar eventos por tipo y/o asignatura.

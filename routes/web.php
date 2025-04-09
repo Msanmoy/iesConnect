@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\CalendarioController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +52,9 @@ Route::middleware(['auth'])->group(function () {
     })->name('clases.tarea');
 
     Route::view('/calendario', 'calendario.index')->name('calendario');
+    Route::get('/calendario/eventos', [CalendarioController::class, 'eventos'])->name('calendario.eventos');
+
+
 
     // Clases específicas
     Route::view('/clases/biologia', 'clases.biologia')->name('clases.biologia');
