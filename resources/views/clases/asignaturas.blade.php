@@ -27,7 +27,7 @@
             </button>
 
             <!-- Logo -->
-            <a class="navbar-brand d-none d-lg-block" href="{{ route('dashboard') }}">
+            <a class="navbar-brand d-none d-lg-block" href="{{ route('home') }}">
                 <img src="{{ asset('images/logo.png') }}" alt="IES Vega de Mijas" style="height: 80px;">
             </a>
 

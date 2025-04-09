@@ -1,178 +1,62 @@
 <?php
-
+// web.php
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+Route::view('/', 'welcome')->name('home');
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// Rutas públicas
+Route::view('/about', 'about')->name('about');
+Route::view('/privacy', 'privacy')->name('privacy');
+Route::view('/cookies', 'cookies')->name('cookies');
+Route::view('/contact', 'contact')->name('contact');
 
-// Auth routes (you'll need to implement these with Laravel Breeze or Jetstream)
-Route::get('/login', function() {
-    // This is a placeholder. You should use Laravel's auth system.
-    return view('auth.login');
-})->name('login');
-
-Route::post('/logout', function() {
-    // This is a placeholder. You should use Laravel's auth system.
-    return redirect('/');
-})->name('logout');
-
-Route::get('/register', function() {
-    // This is a placeholder. You should use Laravel's auth system.
-    return view('auth.register');
-})->name('register');
-
-Route::get('/profile', function() {
-    // This is a placeholder. You should implement a profile page.
-    return view('profile');
-})->name('profile')->middleware('auth');
-
-// Application routes
-Route::get('/clases/asignaturas', [\App\Http\Controllers\UserController::class, 'index'])->name('clases.asignaturas');
-Route::get('/calendario', function() {
-    // This is a placeholder. You should implement a controller for this.
-    return view('calendario.index');
-})->name('calendario');
-
-Route::get('/contact', function() {
-    // This is a placeholder. You should implement a contact page.
-    return view('contact');
-})->name('contact');
-
-// Rutas de autenticación
+// Autenticación
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Rutas de registro
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
-// Rutas de recuperación de contraseña
+// Recuperación de contraseña
 Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
-// Rutas de páginas estáticas
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
-
-Route::get('/privacy', function () {
-    return view('privacy');
-})->name('privacy');
-
-Route::get('/cookies', function () {
-    return view('cookies');
-})->name('cookies');
-
-// Rutas protegidas (requieren autenticación)
+// Rutas autenticadas
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::view('/profile', 'profile')->name('profile');
 
-    Route::get('/profile', function () {
-        return view('profile');
-    })->name('profile');
-});
+    Route::get('/clases/asignaturas', [UserController::class, 'index'])->name('clases.asignaturas');
 
-
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-
-Route::middleware(['auth'])->group(function () {
-    Route::post('/clases/unirse', function () {
-        // Lógica para unirse a una clase
-        return redirect()->route('clases.asignaturas');
-    })->name('clases.unirse');
-
-    Route::get('/clases/biologia', function () {
-        return view('clases.biologia');
-    })->name('clases.biologia');
-
-    Route::get('/clases/matematicas', function () {
-        return view('clases.matematicas');
-    })->name('clases.matematicas');
-
-    Route::get('/clases/historia', function () {
-        return view('clases.historia');
-    })->name('clases.historia');
-
-    Route::get('/clases/educacion-fisica', function () {
-        return view('clases.educacion-fisica');
-    })->name('clases.educacion-fisica');
-
-    Route::get('/clases/tecnologia', function () {
-        return view('clases.tecnologia');
-    })->name('clases.tecnologia');
-
-    Route::get('/clases/informatica', function () {
-        return view('clases.informatica');
-    })->name('clases.informatica');
-
-    Route::get('/clases/tarea/{id}', function ($id) {
-        return view('clases.tarea', ['id' => $id]);
-    })->name('clases.tarea');
-    Route::get('/calendario', function () {
-        return view('calendario.index');
-    })->name('calendario');
-});
-
-Route::middleware(['auth'])->group(function () {
-    // Ruta para mostrar todas las asignaturas
-    Route::get('/clases/asignaturas', function () {
-        // En una implementación real, cargaríamos las asignaturas desde la base de datos
-        $asignaturas = App\Models\Asignatura::with(['tareas' => function($query) {
-            $query->where('visible', true)
-                ->where('eliminado', false)
-                ->orderBy('created_at', 'desc');
-        }])->get();
-
-        return view('clases.asignaturas', compact('asignaturas'));
-    })->name('clases.asignaturas');
-
-    // Ruta para mostrar una asignatura específica por slug
     Route::get('/clases/asignatura/{slug}', function ($slug) {
         $asignatura = App\Models\Asignatura::where('slug', $slug)->firstOrFail();
         return view('clases.asignatura', compact('asignatura'));
     })->name('clases.asignatura');
 
-    // Ruta para unirse a una clase
     Route::post('/clases/unirse', function () {
-        // Lógica para unirse a una clase
         return redirect()->route('clases.asignaturas');
     })->name('clases.unirse');
 
-    // Ruta para ver una tarea específica
     Route::get('/clases/tarea/{id}', function ($id) {
         $tarea = App\Models\Tarea::findOrFail($id);
         return view('clases.tarea', compact('tarea'));
     })->name('clases.tarea');
 
-    // Ruta del calendario
-    Route::get('/calendario', function () {
-        // En una implementación real, aquí cargaríamos los eventos del usuario
-        // desde la base de datos
-        return view('calendario.index');
-    })->name('calendario');
+    Route::view('/calendario', 'calendario.index')->name('calendario');
+
+    // Clases específicas
+    Route::view('/clases/biologia', 'clases.biologia')->name('clases.biologia');
+    Route::view('/clases/matematicas', 'clases.matematicas')->name('clases.matematicas');
+    Route::view('/clases/historia', 'clases.historia')->name('clases.historia');
+    Route::view('/clases/educacion-fisica', 'clases.educacion-fisica')->name('clases.educacion-fisica');
+    Route::view('/clases/tecnologia', 'clases.tecnologia')->name('clases.tecnologia');
+    Route::view('/clases/informatica', 'clases.informatica')->name('clases.informatica');
 });
