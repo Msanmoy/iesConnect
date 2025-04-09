@@ -30,27 +30,11 @@ class Profesor extends Usuario
     }
 
     /**
-     * The classrooms that belong to the teacher.
-     */
-    public function aulas()
-    {
-        return $this->belongsToMany(Aula::class, 'aula_profesor');
-    }
-
-    /**
      * The classrooms owned by the teacher.
      */
     public function aulasOwned()
     {
         return $this->hasMany(Aula::class, 'propietario_id');
-    }
-
-    /**
-     * The tasks owned by the teacher.
-     */
-    public function tareas()
-    {
-        return $this->hasMany(Tarea::class, 'propietario_id');
     }
 }
 

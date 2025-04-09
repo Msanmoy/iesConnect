@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\CalendarioController;
+use App\Http\Controllers\Profesor\TareaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -64,3 +65,15 @@ Route::middleware(['auth'])->group(function () {
     Route::view('/clases/tecnologia', 'clases.tecnologia')->name('clases.tecnologia');
     Route::view('/clases/informatica', 'clases.informatica')->name('clases.informatica');
 });
+
+// Rutas para que los profesores creen tareas
+Route::middleware(['auth', 'is_profesor'])->prefix('profesor')->group(function () {
+    Route::get('tareas/create', [TareaController::class, 'create'])->name('tareas.create');
+    Route::post('tareas', [TareaController::class, 'store'])->name('tareas.store');
+});
+
+Route::get('profesor/tareas', [TareaController::class, 'index'])->name('tareas.index');
+
+
+
+

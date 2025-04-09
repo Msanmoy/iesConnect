@@ -117,5 +117,10 @@ class Tarea extends Model
     {
         return $query->where('visible', true);
     }
+
+    public function profesor()
+    {
+        return $this->belongsTo(Usuario::class, 'profesor_id');
+    }
 }
 

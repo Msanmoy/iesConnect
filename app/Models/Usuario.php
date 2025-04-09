@@ -27,6 +27,8 @@ class Usuario extends Authenticatable implements CanResetPassword
         'rol',
     ];
 
+    protected $primaryKey = 'id';
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -112,6 +114,11 @@ class Usuario extends Authenticatable implements CanResetPassword
             'estudiante_id',
             'aula_id'
         );
+    }
+
+    public function tareas()
+    {
+        return $this->hasMany(Tarea::class, 'propietario_id');
     }
 
 }
