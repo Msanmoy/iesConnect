@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
-<main>
-
     <!-- Cabecera -->
     <div class="container-xl mt-5">
         <div class="row align-items-center mb-5">
@@ -24,7 +21,7 @@
         </div>
     </div>
 
-
+<main>
     <!-- Características -->
     <section class="container-xl text-center my-5">
         <h2 class="fw-bold">¿Por qué elegir IESConnect?</h2>

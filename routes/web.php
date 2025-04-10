@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContactController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AsignaturaController;
 use App\Http\Controllers\UsuarioController;
@@ -19,7 +20,9 @@ Route::view('/', 'welcome')->name('home');
 Route::view('/about', 'about')->name('about');
 Route::view('/privacy', 'privacy')->name('privacy');
 Route::view('/cookies', 'cookies')->name('cookies');
-Route::view('/contact', 'contact')->name('contact');
+Route::get('/contacto', [ContactController::class, 'show'])->name('pages.contact');
+Route::post('/contacto', [ContactController::class, 'submit'])->name('contact.submit');
+
 
 /*
 |--------------------------------------------------------------------------

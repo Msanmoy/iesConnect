@@ -103,7 +103,7 @@
                 <ul class="list-unstyled">
                     <li><a href="{{ route('home') }}" class="text-white text-decoration-none small">Inicio</a></li>
                     <li><a href="{{ route('asignaturas.index') }}" class="text-white text-decoration-none small">Clases</a></li>
-                    <li><a href="{{ route('contact') }}" class="text-white text-decoration-none small">Contacto</a></li>
+                    <li><a href="{{ route('pages.contact') }}" class="text-white text-decoration-none small">Contacto</a></li>
                 </ul>
             </div>
             <div class="col-md-4">
