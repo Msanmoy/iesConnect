@@ -1,100 +1,8 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>IESConnect - Pagina Inicio</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"> <!--  Bootstrap Icons -->
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        .floating-img {
-            margin-top: -100px;
-            position: relative;
-            z-index: 1;
-        }
-        /* Aplicar la fuente */
-        body {
-            font-family: 'Cabin', sans-serif;
-        }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
 
-<header>
-    <nav class="navbar navbar-expand-lg bg-white border-bottom">
-        <div class="container-xl d-flex align-items-center">
-            <!-- Menú hamburguesa -->
-            <button class="navbar-toggler d-lg-none border-0 shadow-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+@section('content')
 
-            <!-- Logo -->
-            <a class="navbar-brand d-none d-lg-block" href="{{ route('home') }}">
-                <img src="{{ asset('images/logo.png') }}" alt="IES Vega de Mijas" style="height: 80px;">
-            </a>
-
-            <!-- Menú normal -->
-            <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{{ route('asignaturas.index') }}">Clases</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Parte derecha -->
-            <div class="d-flex align-items-center border-start ms-auto">
-                <button class="btn me-3 border-0">
-                    <i class="bi bi-bell"></i>
-                </button>
-                <div class="dropdown">
-                    @auth
-                        <button class="btn dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ Auth::user()->nombre_completo }}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{{ route('profile') }}">Perfil</a></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">Cerrar sesión</button>
-                                </form>
-                            </li>
-                        </ul>
-                    @else
-                        <a href="{{ route('login') }}">
-                            <button class="btn btn-primary">
-                                Iniciar Sesión
-                            </button>
-                        </a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Menú lateral -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Menú</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('asignaturas.index') }}">Clases</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
-                </li>
-            </ul>
-        </div>
-    </div>
+<main>
 
     <!-- Cabecera -->
     <div class="container-xl mt-5">
@@ -115,9 +23,8 @@
             </div>
         </div>
     </div>
-</header>
 
-<main>
+
     <!-- Características -->
     <section class="container-xl text-center my-5">
         <h2 class="fw-bold">¿Por qué elegir IESConnect?</h2>
@@ -191,37 +98,5 @@
         </div>
     </section>
 </main>
-
-<!-- Footer -->
-<footer class="bg-dark text-white py-4">
-    <div class="container-xl text-center">
-        <div class="row">
-            <div class="col-md-4">
-                <h5>IES Vega de Mijas</h5>
-                <p class="small">Tu plataforma educativa para una enseñanza sin límites.</p>
-            </div>
-            <div class="col-md-4">
-                <h5>Enlaces rápidos</h5>
-                <ul class="list-unstyled">
-                    <li><a href="{{ route('home') }}" class="text-white text-decoration-none small">Inicio</a></li>
-                    <li><a href="{{ route('asignaturas.index') }}" class="text-white text-decoration-none small">Clases</a></li>
-                    <li><a href="{{ route('contact') }}" class="text-white text-decoration-none small">Contacto</a></li>
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <h5>Síguenos</h5>
-                <a href="#" class="text-white me-2"><i class="bi bi-facebook"></i></a>
-                <a href="https://x.com/iesvegademijas" class="text-white me-2"><i class="bi bi-twitter"></i></a>
-                <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
-            </div>
-        </div>
-    </div>
-    <div class="bg-dark text-center">
-        <p class="mt-3 small">&copy; {{ date('Y') }} IESConnect. Todos los derechos reservados.</p>
-    </div>
-</footer>
-
-<script src="{{ asset('js/bootstrap.bundle.js') }}"></script>
-</body>
-</html>
+@endsection
 
