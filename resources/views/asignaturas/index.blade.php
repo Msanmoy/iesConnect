@@ -21,7 +21,7 @@
     <!-- Botón solo visible en esta vista -->
     @push('header-actions')
         <button class="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#anadirAsignatura">
-            <i class="bi bi-journal-plus me-1"></i> Unirse a una asignatura
+            <i class="bi bi-journal-plus me-1"></i> Unirse a una clase
         </button>
     @endpush
 
@@ -31,16 +31,16 @@
             <form method="POST" action="{{ route('asignaturas.unirse') }}" class="modal-content">
                 @csrf
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modalLabel">Unirse a Asignatura</h1>
+                    <h1 class="modal-title fs-5" id="modalLabel">Unirse a una Clase</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <label for="codigo" class="form-label">Código de Asignatura</label>
+                    <label for="codigo" class="form-label">Código de Clase</label>
                     <input type="text" id="codigo" name="codigo" class="form-control"
-                           placeholder="Código de Asignatura" required>
+                           placeholder="Código de Clase" required>
 
                     <p class="mt-3 text-muted">
-                        Para unirte a una asignatura:<br>
+                        Para unirte a una clase:<br>
                         • Usa una cuenta válida.<br>
                         • Introduce el código proporcionado por tu profesor.
                     </p>
