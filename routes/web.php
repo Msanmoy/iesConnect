@@ -36,21 +36,21 @@ Route::middleware(['auth'])->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::view('/profile', 'profile')->name('profile');
 
-    Route::get('/clases/asignaturas', [UserController::class, 'index'])->name('clases.asignaturas');
+    Route::get('/asignaturas/asignaturas', [UserController::class, 'index'])->name('asignaturas.asignaturas');
 
-    Route::get('/clases/asignatura/{slug}', function ($slug) {
+    Route::get('/asignaturas/asignatura/{slug}', function ($slug) {
         $asignatura = App\Models\Asignatura::where('slug', $slug)->firstOrFail();
-        return view('clases.asignatura', compact('asignatura'));
-    })->name('clases.asignatura');
+        return view('asignaturas.asignatura', compact('asignatura'));
+    })->name('asignaturas.asignatura');
 
-    Route::post('/clases/unirse', function () {
-        return redirect()->route('clases.asignaturas');
-    })->name('clases.unirse');
+    Route::post('/asignaturas/unirse', function () {
+        return redirect()->route('asignaturas.asignaturas');
+    })->name('asignaturas.unirse');
 
-    Route::get('/clases/tarea/{id}', function ($id) {
+    Route::get('/asignaturas/tarea/{id}', function ($id) {
         $tarea = App\Models\Tarea::findOrFail($id);
-        return view('clases.tarea', compact('tarea'));
-    })->name('clases.tarea');
+        return view('asignaturas.tarea', compact('tarea'));
+    })->name('asignaturas.tarea');
 
     Route::view('/calendario', 'calendario.index')->name('calendario');
     Route::get('/calendario/eventos', [CalendarioController::class, 'eventos'])->name('calendario.eventos');
@@ -58,12 +58,12 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Clases específicas
-    Route::view('/clases/biologia', 'clases.biologia')->name('clases.biologia');
-    Route::view('/clases/matematicas', 'clases.matematicas')->name('clases.matematicas');
-    Route::view('/clases/historia', 'clases.historia')->name('clases.historia');
-    Route::view('/clases/educacion-fisica', 'clases.educacion-fisica')->name('clases.educacion-fisica');
-    Route::view('/clases/tecnologia', 'clases.tecnologia')->name('clases.tecnologia');
-    Route::view('/clases/informatica', 'clases.informatica')->name('clases.informatica');
+    Route::view('/asignaturas/biologia', 'asignaturas.biologia')->name('asignaturas.biologia');
+    Route::view('/asignaturas/matematicas', 'asignaturas.matematicas')->name('asignaturas.matematicas');
+    Route::view('/asignaturas/historia', 'asignaturas.historia')->name('asignaturas.historia');
+    Route::view('/asignaturas/educacion-fisica', 'asignaturas.educacion-fisica')->name('asignaturas.educacion-fisica');
+    Route::view('/asignaturas/tecnologia', 'asignaturas.tecnologia')->name('asignaturas.tecnologia');
+    Route::view('/asignaturas/informatica', 'asignaturas.informatica')->name('asignaturas.informatica');
 });
 
 // Rutas para que los profesores creen tareas

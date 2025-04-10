@@ -2,104 +2,80 @@
 
 namespace Database\Seeders;
 
-use App\Models\Asignatura;
-use App\Models\Aula;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\Curso;
 use App\Models\Usuario;
+use App\Models\Asignatura;
+use App\Models\Tarea;
+use App\Models\Fase;
+use App\Models\Pregunta;
+use App\Models\Respuesta;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-         Usuario::factory(100)->create();
+        // Profesores y estudiantes
+        Usuario::factory()->createMany([
+            [
+                'nombre' => 'Profe María',
+                'email' => 'maria@ies.com',
+                'rol' => 'PROFESOR',
+            ],
+            [
+                'nombre' => 'Alumno Juan',
+                'email' => 'juan@ies.com',
+                'rol' => 'ESTUDIANTE',
+            ],
+            [
+                'nombre' => 'Alumno Carla',
+                'email' => 'carla@ies.com',
+                'rol' => 'ESTUDIANTE',
+            ],
+        ]);
 
+        $profesor = Usuario::where('rol', 'PROFESOR')->first();
 
-        $asignaturas = [
-            'Lengua',
-            'Matematicas',
-            'Biologia',
-            'Geografia',
-            'Historia',
-            'Economia',
-            'Francés',
-            'Geologia',
-            'Inglés',
-        ];
+        // Crear Asignaturas
+        $asignaturas = Asignatura::factory()->count(2)->create([
+            'profesor_id' => $profesor->id,
+        ]);
 
-        foreach ($asignaturas as $nombre) {
-            Asignatura::create([
-                'nombre' => $nombre,
-                'slug' => Str::slug($nombre),
-                'imagen' => 'images/' . strtolower(Str::slug($nombre)) . '.jpg',
-            ]);
+        // Unir estudiantes a las asignaturas
+        foreach ($asignaturas as $asignatura) {
+            $asignatura->usuarios()->attach(
+                Usuario::where('rol', 'ESTUDIANTE')->pluck('id')->toArray()
+            );
         }
 
-        DB::table('cursos')->insert([
-            ['nombre' => '1ºESO'],
-            ['nombre' => '2ºESO'],
-            ['nombre' => '3ºESO'],
-            ['nombre' => '4ºESO'],
-            ['nombre' => '1ºBachillerato'],
-            ['nombre' => '2ºBachillerato'],
-            ['nombre' => '1ºSMR'],
-            ['nombre' => '2ºSMR']
-        ]);
+        // Crear tareas con fases, preguntas y respuestas
+        $asignaturas->each(function ($asignatura) {
+            $tareas = Tarea::factory()->count(2)->create([
+                'asignatura_id' => $asignatura->id,
+            ]);
 
-        DB::table('clases')->insert([
-            [
-                'asignatura_id' => Asignatura::all()->random()->id,
-                'curso_id' => Curso::all()->random()->id,
-            ],
-            [
-                'asignatura_id' => Asignatura::all()->random()->id,
-                'curso_id' => Curso::all()->random()->id,
-            ],
-            [
-                'asignatura_id' => Asignatura::all()->random()->id,
-                'curso_id' => Curso::all()->random()->id,
-            ],
-            [
-                'asignatura_id' => Asignatura::all()->random()->id,
-                'curso_id' => Curso::all()->random()->id,
-            ],
+            $tareas->each(function ($tarea) {
+                $fases = Fase::factory()->count(3)->create([
+                    'tarea_id' => $tarea->id,
+                ]);
 
-        ]);
+                $fases->each(function ($fase) {
+                    $preguntas = Pregunta::factory()->count(2)->create([
+                        'fase_id' => $fase->id,
+                    ]);
+
+                    $preguntas->each(function ($pregunta) {
+                        Respuesta::factory()->count(3)->create([
+                            'pregunta_id' => $pregunta->id,
+                        ]);
+                    });
+                });
+            });
+        });
 
 
-
-        DB::table('aulas')->insert([
-            [
-                'anio' => '25/26',
-                'grupo' => 'A',
-                'clase_id' => '1',
-                'propietario_id' => '2',
-                'eliminado' => false
-            ],
-            [
-                'anio' => '25/26',
-                'grupo' => 'B',
-                'clase_id' => '2',
-                'propietario_id' => '2',
-                'eliminado' => false
-            ],
-            [
-                'anio' => '25/26',
-                'grupo' => 'C',
-                'clase_id' => '3',
-                'propietario_id' => '3',
-                'eliminado' => false
-            ]
-        ]);
-
-
-
+        $this->call(PreguntaConRespuestasSeeder::class);
+        $this->call(IESDemoSeeder::class);
 
     }
 }

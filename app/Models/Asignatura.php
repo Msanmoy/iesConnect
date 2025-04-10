@@ -10,68 +10,36 @@ class Asignatura extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'nombre',
-        'slug',
+        'descripcion',
+        'codigo',
         'imagen',
+        'usuario_id'
     ];
 
-    /**
-     * Boot the model.
-     */
-    protected static function boot()
+    public function estudiantes()
     {
-        parent::boot();
-
-        // Generar automáticamente el slug a partir del nombre
-        static::creating(function ($asignatura) {
-            if (empty($asignatura->slug)) {
-                $asignatura->slug = Str::slug($asignatura->nombre);
-            }
-        });
-
-        // También actualizar el slug si se modifica el nombre
-        static::updating(function ($asignatura) {
-            if ($asignatura->isDirty('nombre')) {
-                $asignatura->slug = Str::slug($asignatura->nombre);
-            }
-        });
+        return $this->belongsToMany(Usuario::class, 'asignatura_usuario');
     }
 
-    /**
-     * Get the classes for the subject.
-     */
-    public function clases()
+    public function profesor()
     {
-        return $this->hasMany(Clase::class);
+        return $this->belongsTo(Usuario::class, 'usuario_id');
     }
 
-    /**
-     * Get the tasks for the subject.
-     */
     public function tareas()
     {
-        return $this->hasManyThrough(Tarea::class, Clase::class, 'asignatura_id', 'tema_id', 'id', 'id')
-            ->whereHas('tema', function ($query) {
-                $query->whereHas('aula', function ($query) {
-                    $query->where('eliminado', false);
-                })->where('eliminado', false);
-            })
-            ->where('eliminado', false);
+        return $this->hasMany(Tarea::class);
     }
 
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
+    public function recursos()
     {
-        return 'slug';
+        return $this->hasMany(Recurso::class);
+    }
+
+    public function usuarios()
+    {
+        return $this->belongsToMany(Usuario::class, 'asignatura_usuario', 'asignatura_id', 'usuario_id');
     }
 }

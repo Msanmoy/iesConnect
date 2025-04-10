@@ -44,7 +44,7 @@ class Aula extends Model
      */
     public function propietario()
     {
-        return $this->belongsTo(Profesor::class, 'propietario_id');
+        return $this->belongsTo(Profesor::class, 'profesor_id');
     }
 
     /**

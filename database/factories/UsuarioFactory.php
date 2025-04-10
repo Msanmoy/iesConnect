@@ -24,13 +24,10 @@ class UsuarioFactory extends Factory
     public function definition(): array
     {
         return [
-            'rol' => fake()->randomElement(['PROFESOR', 'ESTUDIANTE']),
-            'nombre' => $this->faker->name(),
-            'apellidos' => $this->faker->lastName(),
-            'blocked' => false,
-            'email' => fake()->unique()->safeEmail(),
-            'password' => static::$password ??= Hash::make('12345678'),
-            'remember_token' => Str::random(10),
+            'nombre' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'password' => bcrypt('password'),
+            'rol' => $this->faker->randomElement(['ESTUDIANTE', 'PROFESOR']),
         ];
     }
 
