@@ -65,18 +65,23 @@ class AsignaturaController extends Controller
     public function unirse(Request $request)
     {
         $request->validate([
-            'codigo_clase' => 'required|string|exists:asignaturas,codigo_unico',
+            'codigo' => 'required|string',
         ]);
 
-        $asignatura = Asignatura::where('codigo_unico', $request->codigo_clase)->first();
+        $asignatura = Asignatura::where('codigo', $request->codigo)->first();
 
-        // Evitar múltiples uniones
-        if ($asignatura->usuarios()->where('usuario_id', Auth::id())->exists()) {
-            return back()->withErrors(['codigo_clase' => 'Ya estás unido a esta clase.']);
+        if (!$asignatura) {
+            return redirect()->back()->with('error', 'Código incorrecto. Inténtalo de nuevo.');
         }
 
-        $asignatura->usuarios()->attach(Auth::id());
+        $usuario = auth()->user();
 
-        return redirect()->route('asignaturas.asignaturas')->with('success', 'Te has unido a la clase.');
+        if (!$usuario->asignaturas()->where('asignatura_id', $asignatura->id)->exists()) {
+            $usuario->asignaturas()->attach($asignatura->id);
+        }
+
+        return redirect()->back()->with('success', 'Te has unido a la asignatura correctamente.');
+
     }
+
 }

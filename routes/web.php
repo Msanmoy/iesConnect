@@ -1,5 +1,6 @@
 <?php
 // web.php
+use App\Http\Controllers\AsignaturaController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -36,16 +37,15 @@ Route::middleware(['auth'])->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::view('/profile', 'profile')->name('profile');
 
-    Route::get('/asignaturas/asignaturas', [\App\Http\Controllers\AsignaturaController::class, 'index'])->name('asignaturas.asignaturas');
+    Route::get('/asignaturas/asignaturas', [AsignaturaController::class, 'index'])->name('asignaturas.asignaturas');
+
 
     Route::get('/asignaturas/asignatura/{slug}', function ($slug) {
         $asignatura = App\Models\Asignatura::where('slug', $slug)->firstOrFail();
         return view('asignaturas.asignatura', compact('asignatura'));
     })->name('asignaturas.asignatura');
 
-    Route::post('/asignaturas/unirse', function () {
-        return redirect()->route('asignaturas.asignaturas');
-    })->name('asignaturas.unirse');
+    Route::post('/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
 
     Route::get('/asignaturas/tarea/{id}', function ($id) {
         $tarea = App\Models\Tarea::findOrFail($id);
@@ -79,3 +79,4 @@ Route::get('profesor/tareas', [TareaController::class, 'index'])->name('tareas.i
 use App\Http\Controllers\UsuarioController;
 
 Route::resource('usuarios', UsuarioController::class);
+Route::post('/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');

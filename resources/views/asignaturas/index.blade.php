@@ -3,6 +3,21 @@
 @section('title', 'Mis Asignaturas')
 
 @section('content')
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show mt-3 container" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mt-3 container" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    @endif
+
     <!-- Botón solo visible en esta vista -->
     @push('header-actions')
         <button class="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#anadirAsignatura">
@@ -20,8 +35,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <label for="codigoClase" class="form-label">Código de Asignatura</label>
-                    <input type="text" id="codigoClase" name="codigo_clase" class="form-control"
+                    <label for="codigo" class="form-label">Código de Asignatura</label>
+                    <input type="text" id="codigo" name="codigo" class="form-control"
                            placeholder="Código de Asignatura" required>
 
                     <p class="mt-3 text-muted">
