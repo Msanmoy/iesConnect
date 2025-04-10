@@ -59,7 +59,7 @@ class AsignaturaController extends Controller
         // Asociar al profesor automáticamente
         $asignatura->usuarios()->attach(Auth::id());
 
-        return redirect()->route('asignaturas.asignaturas')->with('success', 'Asignatura creada correctamente.');
+        return redirect()->route('asignaturas.index')->with('success', 'Asignatura creada correctamente.');
     }
 
     public function unirse(Request $request)

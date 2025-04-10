@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
 </head>
 <body class="d-flex flex-column min-vh-100">
 
@@ -28,7 +28,7 @@
         <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('asignaturas.asignaturas') }}">Clases</a>
+                    <a class="nav-link" href="{{ route('asignaturas.index') }}">Clases</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
@@ -46,7 +46,7 @@
             <div class="dropdown">
                 @auth
                     <button class="btn dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ Auth::user()->nombre_completo }}
+                        {{ Auth::user()-> nombre }}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{{ route('profile') }}">Perfil</a></li>
@@ -76,7 +76,7 @@
     <div class="offcanvas-body">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('asignaturas.asignaturas') }}">Clases</a>
+                <a class="nav-link" href="{{ route('asignaturas.index') }}">Clases</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
@@ -102,7 +102,7 @@
                 <h5>Enlaces rápidos</h5>
                 <ul class="list-unstyled">
                     <li><a href="{{ route('home') }}" class="text-white text-decoration-none small">Inicio</a></li>
-                    <li><a href="{{ route('asignaturas.asignaturas') }}" class="text-white text-decoration-none small">Clases</a></li>
+                    <li><a href="{{ route('asignaturas.index') }}" class="text-white text-decoration-none small">Clases</a></li>
                     <li><a href="{{ route('contact') }}" class="text-white text-decoration-none small">Contacto</a></li>
                 </ul>
             </div>

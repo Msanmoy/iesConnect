@@ -1,24 +1,31 @@
 <?php
-// web.php
+
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AsignaturaController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\CalendarioController;
 use App\Http\Controllers\Profesor\TareaController;
-use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Rutas públicas
+|--------------------------------------------------------------------------
+*/
 Route::view('/', 'welcome')->name('home');
-
-// Rutas públicas
 Route::view('/about', 'about')->name('about');
 Route::view('/privacy', 'privacy')->name('privacy');
 Route::view('/cookies', 'cookies')->name('cookies');
 Route::view('/contact', 'contact')->name('contact');
 
-// Autenticación
+/*
+|--------------------------------------------------------------------------
+| Autenticación
+|--------------------------------------------------------------------------
+*/
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -26,57 +33,51 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
-// Recuperación de contraseña
 Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
-// Rutas autenticadas
+/*
+|--------------------------------------------------------------------------
+| Rutas autenticadas
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
+
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::view('/profile', 'profile')->name('profile');
 
-    Route::get('/asignaturas/asignaturas', [AsignaturaController::class, 'index'])->name('asignaturas.asignaturas');
+    // Asignaturas
+    Route::get('/asignaturas', [AsignaturaController::class, 'index'])->name('asignaturas.index');
+    Route::get('/asignaturas/{slug}', [AsignaturaController::class, 'show'])->name('asignaturas.show');
+    Route::post('/asignaturas/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
 
-
-    Route::get('/asignaturas/asignatura/{slug}', function ($slug) {
-        $asignatura = App\Models\Asignatura::where('slug', $slug)->firstOrFail();
-        return view('asignaturas.asignatura', compact('asignatura'));
-    })->name('asignaturas.asignatura');
-
-    Route::post('/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
-
-    Route::get('/asignaturas/tarea/{id}', function ($id) {
+    // Tareas
+    Route::get('/tareas/{id}', function ($id) {
         $tarea = App\Models\Tarea::findOrFail($id);
         return view('asignaturas.tarea', compact('tarea'));
     })->name('asignaturas.tarea');
 
+    // Calendario
     Route::view('/calendario', 'calendario.index')->name('calendario');
     Route::get('/calendario/eventos', [CalendarioController::class, 'eventos'])->name('calendario.eventos');
-
-
-
-    // Clases específicas
-    Route::view('/asignaturas/biologia', 'asignaturas.biologia')->name('asignaturas.biologia');
-    Route::view('/asignaturas/matematicas', 'asignaturas.matematicas')->name('asignaturas.matematicas');
-    Route::view('/asignaturas/historia', 'asignaturas.historia')->name('asignaturas.historia');
-    Route::view('/asignaturas/educacion-fisica', 'asignaturas.educacion-fisica')->name('asignaturas.educacion-fisica');
-    Route::view('/asignaturas/tecnologia', 'asignaturas.tecnologia')->name('asignaturas.tecnologia');
-    Route::view('/asignaturas/informatica', 'asignaturas.informatica')->name('asignaturas.informatica');
 });
 
-// Rutas para que los profesores creen tareas
+/*
+|--------------------------------------------------------------------------
+| Rutas para profesores (crear tareas)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'is_profesor'])->prefix('profesor')->group(function () {
-    Route::get('tareas/create', [TareaController::class, 'create'])->name('tareas.create');
-    Route::post('tareas', [TareaController::class, 'store'])->name('tareas.store');
+    Route::get('/tareas/create', [TareaController::class, 'create'])->name('tareas.create');
+    Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store');
+    Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
 });
 
-Route::get('profesor/tareas', [TareaController::class, 'index'])->name('tareas.index');
-
-
-
-use App\Http\Controllers\UsuarioController;
-
+/*
+|--------------------------------------------------------------------------
+| Recursos
+|--------------------------------------------------------------------------
+*/
 Route::resource('usuarios', UsuarioController::class);
-Route::post('/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
