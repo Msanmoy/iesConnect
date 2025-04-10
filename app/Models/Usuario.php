@@ -22,7 +22,12 @@ protected $hidden = ['password'];
 
 public function asignaturas()
 {
-return $this->belongsToMany(Asignatura::class, 'asignatura_usuario');
+return $this->belongsToMany(Asignatura::class, 'asignatura_usuario', 'usuario_id', 'asignatura_id')->withTimestamps();
+}
+
+public function asignaturasImpartidas()
+{
+    return $this->hasMany(Asignatura::class, 'profesor_id');
 }
 
 public function tareasCreadas()

@@ -45,7 +45,7 @@
                 <div class="col">
                     <div class="card h-100">
                         <a href="{{ route('asignaturas.asignatura', ['slug' => $asignatura->slug]) }}" class="text-decoration-none">
-                            <img src="{{ asset('images/' . $asignatura->imagen) }}"
+                            <img src="{{ asset('images/' . strtolower($asignatura->nombre) . '.jpg') }}"
                                  class="card-img-top w-100 object-fit-cover"
                                  alt="{{ $asignatura->nombre }}"
                                  style="height: 180px;">

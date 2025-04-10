@@ -36,7 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::view('/profile', 'profile')->name('profile');
 
-    Route::get('/asignaturas/asignaturas', [UserController::class, 'index'])->name('asignaturas.asignaturas');
+    Route::get('/asignaturas/asignaturas', [\App\Http\Controllers\AsignaturaController::class, 'index'])->name('asignaturas.asignaturas');
 
     Route::get('/asignaturas/asignatura/{slug}', function ($slug) {
         $asignatura = App\Models\Asignatura::where('slug', $slug)->firstOrFail();
@@ -76,4 +76,6 @@ Route::get('profesor/tareas', [TareaController::class, 'index'])->name('tareas.i
 
 
 
+use App\Http\Controllers\UsuarioController;
 
+Route::resource('usuarios', UsuarioController::class);
