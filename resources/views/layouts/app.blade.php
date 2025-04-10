@@ -10,19 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        .floating-img {
-            margin-top: -100px;
-            position: relative;
-            z-index: 1;
-        }
-        body {
-            font-family: 'Cabin', sans-serif;
-        }
-    </style>
-
-    @stack('styles')
+    
 </head>
 <body class="d-flex flex-column min-vh-100">
 
