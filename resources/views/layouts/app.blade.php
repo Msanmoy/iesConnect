@@ -108,9 +108,9 @@
             </div>
             <div class="col-md-4">
                 <h5>Síguenos</h5>
-                <a href="#" class="text-white me-2"><i class="bi bi-facebook"></i></a>
-                <a href="#" class="text-white me-2"><i class="bi bi-twitter"></i></a>
-                <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
+                <a href="https://blogsaverroes.juntadeandalucia.es/iesvegademijas/" class="text-white me-2"><i class="bi bi-wordpress"></i></a>
+                <a href="https://x.com/iesvegademijas" class="text-white me-2"><i class="bi bi-twitter"></i></a>
+                <a href="https://www.instagram.com/ies_vegademijas/" class="text-white"><i class="bi bi-instagram"></i></a>
             </div>
         </div>
         <p class="mt-3 small">&copy; {{ date('Y') }} IESConnect. Todos los derechos reservados.</p>
