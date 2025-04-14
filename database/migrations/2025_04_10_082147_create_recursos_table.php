@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medios', function (Blueprint $table) {
+        Schema::create('recursos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('asignatura_id')->constrained()->onDelete('cascade');
             $table->string('tipo'); // 'video', 'archivo'
