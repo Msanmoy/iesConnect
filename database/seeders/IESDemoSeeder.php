@@ -26,13 +26,35 @@ class IESDemoSeeder extends Seeder
         );
 
         // Crear asignatura si no existe
+        Asignatura::firstOrCreate(
+            ['codigo' => 'LEN2025'],
+            [
+                'nombre' => 'Lengua',
+                'descripcion' => 'Asignatura de prueba para el seeder.',
+                'profesor_id' => $profesor->id,
+                'slug' => 'lengua',
+            ]
+        );
+
+        // Crear asignatura si no existe
+        Asignatura::firstOrCreate(
+            ['codigo' => 'HIS2025'],
+            [
+                'nombre' => 'Historia',
+                'descripcion' => 'Asignatura de prueba para el seeder.',
+                'profesor_id' => $profesor->id,
+                'slug' => 'historia',
+            ]
+        );
+
+        // Crear asignatura si no existe
         $asignatura = Asignatura::firstOrCreate(
             ['codigo' => 'MAT2025'],
             [
-                'nombre' => 'Matemáticas Avanzadas',
+                'nombre' => 'Matematicas',
                 'descripcion' => 'Asignatura de prueba para el seeder.',
                 'profesor_id' => $profesor->id,
-                'slug' => 'matematicas-avanzadas',
+                'slug' => 'matematicas',
             ]
         );
 

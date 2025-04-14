@@ -12,14 +12,16 @@ class AsignaturaFactory extends Factory
 
     public function definition(): array
     {
+        static $nombres = ['Informatica', 'Biologia'];
+        $nombre = array_shift($nombres);
 
-        $nombre = $this->faker->words(2, true);
         return [
             'nombre' => $nombre,
-            'codigo' => strtoupper($this->faker->unique(true)->bothify('ASG###')),
+            'codigo' => strtoupper($this->faker->unique()->bothify('COD###')),
             'descripcion' => $this->faker->sentence,
             'slug' => Str::slug($nombre),
             'profesor_id' => 1,
         ];
     }
+
 }
