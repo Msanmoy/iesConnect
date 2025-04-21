@@ -57,10 +57,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asignaturas/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
 
     // Tareas
-    Route::get('/tareas/{id}', function ($id) {
+    Route::get('/asignaturas/tareas/{id}', function ($id) {
         $tarea = App\Models\Tarea::findOrFail($id);
-        return view('asignaturas.tarea', compact('tarea'));
-    })->name('asignaturas.tarea');
+        return view('tareas.show', compact('tarea'));
+    })->name('tareas.show');
 
     // Calendario
     Route::view('/calendario', 'calendario.index')->name('calendario');

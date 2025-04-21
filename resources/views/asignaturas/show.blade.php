@@ -35,7 +35,7 @@
                 @forelse ($asignatura->tareas as $tarea)
                     <div class="border-bottom py-3">
                         <h6>
-                            <a href="{{ route('asignaturas.tarea', ['id' => $tarea->id]) }}" class="text-decoration-none">
+                            <a href="{{ route('tareas.show', ['id' => $tarea->id]) }}" class="text-decoration-none">
                                 {{ $tarea->titulo }}
                             </a>
                         </h6>

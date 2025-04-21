@@ -9,6 +9,7 @@ class Tarea extends Model
 {
     use HasFactory;
 
+    protected $table = 'tareas';
     protected $fillable = [
         'titulo',
         'descripcion',
