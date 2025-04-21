@@ -63,6 +63,11 @@
                                     </a>
                                 @endif
                             </div>
+                            <div class="offset-md-4 bi-person">
+                                <a class="btn btn-link" href="{{ route('register') }}">
+                                    {{ __('No tienes cuenta?') }}
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>
