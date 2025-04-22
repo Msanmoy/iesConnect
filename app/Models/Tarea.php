@@ -11,10 +11,10 @@ class Tarea extends Model
 
     protected $table = 'tareas';
     protected $fillable = [
+        'asignatura_id',
         'titulo',
         'descripcion',
-        'asignatura_id',
-        'profesor_id'
+        'fecha_limite',
     ];
 
     public function asignatura()
@@ -27,9 +27,14 @@ class Tarea extends Model
         return $this->belongsTo(Usuario::class, 'profesor_id');
     }
 
-    public function fases()
+    public function archivos()
     {
-        return $this->hasMany(Fase::class);
+        return $this->hasMany(ArchivoTarea::class);
+    }
+
+    public function progresos()
+    {
+        return $this->hasMany(ProgresoTarea::class);
     }
 }
 

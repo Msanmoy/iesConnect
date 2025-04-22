@@ -72,7 +72,7 @@
                             <ul class="list-unstyled text-info">
                                 @forelse ($asignatura->tareas ?? [] as $tarea)
                                     <li>
-                                        <a href="{{ route('tareas.show', ['id' => $tarea->id]) }}" class="text-decoration-none">
+                                        <a href="{{ route('tareas.show', ['tarea' => $tarea->id]) }}" class="text-decoration-none">
                                             {{ $tarea->titulo }}
                                         </a>
                                     </li>

@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\EntregaController;
+use App\Http\Controllers\ProgresoTareaController;
+use App\Http\Controllers\ArchivoTareaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AsignaturaController;
 use App\Http\Controllers\UsuarioController;
@@ -72,10 +75,12 @@ Route::middleware(['auth'])->group(function () {
 | Rutas para profesores (crear tareas)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'is_profesor'])->prefix('profesor')->group(function () {
-    Route::get('/tareas/create', [TareaController::class, 'create'])->name('tareas.create');
-    Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store');
-    Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tareas', TareaController::class);
+    Route::post('progreso/{progreso}/entregar', [EntregaController::class, 'store'])->name('entregas.store');
+    Route::get('tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'create'])->name('progreso.create');
+    Route::post('tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'store'])->name('progreso.store');
+    Route::delete('archivos/{archivo}', [ArchivoTareaController::class, 'destroy'])->name('archivos.destroy');
 });
 
 /*

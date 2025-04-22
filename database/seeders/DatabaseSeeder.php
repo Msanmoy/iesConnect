@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
+        /*
         // Profesores y estudiantes
         Usuario::factory()->createMany([
             [
@@ -76,6 +78,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call(PreguntaConRespuestasSeeder::class);
         $this->call(IESDemoSeeder::class);
+
+        */
+
+        $this->call(TareaDemoSeeder::class);
 
     }
 }
