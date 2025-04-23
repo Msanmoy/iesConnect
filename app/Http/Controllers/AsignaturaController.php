@@ -23,7 +23,7 @@ class AsignaturaController extends Controller
 
     public function show($slug)
     {
-        $asignatura = Asignatura::where('slug', $slug)->with(['tareas.fases', 'recursos'])->firstOrFail();
+        $asignatura = Asignatura::where('slug', $slug)->with(['recursos'])->firstOrFail();
 
         return view('asignaturas.show', compact('asignatura'));
     }
@@ -52,7 +52,7 @@ class AsignaturaController extends Controller
             'slug' => Str::slug($request->nombre) . '-' . uniqid(),
             'descripcion' => $request->descripcion,
             'codigo_unico' => strtoupper(Str::random(6)),
-            'profesor_id' => Auth::id(),
+            'usuario_id' => Auth::id(),
             'imagen' => $imagenPath ?? 'default.png'
         ]);
 

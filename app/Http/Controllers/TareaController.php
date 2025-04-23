@@ -14,20 +14,24 @@ class TareaController extends Controller
     {
         $usuario = Auth::user();
 
-        if (!$usuario->esEstudiante()) {
-            abort(403);
+        if ($usuario->rol == 'PROFESOR') {
+            $tareas = Tarea::with('asignatura')
+                ->whereHas('asignatura', fn($q) => $q->where('usuario_id', $usuario->id))
+                ->get();
+        } else if ($usuario->rol == 'ESTUDIANTE'){
+            $tareas = Tarea::with([
+                'asignatura',
+                'progresos' => function ($q) use ($usuario) {
+                    $q->where('usuario_id', $usuario->id)->with('entregas');
+                }
+            ])
+                ->whereHas('progresos', function ($q) use ($usuario) {
+                    $q->where('usuario_id', $usuario->id);
+                })
+                ->get();
+        } else {
+            abort(403, 'No autorizado.');
         }
-
-        $tareas = Tarea::with([
-            'asignatura',
-            'progresos' => function ($q) use ($usuario) {
-                $q->where('usuario_id', $usuario->id)->with('entregas');
-            }
-        ])
-            ->whereHas('progresos', function ($q) use ($usuario) {
-                $q->where('usuario_id', $usuario->id);
-            })
-            ->get();
 
         return view('tareas.index', compact('tareas'));
     }
@@ -67,7 +71,24 @@ class TareaController extends Controller
     public function show(Tarea $tarea)
     {
         $this->autorizarTarea($tarea);
+
+        $tarea->load(['asignatura', 'progresos.estudiante', 'progresos.entregas']);
+
         return view('tareas.show', compact('tarea'));
+    }
+
+    public function showEstudiante(Tarea $tarea)
+    {
+        $usuario = auth()->user();
+
+        $progreso = $tarea->progresos()
+            ->where('usuario_id', $usuario->id)
+            ->with('entregas')
+            ->firstOrFail();
+
+        $tarea->load('archivos');
+
+        return view('tareas.show-estudiante', compact('tarea', 'progreso'));
     }
 
     public function edit(Tarea $tarea)

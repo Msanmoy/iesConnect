@@ -60,10 +60,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asignaturas/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
 
     // Tareas
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/tareas/{tarea}/ver', [TareaController::class, 'showEstudiante'])
+            ->name('tareas.ver.estudiante');
+    });
+
+
     Route::get('/asignaturas/tareas/{id}', function ($id) {
         $tarea = App\Models\Tarea::findOrFail($id);
         return view('tareas.show', compact('tarea'));
     })->name('tareas.show');
+
 
     // Calendario
     Route::view('/calendario', 'calendario.index')->name('calendario');

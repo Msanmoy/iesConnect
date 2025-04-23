@@ -29,12 +29,12 @@ class Usuario extends Authenticatable
 
     public function asignaturasImpartidas()
     {
-        return $this->hasMany(Asignatura::class, 'profesor_id');
+        return $this->hasMany(Asignatura::class, 'usuario_id');
     }
 
     public function tareasCreadas()
     {
-        return $this->hasMany(Tarea::class, 'profesor_id');
+        return $this->hasMany(Tarea::class, 'usuario_id');
     }
 
     public function esEstudiante(): bool

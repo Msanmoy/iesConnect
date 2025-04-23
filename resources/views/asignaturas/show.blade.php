@@ -38,16 +38,10 @@
                             <a href="{{ route('tareas.show', ['tarea' => $tarea->id]) }}" class="text-decoration-none">
                                 {{ $tarea->titulo }}
                             </a>
+                            <a href="{{ route('tareas.ver.estudiante', $tarea) }}" class="btn btn-primary btn-sm">
+                                Ver tarea
+                            </a>
                         </h6>
-
-                        <!-- Fases -->
-                        @if ($tarea->fases->count())
-                            <ul class="list-unstyled ms-3">
-                                @foreach ($tarea->fases as $fase)
-                                    <li class="text-muted">– {{ $fase->titulo }} (hasta {{ \Carbon\Carbon::parse($fase->fecha_entrega)->format('d/m/Y') }})</li>
-                                @endforeach
-                            </ul>
-                        @endif
                     </div>
                 @empty
                     <p class="text-muted">No hay tareas pendientes.</p>
