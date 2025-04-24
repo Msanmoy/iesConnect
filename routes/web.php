@@ -60,18 +60,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asignaturas/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
 
     // Tareas
-
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/tareas/{tarea}/ver', [TareaController::class, 'showEstudiante'])
-            ->name('tareas.ver.estudiante');
-    });
+    Route::get('/tareas/{tarea}/ver', [TareaController::class, 'showEstudiante'])
+        ->name('tareas.ver.estudiante');
 
 
-    Route::get('/asignaturas/tareas/{id}', function ($id) {
-        $tarea = App\Models\Tarea::findOrFail($id);
-        return view('tareas.show', compact('tarea'));
-    })->name('tareas.show');
-
+    Route::resource('tareas', TareaController::class);
 
     // Calendario
     Route::view('/calendario', 'calendario.index')->name('calendario');
@@ -84,7 +77,7 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-    Route::resource('tareas', TareaController::class);
+    Route::resource('tareas', TareaController::class)->except(['show']);
     Route::post('progreso/{progreso}/entregar', [EntregaController::class, 'store'])->name('entregas.store');
     Route::get('tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'create'])->name('progreso.create');
     Route::post('tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'store'])->name('progreso.store');
@@ -97,3 +90,6 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::resource('usuarios', UsuarioController::class);
+
+
+Route::put('/entregas/{entrega}/feedback', [EntregaController::class, 'updateFeedback'])->name('entregas.feedback');

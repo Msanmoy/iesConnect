@@ -26,9 +26,9 @@ class ProgresoTareaController extends Controller
         $this->autorizarTarea($tarea);
 
         $request->validate([
-            'usuario_id' => 'required|exists:usuarios,id',
+            'usuario_id' => 'required|array',
             'usuario_id.*' => 'exists:usuarios,id',
-            'nivel_asignado' => 'required|in:sencillo,intermedio,avanzado',
+            'nivel_asignado' => 'required|array',
         ]);
 
         $contador = 0;
@@ -36,11 +36,11 @@ class ProgresoTareaController extends Controller
         foreach ($request->usuario_id as $usuarioId) {
             $nivel = $request->nivel_asignado[$usuarioId] ?? null;
 
-            if (!in_array($nivel, ['sencillo', 'intermedio', 'avanzado'])) {
-                continue; // Nivel inválido o no enviado
+            if (!in_array($nivel, NivelEnum::values())) {
+                continue; // Nivel no válido
             }
 
-            // Evita duplicados
+            // Evitar duplicados
             $yaExiste = ProgresoTarea::where('tarea_id', $tarea->id)
                 ->where('usuario_id', $usuarioId)
                 ->exists();
@@ -58,9 +58,7 @@ class ProgresoTareaController extends Controller
             $contador++;
         }
 
-        return redirect()
-            ->route('tareas.index')
-            ->with('success', "$contador estudiante(s) asignado(s) correctamente.");
+        return back()->with('success', "$contador niveles asignados correctamente.");
     }
 
     private function autorizarTarea(Tarea $tarea)

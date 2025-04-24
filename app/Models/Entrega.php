@@ -10,6 +10,10 @@ class Entrega extends Model
         'progreso_tarea_id', 'nivel', 'archivo', 'fecha_entrega'
     ];
 
+    protected $casts = [
+        'fecha_entrega' => 'datetime',
+    ];
+
     public function progreso()
     {
         return $this->belongsTo(ProgresoTarea::class, 'progreso_tarea_id');

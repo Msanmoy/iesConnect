@@ -16,6 +16,9 @@ class Tarea extends Model
         'descripcion',
         'fecha_limite',
     ];
+    protected $casts = [
+        'fecha_limite' => 'datetime',
+    ];
 
     public function asignatura()
     {

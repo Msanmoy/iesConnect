@@ -96,6 +96,8 @@ class TareaController extends Controller
         $this->autorizarTarea($tarea);
 
         $asignaturas = Asignatura::where('usuario_id', Auth::id())->get();
+        $tarea->load('archivos');
+
         return view('tareas.edit', compact('tarea', 'asignaturas'));
     }
 

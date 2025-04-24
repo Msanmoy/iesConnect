@@ -61,4 +61,25 @@ class EntregaController extends Controller
         return back()->with('success', 'Entrega enviada correctamente.');
     }
 
+    public function updateFeedback(Request $request, Entrega $entrega)
+    {
+        $request->validate([
+            'comentario' => 'nullable|string',
+            'nota' => 'nullable|numeric|min:0|max:10',
+        ]);
+
+        // Verifica que el profesor sea dueño de la tarea
+        $profesorId = $entrega->progreso->tarea->asignatura->usuario_id;
+        if (auth()->id() !== $profesorId) {
+            abort(403);
+        }
+
+        $entrega->comentario = $request->comentario;
+        $entrega->nota = $request->nota;
+        $entrega->save();
+
+        return back()->with('success', 'Feedback guardado correctamente.');
+    }
+
+
 }

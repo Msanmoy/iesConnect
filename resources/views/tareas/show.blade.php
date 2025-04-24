@@ -13,7 +13,15 @@
         <hr>
 
         <h4 class="mb-3">Entregas por Estudiante</h4>
-
+        @auth
+            @if(auth()->user()->rol === 'PROFESOR')
+                <div class="mb-4 text-end">
+                    <a href="{{ route('progreso.create', $tarea) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-person-plus me-1"></i> Asignar niveles a estudiantes
+                    </a>
+                </div>
+            @endif
+        @endauth
         @if ($tarea->progresos->isEmpty())
             <div class="alert alert-info">No hay entregas asignadas o registradas para esta tarea.</div>
         @else
@@ -33,16 +41,37 @@
                                 @if ($progreso->entregas->isNotEmpty())
                                     <ul class="list-group">
                                         @foreach ($progreso->entregas as $entrega)
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <strong>{{ ucfirst($entrega->nivel) }}</strong>
-                                                    <span class="text-muted">– {{ \Carbon\Carbon::parse($entrega->fecha_entrega)->format('d/m/Y H:i') }}</span>
+                                            <li class="list-group-item">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>{{ ucfirst($entrega->nivel) }}</strong>
+                                                        <span class="text-muted">– {{ $entrega->fecha_entrega->format('d/m/Y H:i') }}</span>
+                                                    </div>
+                                                    <a href="{{ asset('storage/' . $entrega->archivo) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                        Ver archivo
+                                                    </a>
                                                 </div>
-                                                <a href="{{ asset('storage/' . $entrega->archivo) }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                                    Ver archivo
-                                                </a>
+
+                                                <form action="{{ route('entregas.feedback', $entrega) }}" method="POST" class="mt-2">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <div class="mb-2">
+                                                        <label class="form-label">Comentario</label>
+                                                        <textarea name="comentario" class="form-control" rows="2">{{ $entrega->comentario }}</textarea>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <label class="form-label">Nota</label>
+                                                        <input type="number" name="nota" class="form-control w-auto" value="{{ $entrega->nota }}" step="0.1" min="0" max="10">
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <button class="btn btn-sm btn-success" type="submit">
+                                                            <i class="bi bi-save me-1"></i> Guardar feedback
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             </li>
                                         @endforeach
+
                                     </ul>
                                 @else
                                     <div class="alert alert-warning mb-0">
