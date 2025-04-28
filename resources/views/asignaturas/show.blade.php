@@ -5,7 +5,7 @@
 @section('content')
     <div class="container mt-4">
         <!-- Imagen tipo banner -->
-        <div class="mb-4" style="height: 200px; background: url('{{ asset('images/' . strtolower($asignatura->nombre) . '.jpg') }}') center/cover; border-radius: 10px;"></div>
+        <div class="mb-4" style="height: 200px; background: url('{{ asset('images/' . strtolower($asignatura->slug) . '.jpg') }}') center/cover; border-radius: 10px;"></div>
 
         <!-- Nombre de la asignatura -->
         <h1 class="mb-4">{{ $asignatura->nombre }}</h1>

@@ -53,7 +53,7 @@ class AsignaturaController extends Controller
             'descripcion' => $request->descripcion,
             'codigo_unico' => strtoupper(Str::random(6)),
             'usuario_id' => Auth::id(),
-            'imagen' => $imagenPath ?? 'default.png'
+            'imagen' => $imagenPath ?? 'programacion.jpg'
         ]);
 
         // Asociar al profesor automáticamente
