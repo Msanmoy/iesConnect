@@ -28,7 +28,7 @@
         <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('asignaturas.index') }}">Clases</a>
+                    <a class="nav-link" href="{{ route('asignaturas.index') }}">Asignaturas</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
@@ -76,7 +76,7 @@
     <div class="offcanvas-body">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('asignaturas.index') }}">Clases</a>
+                <a class="nav-link" href="{{ route('asignaturas.index') }}">Asignaturas</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
@@ -102,7 +102,7 @@
                 <h5>Enlaces rápidos</h5>
                 <ul class="list-unstyled">
                     <li><a href="{{ route('home') }}" class="text-white text-decoration-none small">Inicio</a></li>
-                    <li><a href="{{ route('asignaturas.index') }}" class="text-white text-decoration-none small">Clases</a></li>
+                    <li><a href="{{ route('asignaturas.index') }}" class="text-white text-decoration-none small">Asignaturas</a></li>
                     <li><a href="{{ route('pages.contact') }}" class="text-white text-decoration-none small">Contacto</a></li>
                 </ul>
             </div>
