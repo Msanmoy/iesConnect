@@ -27,12 +27,16 @@
                         <tr>
                             <td>{{ $estudiante->nombre }}</td>
                             <td>
+                                <input type="hidden" name="usuario_id[]" value="{{ $estudiante->id }}">
+
                                 @if ($progreso)
-                                    <span class="badge bg-secondary">
-                                Ya asignado: {{ ucfirst($progreso->nivel_asignado->value) }}
-                            </span>
+                                    <input type="hidden" name="progreso_id[{{ $estudiante->id }}]" value="{{ $progreso->id }}">
+                                    <select name="nivel_asignado[{{ $estudiante->id }}]" class="form-select form-select-sm w-auto d-inline-block">
+                                        <option value="sencillo" {{ $progreso->nivel_asignado->value === 'sencillo' ? 'selected' : '' }}>Sencillo</option>
+                                        <option value="intermedio" {{ $progreso->nivel_asignado->value === 'intermedio' ? 'selected' : '' }}>Intermedio</option>
+                                        <option value="avanzado" {{ $progreso->nivel_asignado->value === 'avanzado' ? 'selected' : '' }}>Avanzado</option>
+                                    </select>
                                 @else
-                                    <input type="hidden" name="usuario_id[]" value="{{ $estudiante->id }}">
                                     <select name="nivel_asignado[{{ $estudiante->id }}]" class="form-select form-select-sm w-auto d-inline-block">
                                         <option value="sencillo">Sencillo</option>
                                         <option value="intermedio">Intermedio</option>

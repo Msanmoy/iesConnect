@@ -43,9 +43,9 @@ class TareaDemoSeeder extends Seeder
         $asignatura = Asignatura::create([
         'nombre' => 'Programación Web',
         'descripcion' => 'Laravel y Vue',
-        'codigo' => 'PW2025',
+        'codigo' => 'PRO2025',
         'usuario_id' => $profesor->id,
-        'slug' => 'programacion-web',
+        'slug' => 'programacion',
         ]);
 
         // Relacionar estudiantes con asignatura

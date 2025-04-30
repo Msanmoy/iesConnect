@@ -37,29 +37,37 @@ class ProgresoTareaController extends Controller
             $nivel = $request->nivel_asignado[$usuarioId] ?? null;
 
             if (!in_array($nivel, NivelEnum::values())) {
-                continue; // Nivel no válido
-            }
-
-            // Evitar duplicados
-            $yaExiste = ProgresoTarea::where('tarea_id', $tarea->id)
-                ->where('usuario_id', $usuarioId)
-                ->exists();
-
-            if ($yaExiste) {
                 continue;
             }
 
-            ProgresoTarea::create([
-                'tarea_id' => $tarea->id,
-                'usuario_id' => $usuarioId,
-                'nivel_asignado' => NivelEnum::from($nivel),
-            ]);
+            if (isset($request->progreso_id[$usuarioId])) {
+                // Actualizar
+                $progreso = ProgresoTarea::find($request->progreso_id[$usuarioId]);
 
-            $contador++;
+                if ($progreso && $progreso->nivel_asignado->value !== $nivel) {
+                    $progreso->nivel_asignado = NivelEnum::from($nivel);
+                    $progreso->save();
+                    $contador++;
+                }
+            } else {
+                $yaExiste = ProgresoTarea::where('tarea_id', $tarea->id)
+                    ->where('usuario_id', $usuarioId)
+                    ->exists();
+
+                if (! $yaExiste) {
+                    ProgresoTarea::create([
+                        'tarea_id' => $tarea->id,
+                        'usuario_id' => $usuarioId,
+                        'nivel_asignado' => NivelEnum::from($nivel),
+                    ]);
+                    $contador++;
+                }
+            }
         }
 
-        return back()->with('success', "$contador niveles asignados correctamente.");
+        return back()->with('success', "$contador niveles actualizados o asignados correctamente.");
     }
+
 
     private function autorizarTarea(Tarea $tarea)
     {

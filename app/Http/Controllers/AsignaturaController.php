@@ -84,4 +84,47 @@ class AsignaturaController extends Controller
 
     }
 
+    public function regenerarCodigo(Asignatura $asignatura)
+    {
+        $this->autorizarAsignatura($asignatura);
+
+        do {
+            $nuevoCodigo = strtoupper(Str::random(7));
+        } while (Asignatura::where('codigo', $nuevoCodigo)->exists());
+
+        $asignatura->codigo = $nuevoCodigo;
+        $asignatura->save();
+
+        return redirect()->back()->with('success', 'El código de clase ha sido regenerado correctamente.');
+    }
+
+    private function autorizarAsignatura(Asignatura $asignatura)
+    {
+        $usuario = auth()->user();
+
+        if ($usuario->rol !== 'PROFESOR' || $asignatura->usuario_id !== $usuario->id) {
+            abort(403, 'No tienes permiso para realizar esta acción.');
+        }
+    }
+
+    public function actualizarImagen(Request $request, Asignatura $asignatura)
+    {
+        if (auth()->id() !== $asignatura->profesor->id) {
+            abort(403, 'No autorizado');
+        }
+
+        $request->validate([
+            'imagen' => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('imagen')) {
+            $ruta = $request->file('imagen')->store('asignaturas', 'public');
+            $asignatura->imagen = $ruta;
+            $asignatura->save();
+        }
+
+        return redirect()->back()->with('success', 'Imagen actualizada');
+    }
+
+
 }

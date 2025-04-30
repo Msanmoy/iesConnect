@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -40,5 +41,20 @@ class Usuario extends Authenticatable
     public function esEstudiante(): bool
     {
         return $this->rol === 'ESTUDIANTE';
+    }
+
+    public function esProfesor(): bool
+    {
+        return $this->rol === 'PROFESOR';
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
+    }
+
+    public function publicaciones()
+    {
+        return $this->hasMany(Publicacion::class);
     }
 }

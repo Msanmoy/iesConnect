@@ -13,7 +13,6 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\CalendarioController;
-
 /*
 |--------------------------------------------------------------------------
 | Rutas públicas
@@ -25,7 +24,6 @@ Route::view('/privacy', 'privacy')->name('privacy');
 Route::view('/cookies', 'cookies')->name('cookies');
 Route::get('/contacto', [ContactController::class, 'show'])->name('pages.contact');
 Route::post('/contacto', [ContactController::class, 'submit'])->name('contact.submit');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -46,11 +44,10 @@ Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name(
 
 /*
 |--------------------------------------------------------------------------
-| Rutas autenticadas
+| Rutas autenticadas (generales)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::view('/profile', 'profile')->name('profile');
 
@@ -59,12 +56,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/asignaturas/{slug}', [AsignaturaController::class, 'show'])->name('asignaturas.show');
     Route::post('/asignaturas/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
 
-    // Tareas
-    Route::get('/tareas/{tarea}/ver', [TareaController::class, 'showEstudiante'])
-        ->name('tareas.ver.estudiante');
+    // Publicaciones asignaturas
+    Route::post('/asignaturas/{asignatura}/publicaciones', [\App\Http\Controllers\PublicacionController::class, 'store'])->name('publicaciones.store');
+    Route::delete('/publicaciones/{publicacion}', [\App\Http\Controllers\PublicacionController::class, 'destroy'])->name('publicaciones.destroy');
+    Route::put('/publicaciones/{publicacion}', [\App\Http\Controllers\PublicacionController::class, 'update'])->name('publicaciones.update');
 
+    // Tareas visibles para todos (index y show)
+    Route::resource('tareas', TareaController::class)->only(['index', 'show']);
+    Route::get('/tareas/{tarea}/ver', [TareaController::class, 'showEstudiante'])->name('tareas.ver.estudiante');
 
-    Route::resource('tareas', TareaController::class);
+    // Entrega por estudiante
+    Route::post('progreso/{progreso}/entregar', [EntregaController::class, 'store'])->name('entregas.store');
 
     // Calendario
     Route::view('/calendario', 'calendario.index')->name('calendario');
@@ -73,16 +75,19 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas para profesores (crear tareas)
+| Rutas exclusivas para profesores
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->group(function () {
-    Route::resource('tareas', TareaController::class)->except(['show']);
-    Route::post('progreso/{progreso}/entregar', [EntregaController::class, 'store'])->name('entregas.store');
+Route::group(['middleware' => ['auth']], function () {
+    Route::resource('tareas', TareaController::class)->except('index', 'show');
     Route::get('tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'create'])->name('progreso.create');
     Route::post('tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'store'])->name('progreso.store');
+    Route::put('/entregas/{entrega}/feedback', [EntregaController::class, 'updateFeedback'])->name('entregas.feedback');
     Route::delete('archivos/{archivo}', [ArchivoTareaController::class, 'destroy'])->name('archivos.destroy');
+    Route::post('/asignaturas/{asignatura}/regenerar-codigo', [AsignaturaController::class, 'regenerarCodigo'])->name('asignaturas.regenerar-codigo');
+    Route::post('/asignaturas/{asignatura}/personalizar', [AsignaturaController::class, 'actualizarImagen'])->name('asignaturas.personalizar');
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +95,3 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::resource('usuarios', UsuarioController::class);
-
-
-Route::put('/entregas/{entrega}/feedback', [EntregaController::class, 'updateFeedback'])->name('entregas.feedback');

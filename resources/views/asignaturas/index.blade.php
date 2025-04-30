@@ -72,7 +72,7 @@
                             <ul class="list-unstyled text-info">
                                 @forelse ($asignatura->tareas ?? [] as $tarea)
                                     <li>
-                                        <a href="{{ route('tareas.show', ['tarea' => $tarea->id]) }}" class="text-decoration-none">
+                                        <a href="{{ route('tareas.ver.estudiante', ['tarea' => $tarea->id]) }}" class="text-decoration-none">
                                             {{ $tarea->titulo }}
                                         </a>
                                     </li>
@@ -80,13 +80,6 @@
                                     <li class="text-muted">Sin tareas</li>
                                 @endforelse
                             </ul>
-
-                            @if(auth()->user()->rol === 'PROFESOR')
-                                <a href="{{ route('tareas.create', ['asignatura_id' => $asignatura->id]) }}"
-                                   class="btn btn-outline-primary btn-sm mt-auto">
-                                    <i class="bi bi-plus-circle me-1"></i> Crear tarea
-                                </a>
-                            @endif
                         </div>
                     </div>
                 </div>

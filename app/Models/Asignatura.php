@@ -42,4 +42,11 @@ class Asignatura extends Model
     {
         return $this->belongsToMany(Usuario::class, 'asignatura_usuario', 'asignatura_id', 'usuario_id');
     }
+
+    public function publicaciones()
+    {
+        return $this->hasMany(Publicacion::class);
+    }
+
+
 }

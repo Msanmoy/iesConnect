@@ -52,7 +52,9 @@ class EntregaController extends Controller
         $progreso->entregas()->create([
             'nivel' => $nivel,
             'archivo' => $ruta,
+            'fecha_entrega' => now(),
         ]);
+
 
         $progreso->update([
             "entregado_{$nivel}" => true,
