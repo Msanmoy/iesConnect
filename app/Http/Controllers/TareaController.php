@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Storage;
 
 class TareaController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $usuario = Auth::user();
@@ -36,37 +42,47 @@ class TareaController extends Controller
         return view('tareas.index', compact('tareas'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $asignaturas = Asignatura::where('usuario_id', Auth::id())->get();
-        return view('tareas.create', compact('asignaturas'));
+        $asignaturaId = $request->input('asignatura_id');
+        $asignatura = Asignatura::findOrFail($asignaturaId);
+
+        return view('tareas.create', compact('asignatura'));
     }
+
 
     public function store(Request $request)
     {
         $request->validate([
             'titulo' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'fecha_limite' => 'nullable|date',
+            'descripcion' => 'required|string',
+            'fecha_limite' => 'required|date|after:today',
             'asignatura_id' => 'required|exists:asignaturas,id',
-            'archivos.*' => 'nullable|file|max:20480',
         ]);
 
-        $tarea = Tarea::create($request->only(['titulo', 'descripcion', 'fecha_limite', 'asignatura_id']));
+        $tarea = Tarea::create([
+            'titulo' => $request->titulo,
+            'descripcion' => $request->descripcion,
+            'fecha_limite' => $request->fecha_limite,
+            'asignatura_id' => $request->asignatura_id,
+            'profesor_id' => auth()->id(),
+        ]);
 
         if ($request->hasFile('archivos')) {
             foreach ($request->file('archivos') as $archivo) {
-                $ruta = $archivo->store('archivos_tareas', 'public');
+                $path = $archivo->store('tareas', 'public');
+
                 $tarea->archivos()->create([
                     'nombre_archivo' => $archivo->getClientOriginalName(),
-                    'ruta_archivo' => $ruta,
-                    'tipo_archivo' => $archivo->getMimeType(),
+                    'ruta_archivo' => $path,
                 ]);
             }
         }
 
-        return redirect()->route('tareas.index')->with('success', 'Tarea creada correctamente.');
+        return redirect()->route('asignaturas.show', $tarea->asignatura->slug)
+            ->with('success', 'Tarea creada correctamente.');
     }
+
 
     public function show(Tarea $tarea)
     {

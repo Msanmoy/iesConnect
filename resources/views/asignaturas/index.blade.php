@@ -60,14 +60,14 @@
                 <div class="col">
                     <div class="card h-100">
                         <a href="{{ route('asignaturas.show', ['slug' => $asignatura->slug]) }}" class="text-decoration-none">
-                            <img src="{{ asset('images/' . strtolower($asignatura->slug) . '.jpg') }}"
+                            <img src="{{ $asignatura->imagen ? asset('storage/' . $asignatura->imagen) : asset('images/default.jpg') }}"
                                  class="card-img-top w-100 object-fit-cover"
                                  alt="{{ $asignatura->nombre }}"
                                  style="height: 180px;">
                         </a>
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">{{ $asignatura->nombre }}</h5>
-
+                        @if(auth()->user()->rol !== 'PROFESOR')
                             <p class="card-text m-0">Tareas Pendientes:</p>
                             <ul class="list-unstyled text-info">
                                 @forelse ($asignatura->tareas ?? [] as $tarea)
@@ -80,6 +80,20 @@
                                     <li class="text-muted">Sin tareas</li>
                                 @endforelse
                             </ul>
+                            @else
+                                <p class="card-text m-0">Tareas creadas:</p>
+                                <ul class="list-unstyled text-primary">
+                                    @forelse ($asignatura->tareas ?? [] as $tarea)
+                                        <li>
+                                            <a href="{{ route('tareas.show', ['tarea' => $tarea->id]) }}" class="text-decoration-none">
+                                                {{ $tarea->titulo }}
+                                            </a>
+                                        </li>
+                                    @empty
+                                        <li class="text-muted">Sin tareas creadas aún</li>
+                                    @endforelse
+                                </ul>
+                            @endif
                         </div>
                     </div>
                 </div>

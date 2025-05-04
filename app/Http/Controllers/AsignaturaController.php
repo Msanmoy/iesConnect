@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Asignatura;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
@@ -107,23 +108,26 @@ class AsignaturaController extends Controller
         }
     }
 
-    public function actualizarImagen(Request $request, Asignatura $asignatura)
+    public function personalizar(Request $request, Asignatura $asignatura)
     {
-        if (auth()->id() !== $asignatura->profesor->id) {
-            abort(403, 'No autorizado');
-        }
-
         $request->validate([
-            'imagen' => 'nullable|image|max:2048',
+            'imagen' => 'nullable|image|max:2048', // máximo 2MB
         ]);
 
         if ($request->hasFile('imagen')) {
+            // Borrar imagen anterior si existía
+            if ($asignatura->imagen) {
+                Storage::disk('public')->delete($asignatura->imagen);
+            }
+
+            // Guardar nueva imagen
             $ruta = $request->file('imagen')->store('asignaturas', 'public');
-            $asignatura->imagen = $ruta;
-            $asignatura->save();
+            $asignatura->update([
+                'imagen' => $ruta
+            ]);
         }
 
-        return redirect()->back()->with('success', 'Imagen actualizada');
+        return redirect()->back()->with('success', 'Imagen personalizada correctamente.');
     }
 
 

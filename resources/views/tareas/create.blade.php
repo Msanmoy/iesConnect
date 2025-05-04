@@ -1,53 +1,46 @@
 @extends('layouts.app')
 
-@section('title', 'Crear tarea')
+@section('title', 'Crear Nueva Tarea')
 
 @section('content')
-    <div class="container-xl">
-        <h2 class="mb-4">Crear nueva tarea</h2>
+    <div class="container-xl mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h2 class="mb-4">Nueva tarea para <span class="text-primary">{{ $asignatura->nombre }}</span></h2>
 
-        <form action="{{ route('tareas.store') }}" method="POST" enctype="multipart/form-data" class="card shadow-sm p-4">
-            @csrf
+                <form action="{{ route('tareas.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
 
-            <div class="mb-3">
-                <label for="asignatura_id" class="form-label">Asignatura</label>
-                <select name="asignatura_id" id="asignatura_id" class="form-select" required>
-                    <option value="">Selecciona una asignatura</option>
-                    @foreach ($asignaturas as $asignatura)
-                        <option value="{{ $asignatura->id }}" {{ old('asignatura_id') == $asignatura->id ? 'selected' : '' }}>
-                            {{ $asignatura->nombre }}
-                        </option>
-                    @endforeach
-                </select>
+                    <input type="hidden" name="asignatura_id" value="{{ $asignatura->id }}">
+
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" value="{{ old('titulo') }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required>{{ old('descripcion') }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha_limite" class="form-label">Fecha Límite</label>
+                        <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" value="{{ old('fecha_limite') }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="archivos" class="form-label">Archivos adjuntos (opcional)</label>
+                        <input type="file" class="form-control" id="archivos" name="archivos[]" multiple>
+                        <small class="text-muted">Puedes subir varios archivos (máx. 20MB cada uno)</small>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary rounded-2 px-4">
+                            <i class="bi bi-save me-1"></i> Crear tarea
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <div class="mb-3">
-                <label for="titulo" class="form-label">Título</label>
-                <input type="text" name="titulo" id="titulo" class="form-control" required value="{{ old('titulo') }}">
-            </div>
-
-            <div class="mb-3">
-                <label for="descripcion" class="form-label">Descripción</label>
-                <textarea name="descripcion" id="descripcion" rows="4" class="form-control">{{ old('descripcion') }}</textarea>
-            </div>
-
-            <div class="mb-3">
-                <label for="fecha_limite" class="form-label">Fecha límite</label>
-                <input type="date" name="fecha_limite" id="fecha_limite" class="form-control" value="{{ old('fecha_limite') }}">
-            </div>
-
-            <div class="mb-3">
-                <label for="archivos" class="form-label">Archivos adjuntos</label>
-                <input type="file" name="archivos[]" id="archivos" class="form-control" multiple>
-                <small class="text-muted">Puedes adjuntar varios archivos (máx. 20MB c/u).</small>
-            </div>
-
-            <div class="d-flex justify-content-end mt-4">
-                <a href="{{ route('tareas.index') }}" class="btn btn-outline-secondary me-2">Cancelar</a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle me-1"></i> Crear tarea
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 @endsection

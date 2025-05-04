@@ -27,6 +27,32 @@ Route::post('/contacto', [ContactController::class, 'submit'])->name('contact.su
 
 /*
 |--------------------------------------------------------------------------
+| Rutas exclusivas para profesores
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/tareas/create', [TareaController::class, 'create'])->name('tareas.create')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::get('/tareas/{tarea}/edit', [TareaController::class, 'edit'])->name('tareas.edit')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy')->middleware(\App\Http\Middleware\EsProfesor::class);
+
+// Asignar niveles
+Route::get('/tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'create'])->name('progreso.create')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::post('/tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'store'])->name('progreso.store')->middleware(\App\Http\Middleware\EsProfesor::class);
+
+// Feedback
+Route::put('/entregas/{entrega}/feedback', [EntregaController::class, 'updateFeedback'])->name('entregas.feedback')->middleware(\App\Http\Middleware\EsProfesor::class);
+
+// Archivos
+Route::delete('/archivos/{archivo}', [ArchivoTareaController::class, 'destroy'])->name('archivos.destroy')->middleware(\App\Http\Middleware\EsProfesor::class);
+
+// Personalización de clases
+Route::post('/asignaturas/{asignatura}/regenerar-codigo', [AsignaturaController::class, 'regenerarCodigo'])->name('asignaturas.regenerar-codigo')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::put('/asignaturas/{asignatura}/personalizar', [AsignaturaController::class, 'personalizar'])->name('asignaturas.personalizar')->middleware(\App\Http\Middleware\EsProfesor::class);
+
+/*
+|--------------------------------------------------------------------------
 | Autenticación
 |--------------------------------------------------------------------------
 */
@@ -71,21 +97,7 @@ Route::middleware(['auth'])->group(function () {
     // Calendario
     Route::view('/calendario', 'calendario.index')->name('calendario');
     Route::get('/calendario/eventos', [CalendarioController::class, 'eventos'])->name('calendario.eventos');
-});
 
-/*
-|--------------------------------------------------------------------------
-| Rutas exclusivas para profesores
-|--------------------------------------------------------------------------
-*/
-Route::group(['middleware' => ['auth']], function () {
-    Route::resource('tareas', TareaController::class)->except('index', 'show');
-    Route::get('tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'create'])->name('progreso.create');
-    Route::post('tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'store'])->name('progreso.store');
-    Route::put('/entregas/{entrega}/feedback', [EntregaController::class, 'updateFeedback'])->name('entregas.feedback');
-    Route::delete('archivos/{archivo}', [ArchivoTareaController::class, 'destroy'])->name('archivos.destroy');
-    Route::post('/asignaturas/{asignatura}/regenerar-codigo', [AsignaturaController::class, 'regenerarCodigo'])->name('asignaturas.regenerar-codigo');
-    Route::post('/asignaturas/{asignatura}/personalizar', [AsignaturaController::class, 'actualizarImagen'])->name('asignaturas.personalizar');
 });
 
 

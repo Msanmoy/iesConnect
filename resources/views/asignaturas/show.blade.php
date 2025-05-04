@@ -4,18 +4,22 @@
 
 @section('content')
     <div class="container-xl mt-4">
-        <div class="card mb-4 shadow-sm border-0 text-white" style="background: url('{{ $asignatura->imagen ? asset('storage/' . $asignatura->imagen) : asset('images/default.jpg') }}') center/cover; border-radius: 10px; height: 180px;">
+        <div class="card mb-4 shadow-sm border-0 text-white"
+             style="background: url('{{ $asignatura->imagen ? asset('storage/' . $asignatura->imagen) : asset('images/default.jpg') }}') center/cover no-repeat; border-radius: 10px; height: 180px;">
             <div class="card-body d-flex justify-content-between align-items-center h-100">
                 <div>
                     <h2 class="fw-bold">{{ $asignatura->nombre }}</h2>
                 </div>
                 @if(auth()->user()->rol === 'PROFESOR')
                     <div>
-                        <a href="#" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#personalizarModal">Personalizar</a>
+                        <a href="#" class="btn btn-outline-light btn-sm bg-secondary" data-bs-toggle="modal" data-bs-target="#personalizarModal">
+                            Personalizar
+                        </a>
                     </div>
                 @endif
             </div>
         </div>
+
 
         <div class="row">
             <div class="col-md-4">
@@ -186,26 +190,39 @@
 
 
 @if(auth()->user()->rol === 'PROFESOR')
-    <div class="modal fade" id="personalizarModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+    <div class="modal fade" id="personalizarModal" tabindex="-1" aria-labelledby="personalizarModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
             <form action="{{ route('asignaturas.personalizar', $asignatura) }}" method="POST" enctype="multipart/form-data" class="modal-content">
                 @csrf
+                @method('PUT')
+
                 <div class="modal-header">
-                    <h5 class="modal-title">Personalizar aspecto</h5>
+                    <h5 class="modal-title" id="personalizarModalLabel">Personalizar clase</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
+
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="imagen" class="form-label">Selecciona imagen de encabezado</label>
-                        <input type="file" class="form-control" name="imagen" accept="image/*">
+                        <label for="imagen" class="form-label">Subir nueva imagen de fondo</label>
+                        <input class="form-control" type="file" id="imagen" name="imagen" accept="image/*">
+                        <small class="text-muted">Formato recomendado: JPG, PNG. Máx. 2MB.</small>
                     </div>
-                    {{-- Aquí podrías añadir selección de color en el futuro --}}
+
+                    {{-- Opcional: Selector de color (puedes implementarlo más adelante) --}}
+                    {{-- <div class="mb-3">
+                        <label for="color" class="form-label">Color del tema</label>
+                        <input type="color" class="form-control form-control-color" id="color" name="color" value="#0d6efd">
+                    </div> --}}
                 </div>
+
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar cambios</button>
                 </div>
             </form>
         </div>
+    </div>
     </div>
 @endif
 @endsection

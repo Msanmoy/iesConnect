@@ -4,17 +4,22 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EsProfesor
 {
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()->es_profesor) {
+        if (Auth::check() && Auth::user()->rol === "PROFESOR") {
             return $next($request);
-        } else{
-            abort(403, 'Acceso no autorizado');
         }
+
+        abort(403, 'Acceso no autorizado.');
     }
 }

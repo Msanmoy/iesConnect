@@ -45,11 +45,11 @@
                         @foreach ($tarea->archivos as $archivo)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>{{ $archivo->nombre_archivo }}</span>
-                                <form action="{{ route('archivos.destroy', $archivo) }}" method="POST" onsubmit="return confirm('¿Eliminar este archivo?')" style="display:inline;">
+                                <form action="{{ route('archivos.destroy', $archivo) }}" method="POST" onsubmit="return confirm('¿Seguro que quieres eliminar este archivo?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i> Eliminar
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        Eliminar archivo
                                     </button>
                                 </form>
                             </li>
