@@ -130,5 +130,21 @@ class AsignaturaController extends Controller
         return redirect()->back()->with('success', 'Imagen personalizada correctamente.');
     }
 
+    public function trabajo($slug)
+    {
+        $asignatura = Asignatura::where('slug', $slug)->firstOrFail();
+        return view('asignaturas.trabajo', compact('asignatura'));
+    }
+
+    public function personas($slug)
+    {
+        $asignatura = Asignatura::where('slug', $slug)->firstOrFail();
+        $profesor = $asignatura->profesor;
+        $alumnos = $asignatura->estudiantes;
+
+        return view('asignaturas.personas', compact('asignatura', 'profesor', 'alumnos'));
+    }
+
+
 
 }

@@ -81,6 +81,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/asignaturas', [AsignaturaController::class, 'index'])->name('asignaturas.index');
     Route::get('/asignaturas/{slug}', [AsignaturaController::class, 'show'])->name('asignaturas.show');
     Route::post('/asignaturas/unirse', [AsignaturaController::class, 'unirse'])->name('asignaturas.unirse');
+    Route::get('/asignaturas/{slug}/trabajo', [AsignaturaController::class, 'trabajo'])->name('asignaturas.trabajo');
+    Route::get('/asignaturas/{slug}/personas', [AsignaturaController::class, 'personas'])->name('asignaturas.personas');
 
     // Publicaciones asignaturas
     Route::post('/asignaturas/{asignatura}/publicaciones', [\App\Http\Controllers\PublicacionController::class, 'store'])->name('publicaciones.store');

@@ -10,7 +10,10 @@
                 </div>
                 <h1 class="fw-bold">IESConnect facilita la enseñanza</h1>
                 <p class="text-muted">Las herramientas de IESConnect funcionan conjuntamente para transformar la enseñanza y el aprendizaje, de forma que cada profesor y alumno pueda desarrollar todo su potencial.</p>
-                <a href="{{ route('register') }}" class="btn btn-primary">Empieza a usar IESConnect</a>
+                <a href="{{ Auth::check() ? route('asignaturas.index') : route('register') }}" class="btn btn-primary">
+                    Empieza a usar IESConnect
+                </a>
+
             </div>
             <div class="col-md-6 position-relative mt-3">
                 <div class="position-relative">

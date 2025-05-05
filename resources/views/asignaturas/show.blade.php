@@ -4,6 +4,8 @@
 
 @section('content')
     <div class="container-xl mt-4">
+        @include('asignaturas.partials.navegacion', ['asignatura' => $asignatura])
+
         <div class="card mb-4 shadow-sm border-0 text-white"
              style="background: url('{{ $asignatura->imagen ? asset('storage/' . $asignatura->imagen) : asset('images/default.jpg') }}') center/cover no-repeat; border-radius: 10px; height: 180px;">
             <div class="card-body d-flex justify-content-between align-items-center h-100">
@@ -55,7 +57,7 @@
                                     </li>
                                 @endforeach
                             </ul>
-                            <a href="{{ route('asignaturas.show', $asignatura->slug) }}" class="small">Ver todo</a>
+                            <a href="{{ route('asignaturas.trabajo', $asignatura->slug) }}" class="small">Ver todo</a>
                         @endif
 
 
@@ -179,13 +181,6 @@
                     <div class="alert alert-light text-muted">No hay tareas todavía en esta clase.</div>
                 @endif
 
-                @if(auth()->user()->rol === 'PROFESOR')
-                    <div class="text-end mt-4">
-                        <a href="{{ route('tareas.create', ['asignatura_id' => $asignatura->id]) }}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle me-1"></i> Nueva tarea
-                        </a>
-                    </div>
-                @endif
             </div>
 
 
@@ -209,11 +204,6 @@
                         <small class="text-muted">Formato recomendado: JPG, PNG. Máx. 2MB.</small>
                     </div>
 
-                    {{-- Opcional: Selector de color (puedes implementarlo más adelante) --}}
-                    {{-- <div class="mb-3">
-                        <label for="color" class="form-label">Color del tema</label>
-                        <input type="color" class="form-control form-control-color" id="color" name="color" value="#0d6efd">
-                    </div> --}}
                 </div>
 
                 <div class="modal-footer">
