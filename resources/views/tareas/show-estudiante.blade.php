@@ -96,7 +96,7 @@
         @endif
 
         <div class="mt-4">
-            <a href="{{ route('tareas.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Volver a mis tareas
             </a>
         </div>
