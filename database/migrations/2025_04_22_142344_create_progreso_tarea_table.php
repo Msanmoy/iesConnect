@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('asignaturas', function (Blueprint $table) {
+        Schema::create('progreso_tareas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->string('slug')->unique();
-            $table->text('descripcion')->nullable();
-            $table->string('codigo')->unique();
+            $table->foreignId('tarea_id')->constrained('tareas')->onDelete('cascade');
             $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
+            $table->string('nivel_asignado');
+            $table->boolean('entregado_sencillo')->default(false);
+            $table->boolean('entregado_intermedio')->default(false);
+            $table->boolean('entregado_avanzado')->default(false);
             $table->timestamps();
         });
+
     }
 
     /**
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('asignaturas');
+        Schema::dropIfExists('progreso_tarea');
     }
 };

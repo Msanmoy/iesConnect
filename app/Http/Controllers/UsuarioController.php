@@ -9,23 +9,20 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
-    // Mostrar todos los usuarios con filtro por rol
     public function index(Request $request)
     {
-        $rol = $request->query('rol'); // 'ESTUDIANTE' o 'PROFESOR'
+        $rol = $request->query('rol');
 
         $usuarios = Usuario::when($rol, fn ($query) => $query->where('rol', $rol))->paginate(10);
 
         return view('usuarios.index', compact('usuarios', 'rol'));
     }
 
-    // Mostrar formulario de creación
     public function create()
     {
         return view('usuarios.create');
     }
 
-    // Guardar nuevo usuario
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -42,7 +39,6 @@ class UsuarioController extends Controller
         return redirect()->route('usuarios.index')->with('success', 'Usuario creado correctamente.');
     }
 
-    // Mostrar detalles de un usuario
     public function show(Usuario $usuario)
     {
         $asignaturas = $usuario->rol === 'PROFESOR'
@@ -56,13 +52,11 @@ class UsuarioController extends Controller
         return view('usuarios.show', compact('usuario', 'asignaturas', 'tareas'));
     }
 
-    // Formulario de edición
     public function edit(Usuario $usuario)
     {
         return view('usuarios.edit', compact('usuario'));
     }
 
-    // Actualizar usuario
     public function update(Request $request, Usuario $usuario)
     {
         $validated = $request->validate([
@@ -81,7 +75,6 @@ class UsuarioController extends Controller
         return redirect()->route('usuarios.index')->with('success', 'Usuario actualizado.');
     }
 
-    // Eliminar usuario
     public function destroy(Usuario $usuario)
     {
         $usuario->delete();

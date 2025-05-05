@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fases', function (Blueprint $table) {
+        Schema::create('entregas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tarea_id')->constrained()->onDelete('cascade');
-            $table->string('titulo');
-            $table->unsignedInteger('orden')->nullable();
-            $table->enum('nivel_dificultad', ['Fácil', 'Media', 'Difícil']);
+            $table->foreignId('progreso_tarea_id')->constrained()->onDelete('cascade');
+            $table->string('nivel');
+            $table->string('archivo');
+            $table->timestamp('fecha_entrega')->useCurrent();
             $table->timestamps();
         });
+
     }
 
     /**
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fases');
+        Schema::dropIfExists('entregas');
     }
 };

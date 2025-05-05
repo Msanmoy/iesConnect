@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'IESConnect')</title>
 
-    <!-- Bootstrap y estilos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -14,7 +13,6 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg bg-white border-bottom">
     <div class="container-xl d-flex align-items-center">
         <button class="navbar-toggler d-lg-none border-0 shadow-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
@@ -28,7 +26,7 @@
         <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('asignaturas.index') }}">Clases</a>
+                    <a class="nav-link" href="{{ route('asignaturas.index') }}">Asignaturas</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
@@ -67,7 +65,6 @@
     </div>
 </nav>
 
-<!-- Sidebar -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Menú</h5>
@@ -76,7 +73,7 @@
     <div class="offcanvas-body">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('asignaturas.index') }}">Clases</a>
+                <a class="nav-link" href="{{ route('asignaturas.index') }}">Asignaturas</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
@@ -85,12 +82,10 @@
     </div>
 </div>
 
-<!-- Contenido -->
 <main class="flex-grow-1 py-4">
     @yield('content')
 </main>
 
-<!-- Footer -->
 <footer class="bg-dark text-white py-4">
     <div class="container-xl text-center">
         <div class="row">
@@ -102,7 +97,7 @@
                 <h5>Enlaces rápidos</h5>
                 <ul class="list-unstyled">
                     <li><a href="{{ route('home') }}" class="text-white text-decoration-none small">Inicio</a></li>
-                    <li><a href="{{ route('asignaturas.index') }}" class="text-white text-decoration-none small">Clases</a></li>
+                    <li><a href="{{ route('asignaturas.index') }}" class="text-white text-decoration-none small">Asignaturas</a></li>
                     <li><a href="{{ route('pages.contact') }}" class="text-white text-decoration-none small">Contacto</a></li>
                 </ul>
             </div>
@@ -117,7 +112,6 @@
     </div>
 </footer>
 
-<!-- Scripts -->
 <script src="{{ asset('js/bootstrap.bundle.js') }}"></script>
 @stack('scripts')
 </body>

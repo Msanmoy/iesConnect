@@ -11,18 +11,16 @@ class CalendarioController extends Controller
     {
         $usuario = auth()->user();
 
-        // Trae todas las tareas visibles asignadas a asignaturas en las que está el usuario
         $tareas = Tarea::whereHas('asignatura.usuarios', function ($query) use ($usuario) {
             $query->where('usuarios.id', $usuario->id);
         })->where('visible', true)->get();
 
-        // Formato de eventos para FullCalendar
         $eventos = $tareas->map(function ($tarea) {
             return [
                 'title' => $tarea->titulo,
-                'start' => $tarea->fecha_entrega, // asegúrate de tener esta columna en la tabla tareas
+                'start' => $tarea->fecha_entrega,
                 'url'   => route('asignaturas.tarea', $tarea->id),
-                'backgroundColor' => '#0d6efd', // azul Bootstrap
+                'backgroundColor' => '#0d6efd',
                 'borderColor' => '#0d6efd',
             ];
         });
