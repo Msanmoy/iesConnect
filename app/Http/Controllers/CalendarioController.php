@@ -3,27 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tarea;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CalendarioController extends Controller
 {
     public function eventos(Request $request)
     {
-        $usuario = auth()->user();
+        $mes = $request->input('mes');
+        $anio = $request->input('anio');
 
-        $tareas = Tarea::whereHas('asignatura.usuarios', function ($query) use ($usuario) {
-            $query->where('usuarios.id', $usuario->id);
-        })->where('visible', true)->get();
+        $fechaInicio = Carbon::createFromDate($anio, $mes, 1)->startOfMonth();
+        $fechaFin = Carbon::createFromDate($anio, $mes, 1)->endOfMonth();
 
-        $eventos = $tareas->map(function ($tarea) {
-            return [
-                'title' => $tarea->titulo,
-                'start' => $tarea->fecha_entrega,
-                'url'   => route('asignaturas.tarea', $tarea->id),
-                'backgroundColor' => '#0d6efd',
-                'borderColor' => '#0d6efd',
+        $tareas = Tarea::whereBetween('fecha_limite', [$fechaInicio, $fechaFin])->get();
+
+        $eventos = [];
+
+        foreach ($tareas as $tarea) {
+            $eventos[] = [
+                'id' => $tarea->id,
+                'tipo' => 'tarea',
+                'titulo' => $tarea->titulo,
+                'descripcion' => $tarea->descripcion,
+                'fecha' => Carbon::parse($tarea->fecha_limite)->format('Y-m-d'),
+                'url' => route('tareas.show', $tarea),
             ];
-        });
+        }
 
         return response()->json($eventos);
     }

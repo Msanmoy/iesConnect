@@ -42,6 +42,8 @@
                 }
             });
 
+            console.log(calendar);
+
             calendar.render();
         });
     </script>
