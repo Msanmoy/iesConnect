@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('preguntas', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('fase_id')->constrained()->onDelete('cascade');
-            $table->text('enunciado');
-            $table->enum('tipo', ['opcion_multiple', 'abierta']);
-            $table->timestamps();
+        Schema::table('archivos_tarea', function (Blueprint $table) {
+            $table->string('nivel')->nullable()->after('tipo_archivo');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('preguntas');
+        Schema::table('archivos_tarea', function (Blueprint $table) {
+            $table->dropColumn('nivel');
+        });
     }
 };

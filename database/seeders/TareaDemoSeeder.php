@@ -9,7 +9,6 @@ use App\Models\Asignatura;
 use App\Models\Tarea;
 use App\Models\ProgresoTarea;
 use App\Models\Entrega;
-use App\Enums\RolEnum;
 use App\Enums\NivelEnum;
 
 class TareaDemoSeeder extends Seeder

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ArchivoTarea;
 use App\Models\Asignatura;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
@@ -55,8 +56,8 @@ class TareaController extends Controller
     {
         $request->validate([
             'titulo' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'fecha_limite' => 'required|date|after:today',
+            'descripcion' => 'nullable|string',
+            'fecha_limite' => 'nullable|date',
             'asignatura_id' => 'required|exists:asignaturas,id',
         ]);
 
@@ -65,23 +66,24 @@ class TareaController extends Controller
             'descripcion' => $request->descripcion,
             'fecha_limite' => $request->fecha_limite,
             'asignatura_id' => $request->asignatura_id,
-            'profesor_id' => auth()->id(),
         ]);
 
         if ($request->hasFile('archivos')) {
-            foreach ($request->file('archivos') as $archivo) {
-                $path = $archivo->store('tareas', 'public');
-
+            foreach ($request->file('archivos') as $nivel => $archivo) {
+                $ruta = $archivo->store('tareas', 'public');
                 $tarea->archivos()->create([
                     'nombre_archivo' => $archivo->getClientOriginalName(),
-                    'ruta_archivo' => $path,
+                    'ruta_archivo' => $ruta,
+                    'tipo_archivo' => $archivo->getMimeType(),
+                    'nivel' => $nivel,
                 ]);
             }
         }
 
-        return redirect()->route('asignaturas.show', $tarea->asignatura->slug)
-            ->with('success', 'Tarea creada correctamente.');
+        return redirect()->route('tareas.show', $tarea)->with('success', 'Tarea creada correctamente.');;
     }
+
+
 
 
     public function show(Tarea $tarea)
@@ -119,31 +121,40 @@ class TareaController extends Controller
 
     public function update(Request $request, Tarea $tarea)
     {
-        $this->autorizarTarea($tarea);
-
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'fecha_limite' => 'nullable|date',
-            'asignatura_id' => 'required|exists:asignaturas,id',
-            'archivos.*' => 'nullable|file|max:20480',
+            'archivos' => 'nullable|array',
+            'archivos.*.*' => 'file|max:2048',
         ]);
 
-        $tarea->update($request->only(['titulo', 'descripcion', 'fecha_limite', 'asignatura_id']));
+        $tarea->update([
+            'titulo' => $request->titulo,
+            'descripcion' => $request->descripcion,
+            'fecha_limite' => $request->fecha_limite,
+        ]);
 
-        if ($request->hasFile('archivos')) {
-            foreach ($request->file('archivos') as $archivo) {
-                $ruta = $archivo->store('archivos_tareas', 'public');
-                $tarea->archivos()->create([
-                    'nombre_archivo' => $archivo->getClientOriginalName(),
-                    'ruta_archivo' => $ruta,
-                    'tipo_archivo' => $archivo->getMimeType(),
-                ]);
+        if ($request->has('archivos')) {
+            foreach ($request->archivos as $nivel => $archivosNivel) {
+                foreach ($archivosNivel as $archivo) {
+                    if ($archivo) {
+                        $path = $archivo->store('archivos_tarea', 'public');
+
+                        $tarea->archivos()->create([
+                            'nombre_archivo' => $archivo->getClientOriginalName(),
+                            'ruta_archivo' => $path,
+                            'tipo_archivo' => $archivo->getClientMimeType(),
+                            'nivel' => $nivel,
+                        ]);
+                    }
+                }
             }
         }
 
-        return redirect()->route('tareas.index')->with('success', 'Tarea actualizada correctamente.');
+        return redirect()->route('tareas.show', $tarea)->with('success', 'Tarea actualizada correctamente.');
     }
+
 
     public function destroy(Tarea $tarea)
     {
@@ -155,7 +166,8 @@ class TareaController extends Controller
 
         $tarea->delete();
 
-        return redirect()->route('tareas.index')->with('success', 'Tarea eliminada.');
+        return redirect()->route('asignaturas.show', $tarea->asignatura->slug)
+            ->with('success', 'Tarea eliminada correctamente.');
     }
 
     private function autorizarTarea(Tarea $tarea)

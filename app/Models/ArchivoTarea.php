@@ -13,6 +13,7 @@ class ArchivoTarea extends Model
         'nombre_archivo',
         'ruta_archivo',
         'tipo_archivo',
+        'nivel,'
     ];
 
     public function tarea()

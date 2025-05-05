@@ -50,6 +50,9 @@
                 </table>
 
                 <div class="text-end">
+                    <a href="{{ route('tareas.show', $tarea) }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Volver atrás
+                    </a>
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle me-1"></i> Asignar niveles
                     </button>

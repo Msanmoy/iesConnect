@@ -28,10 +28,21 @@
                         <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" value="{{ old('fecha_limite') }}" required>
                     </div>
 
+                    <h5 class="mt-4">Archivos por nivel de dificultad</h5>
+
                     <div class="mb-3">
-                        <label for="archivos" class="form-label">Archivos adjuntos (opcional)</label>
-                        <input type="file" class="form-control" id="archivos" name="archivos[]" multiple>
-                        <small class="text-muted">Puedes subir varios archivos (máx. 20MB cada uno)</small>
+                        <label class="form-label">Archivos Sencillo</label>
+                        <input type="file" name="archivos[sencillo]" multiple class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Archivos Intermedio</label>
+                        <input type="file" name="archivos[intermedio]" multiple class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Archivos Avanzado</label>
+                        <input type="file" name="archivos[avanzado]" multiple class="form-control">
                     </div>
 
                     <div class="text-end">
