@@ -57,7 +57,6 @@ class AsignaturaController extends Controller
             'imagen' => $imagenPath ?? 'programacion.jpg'
         ]);
 
-        // Asociar al profesor automáticamente
         $asignatura->usuarios()->attach(Auth::id());
 
         return redirect()->route('asignaturas.index')->with('success', 'Asignatura creada correctamente.');
@@ -111,16 +110,14 @@ class AsignaturaController extends Controller
     public function personalizar(Request $request, Asignatura $asignatura)
     {
         $request->validate([
-            'imagen' => 'nullable|image|max:2048', // máximo 2MB
+            'imagen' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('imagen')) {
-            // Borrar imagen anterior si existía
             if ($asignatura->imagen) {
                 Storage::disk('public')->delete($asignatura->imagen);
             }
 
-            // Guardar nueva imagen
             $ruta = $request->file('imagen')->store('asignaturas', 'public');
             $asignatura->update([
                 'imagen' => $ruta

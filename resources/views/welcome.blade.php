@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Cabecera -->
     <div class="container-xl mt-5">
         <div class="row align-items-center mb-5">
             <div class="col-md-6 text-center text-md-start">
@@ -25,7 +24,6 @@
     </div>
 
 <main>
-    <!-- Características -->
     <section class="container-xl text-center my-5">
         <h2 class="fw-bold">¿Por qué elegir IESConnect?</h2>
         <div class="row mt-4">
@@ -47,7 +45,6 @@
         </div>
     </section>
 
-    <!-- Carrousel de imagenes -->
     <section class="container-xl text-center my-5">
         <div id="carouselExampleIndicators" class="carousel slide">
             <div class="carousel-indicators">
@@ -77,7 +74,6 @@
         </div>
     </section>
 
-    <!-- Testimonios -->
     <section class="bg-light py-5">
         <div class="container-xl text-center">
             <h2 class="fw-bold">Lo que dicen nuestros usuarios</h2>

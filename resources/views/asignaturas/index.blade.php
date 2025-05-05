@@ -18,14 +18,12 @@
         </div>
     @endif
 
-    <!-- Botón solo visible en esta vista -->
     @push('header-actions')
         <button class="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#anadirAsignatura">
             <i class="bi bi-journal-plus me-1"></i> Unirse a una clase
         </button>
     @endpush
 
-    <!-- Modal Añadir Asignatura -->
     <div class="modal fade" id="anadirAsignatura" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <form method="POST" action="{{ route('asignaturas.unirse') }}" class="modal-content">
@@ -53,7 +51,6 @@
         </div>
     </div>
 
-    <!-- Vista principal de asignaturas -->
     <main class="d-flex justify-content-center mt-4">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 container-xxl">
             @forelse ($asignaturas as $asignatura)

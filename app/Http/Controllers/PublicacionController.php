@@ -62,9 +62,6 @@ class PublicacionController extends Controller
             return redirect()->route('asignaturas.show', $publicacion->asignatura->slug)->with('failure', 'No tienes permiso.');
         }
 
-
-
-
     }
 
 }

@@ -6,7 +6,6 @@
     <div class="container mt-4">
         <h1 class="text-center">Calendario</h1>
 
-        {{-- Mensajes de sesión --}}
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
@@ -19,7 +18,6 @@
 @endsection
 
 @push('scripts')
-    {{-- FullCalendar CSS y JS desde archivos locales --}}
     <link href="{{ asset('vendor/fullcalendar/index.global.min.css') }}" rel="stylesheet" />
     <script src="{{ asset('vendor/fullcalendar/index.global.min.js') }}"></script>
 

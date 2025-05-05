@@ -70,7 +70,6 @@ class EntregaController extends Controller
             'nota' => 'nullable|numeric|min:0|max:10',
         ]);
 
-        // Verifica que el profesor sea dueño de la tarea
         $profesorId = $entrega->progreso->tarea->asignatura->usuario_id;
         if (auth()->id() !== $profesorId) {
             abort(403);

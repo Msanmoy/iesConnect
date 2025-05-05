@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'IESConnect')</title>
 
-    <!-- Bootstrap y estilos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -14,7 +13,6 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg bg-white border-bottom">
     <div class="container-xl d-flex align-items-center">
         <button class="navbar-toggler d-lg-none border-0 shadow-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
@@ -67,7 +65,6 @@
     </div>
 </nav>
 
-<!-- Sidebar -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Menú</h5>
@@ -85,12 +82,10 @@
     </div>
 </div>
 
-<!-- Contenido -->
 <main class="flex-grow-1 py-4">
     @yield('content')
 </main>
 
-<!-- Footer -->
 <footer class="bg-dark text-white py-4">
     <div class="container-xl text-center">
         <div class="row">
@@ -117,7 +112,6 @@
     </div>
 </footer>
 
-<!-- Scripts -->
 <script src="{{ asset('js/bootstrap.bundle.js') }}"></script>
 @stack('scripts')
 </body>

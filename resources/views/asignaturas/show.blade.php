@@ -135,7 +135,6 @@
                         </div>
                     </div>
 
-                    {{-- Modal de edición --}}
                     <div class="modal fade" id="editarPublicacionModal{{ $pub->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <form action="{{ route('publicaciones.update', $pub) }}" method="POST" class="modal-content">

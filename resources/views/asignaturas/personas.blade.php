@@ -5,15 +5,12 @@
 @section('content')
     <div class="container-xl mt-4">
 
-        {{-- Navegación arriba --}}
         @include('asignaturas.partials.navegacion', ['asignatura' => $asignatura])
 
-        {{-- Banner --}}
         @include('asignaturas.partials.banner', ['asignatura' => $asignatura])
 
         <div class="row mt-4">
 
-            {{-- Profesor --}}
             <div class="col-md-12 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body d-flex align-items-center">
@@ -28,7 +25,6 @@
                 </div>
             </div>
 
-            {{-- Estudiantes --}}
             <div class="col-md-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
