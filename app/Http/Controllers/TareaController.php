@@ -80,6 +80,13 @@ class TareaController extends Controller
             }
         }
 
+        foreach ($tarea->asignatura->estudiantes as $estudiante) {
+            $estudiante->notify(new \App\Notifications\NewTaskNotification(
+               'Se ha creado una nueva tarea: ' . $tarea->titulo,
+               route('tareas.ver.estudiante', $tarea->id),
+            ));
+        }
+
         return redirect()->route('tareas.show', $tarea)->with('success', 'Tarea creada correctamente.');;
     }
 

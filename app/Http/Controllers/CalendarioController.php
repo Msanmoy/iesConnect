@@ -27,7 +27,7 @@ class CalendarioController extends Controller
                 'titulo' => $tarea->titulo,
                 'descripcion' => $tarea->descripcion,
                 'fecha' => Carbon::parse($tarea->fecha_limite)->format('Y-m-d'),
-                'url' => route('tareas.show', $tarea),
+                'url' => route('tareas.ver.estudiante', $tarea),
             ];
         }
 

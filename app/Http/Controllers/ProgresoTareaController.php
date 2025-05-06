@@ -41,7 +41,6 @@ class ProgresoTareaController extends Controller
             }
 
             if (isset($request->progreso_id[$usuarioId])) {
-                // Actualizar
                 $progreso = ProgresoTarea::find($request->progreso_id[$usuarioId]);
 
                 if ($progreso && $progreso->nivel_asignado->value !== $nivel) {

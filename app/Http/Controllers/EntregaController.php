@@ -79,6 +79,15 @@ class EntregaController extends Controller
         $entrega->nota = $request->nota;
         $entrega->save();
 
+        $tarea = $entrega->progreso->tarea;
+        $estudiante = $entrega->progreso->estudiante;
+
+        $estudiante->notify(new \App\Notifications\TaskCorrectedNotification(
+            'Se ha actualizado el feedback de una tarea: ' . $tarea->titulo,
+            route('tareas.ver.estudiante', $tarea->id),
+        ));
+
+
         return back()->with('success', 'Feedback guardado correctamente.');
     }
 

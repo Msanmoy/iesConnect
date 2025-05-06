@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asignatura;
 use App\Models\Publicacion;
+use App\Notifications\NewClassMessageNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -26,6 +27,13 @@ class PublicacionController extends Controller
             'asignatura_id' => $asignatura->id,
             'contenido' => $request->contenido,
         ]);
+
+        foreach ($asignatura->estudiantes as $estudiante) {
+            $estudiante->notify(new NewClassMessageNotification(
+                'Se ha publicado un nuevo mensaje en: ' . $asignatura->nombre,
+                route('asignaturas.show', $asignatura->slug),
+            ));
+        }
 
         return redirect()->route('asignaturas.show', $asignatura->slug)->with('success', 'Publicación enviada correctamente.');
     }

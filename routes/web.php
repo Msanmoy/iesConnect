@@ -5,6 +5,7 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\ProgresoTareaController;
 use App\Http\Controllers\ArchivoTareaController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AsignaturaController;
 use App\Http\Controllers\UsuarioController;
@@ -90,6 +91,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::view('/calendario', 'calendario.index')->name('calendario');
     Route::get('/calendario/eventos', [CalendarioController::class, 'eventos'])->name('calendario.eventos');
+
+    Route::get('/notification/{id}', function ($id, Request $request) {
+        $notification = $request->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+        return redirect($notification->data['link']);
+    })->name('notification.read');
 
 });
 

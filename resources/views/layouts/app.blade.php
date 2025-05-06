@@ -37,10 +37,29 @@
         <div class="d-flex align-items-center border-start ms-auto">
 
             @stack('header-actions')
+            @auth
+            <div class="dropdown">
+                <button class="btn me-3 border-0" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell"></i>
+                    @if(auth()->user()->unreadNotifications->count())
+                        <span class="badge bg-danger">{{ auth()->user()->unreadNotifications->count() }}</span>
+                    @endif
+                </button>
 
-            <button class="btn me-3 border-0">
-                <i class="bi bi-bell"></i>
-            </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    @forelse(auth()->user()->unreadNotifications as $notification)
+                        <li>
+                            <a href="{{ route('notification.read', $notification->id) }}" class="dropdown-item">
+                            <strong>{{ $notification->data['title'] }}</strong><br>
+                                {{ $notification->data['message'] }}
+                            </a>
+                        </li>
+                    @empty
+                        <li><span class="dropdown-item">Sin notificaciones</span></li>
+                    @endforelse
+                </ul>
+            </div>
+            @endauth
             <div class="dropdown">
                 @auth
                     <button class="btn dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">

@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         extendedProps: {
                             descripcion: evento.descripcion,
                             tipo: evento.tipo,
-                            url: evento.url,
+                            url: evento.url ? evento.url : null,
                         },
                     }));
                     successCallback(eventos);
@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }),
                 descripcion,
                 tipo,
+                url: extendedProps.url,
             });
         },
         dayMaxEvents: true,
@@ -140,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const type = document.getElementById("eventModalType");
         const date = document.getElementById("eventModalDate");
         const description = document.getElementById("eventModalDescription");
+        const footer = document.querySelector(".calendar-event-modal-footer");
 
         title.textContent = eventData.title;
         date.textContent = eventData.fecha;
@@ -159,14 +161,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (eventData.url) {
-            const footer = document.querySelector(
-                ".calendar-event-modal-footer",
-            );
             const goToBtn = document.createElement("a");
             goToBtn.href = eventData.url;
-            goToBtn.className = "btn btn-primary";
+            goToBtn.target = "_blank";
+            goToBtn.className = "btn btn-primary me-2";
             goToBtn.id = "eventModalGoToBtn";
-            goToBtn.textContent = "Ir a la tarea";
+            goToBtn.textContent = "Ver tarea";
 
             footer.prepend(goToBtn);
         }
