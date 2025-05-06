@@ -85,15 +85,40 @@
             <h5>Historial de entregas</h5>
             <ul class="list-unstyled">
                 @foreach ($progreso->entregas as $entrega)
-                    <li>
-                        <i class="bi bi-file-earmark-arrow-down"></i>
-                        <a href="{{ asset('storage/' . $entrega->archivo) }}" target="_blank">
-                            {{ ucfirst($entrega->nivel) }} – {{ \Carbon\Carbon::parse($entrega->fecha_entrega)->format('d/m/Y H:i') }}
-                        </a>
+                    <li class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-file-earmark-arrow-down"></i>
+                                <a href="{{ asset('storage/' . $entrega->archivo) }}" target="_blank">
+                                    {{ ucfirst($entrega->nivel) }} – {{ \Carbon\Carbon::parse($entrega->fecha_entrega)->format('d/m/Y H:i') }}
+                                </a>
+                            </div>
+
+                            @if ($entrega->nota !== null)
+                                <span class="badge bg-success">
+                            Nota: {{ $entrega->nota }}
+                        </span>
+                            @else
+                                <span class="badge bg-secondary">
+                            Sin calificar
+                        </span>
+                            @endif
+                        </div>
+
+                        @if ($entrega->comentario)
+                            <div class="text-muted small mt-1">
+                                <i class="bi bi-chat-left-text"></i> {{ $entrega->comentario }}
+                            </div>
+                        @else
+                            <div class="text-muted small mt-1">
+                                <i class="bi bi-hourglass-split"></i> En espera de corrección
+                            </div>
+                        @endif
                     </li>
                 @endforeach
             </ul>
         @endif
+
 
         <div class="mt-4">
             <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">

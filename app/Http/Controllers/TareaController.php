@@ -80,6 +80,15 @@ class TareaController extends Controller
             }
         }
 
+        $estudiantes = $tarea->asignatura->estudiantes;
+
+        foreach ($estudiantes as $estudiante) {
+            $tarea->progresos()->create([
+                'usuario_id' => $estudiante->id,
+                'nivel_asignado' => 'sencillo',
+            ]);
+        }
+
         foreach ($tarea->asignatura->estudiantes as $estudiante) {
             $estudiante->notify(new \App\Notifications\NewTaskNotification(
                'Se ha creado una nueva tarea: ' . $tarea->titulo,

@@ -31,20 +31,19 @@
                     <h5 class="mt-4">Archivos por nivel de dificultad</h5>
 
                     <div class="mb-3">
-                        <label class="form-label">Archivos Sencillo</label>
-                        <input type="file" name="archivos[sencillo]" multiple class="form-control">
+                        <label for="archivo_sencillo" class="form-label">Archivo nivel Sencillo</label>
+                        <input class="form-control" type="file" name="archivos[sencillo]">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Archivos Intermedio</label>
-                        <input type="file" name="archivos[intermedio]" multiple class="form-control">
+                        <label for="archivo_intermedio" class="form-label">Archivo nivel Intermedio</label>
+                        <input class="form-control" type="file" name="archivos[intermedio]">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Archivos Avanzado</label>
-                        <input type="file" name="archivos[avanzado]" multiple class="form-control">
+                        <label for="archivo_avanzado" class="form-label">Archivo nivel Avanzado</label>
+                        <input class="form-control" type="file" name="archivos[avanzado]">
                     </div>
-
                     <div class="text-end">
                         <button type="submit" class="btn btn-primary rounded-2 px-4">
                             <i class="bi bi-save me-1"></i> Crear tarea

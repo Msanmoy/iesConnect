@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('entregado_sencillo')->default(false);
             $table->boolean('entregado_intermedio')->default(false);
             $table->boolean('entregado_avanzado')->default(false);
+            $table->boolean('finalizado')->default(false);
             $table->timestamps();
         });
 

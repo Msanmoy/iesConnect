@@ -79,6 +79,26 @@ class EntregaController extends Controller
         $entrega->nota = $request->nota;
         $entrega->save();
 
+        if ($entrega->nota !== null) {
+            $progreso = $entrega->progreso;
+
+            $niveles = ['sencillo', 'intermedio', 'avanzado'];
+            $nivelActual = $progreso->nivel_asignado->value;
+
+            $indiceActual = array_search($nivelActual, $niveles);
+
+            if ($indiceActual !== false) {
+                if ($nivelActual === 'avanzado') {
+                    $progreso->finalizado = true;
+                    $progreso->save();
+                } elseif ($indiceActual < count($niveles) - 1) {
+                    $nuevoNivel = $niveles[$indiceActual + 1];
+                    $progreso->nivel_asignado = $nuevoNivel;
+                    $progreso->save();
+                }
+            }
+        }
+
         $tarea = $entrega->progreso->tarea;
         $estudiante = $entrega->progreso->estudiante;
 
