@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\StickyWallController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\ProgresoTareaController;
@@ -97,6 +98,12 @@ Route::middleware(['auth'])->group(function () {
         $notification->markAsRead();
         return redirect($notification->data['link']);
     })->name('notification.read');
+
+    // Sticky Wall
+
+    Route::get('/stickywall', [StickyWallController::class, 'index'])->name('stickywall.index');
+    Route::post('/stickywall/update-order', [StickyWallController::class, 'updateOrder'])->name('stickywall.updateorder');
+    Route::post('/stickywall/store-or-update', [StickyWallController::class, 'storeOrUpdate'])->name('stickywall.storeOrUpdate');
 
 });
 

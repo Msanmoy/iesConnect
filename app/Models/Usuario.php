@@ -57,4 +57,9 @@ class Usuario extends Authenticatable
     {
         return $this->hasMany(Publicacion::class);
     }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
+    }
 }
