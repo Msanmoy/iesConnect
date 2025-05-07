@@ -31,25 +31,29 @@ Sigue estos pasos para configurar el entorno de desarrollo en tu máquina:
    ```bash
    composer install
    ```
-3. Configura el archivo `.env`:
+3. Instala las dependencias de Node con NPM:
+   ```bash
+   npm install
+   ```
+4. Configura el archivo `.env`:
    ```bash
    cp .env.example .env
    ```
    Luego edita `.env` con los datos de conexión a tu base de datos.
 
-4. Genera la clave de la aplicación:
+5. Genera la clave de la aplicación:
    ```bash
    php artisan key:generate
    ```
-5. Ejecuta las migraciones y semillas para inicializar la base de datos:
+6. Ejecuta las migraciones y semillas para inicializar la base de datos:
    ```bash
    php artisan migrate --seed
    ```
-6. Inicia el servidor local:
+7. Inicia el servidor local:
    ```bash
-   php artisan serve
+   composer run dev
    ```
-7. Accede a la aplicación en tu navegador:
+8. Accede a la aplicación en tu navegador:
    ```
    http://127.0.0.1:8000
    ```
@@ -57,7 +61,7 @@ Sigue estos pasos para configurar el entorno de desarrollo en tu máquina:
 ## 📖 Uso
 
 1. Regístrate e inicia sesión como profesor o estudiante.
-2. Crea un curso o únete a uno existente.
+2. Unete a una clase.
 3. Publica tareas, envía archivos y participa en foros de discusión.
 4. Recibe notificaciones y revisa el progreso de tus alumnos.
 
