@@ -142,6 +142,16 @@ class AsignaturaController extends Controller
         return view('asignaturas.personas', compact('asignatura', 'profesor', 'alumnos'));
     }
 
+    public function expulsar(Asignatura $asignatura, Usuario $alumno)
+    {
+        if (auth()->user()->rol !== 'PROFESOR') {
+            abort(403, 'No autorizado');
+        }
+        $asignatura->estudiantes()->detach($alumno->id);
+
+        return redirect()->back()->with('success', 'Alumno expulsado correctamente.');
+    }
+
 
 
 }

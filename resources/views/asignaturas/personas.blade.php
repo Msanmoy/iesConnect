@@ -40,6 +40,15 @@
                                             <strong>{{ $alumno->nombre }}</strong><br>
                                             <small class="text-muted">{{ $alumno->email }}</small>
                                         </div>
+                                        @if(auth()->user()->rol === 'PROFESOR')
+                                            <div class="ms-auto">
+                                                <form action="{{ route('asignatura.expulsar', [$asignatura->id, $alumno->id]) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres expulsar a este estudiante?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-danger btn-sm">Expulsar</button>
+                                                </form>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach

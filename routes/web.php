@@ -52,9 +52,9 @@ Route::delete('/archivos/{archivo}', [ArchivoTareaController::class, 'destroy'])
 Route::post('/asignaturas/{asignatura}/regenerar-codigo', [AsignaturaController::class, 'regenerarCodigo'])->name('asignaturas.regenerar-codigo')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::put('/asignaturas/{asignatura}/personalizar', [AsignaturaController::class, 'personalizar'])->name('asignaturas.personalizar')->middleware(\App\Http\Middleware\EsProfesor::class);
 
-Route::get('/cuestionarios/{tarea}/estadisticas', [CuestionarioController::class, 'estadisticas'])
-    ->middleware(\App\Http\Middleware\EsProfesor::class)
-    ->name('cuestionarios.estadisticas');
+Route::get('/cuestionarios/{tarea}/estadisticas', [CuestionarioController::class, 'estadisticas'])->middleware(\App\Http\Middleware\EsProfesor::class)->name('cuestionarios.estadisticas');
+
+Route::delete('/asignaturas/{asignatura}/expulsar/{alumno}', [AsignaturaController::class, 'expulsar'])->name('asignatura.expulsar')->middleware(\App\Http\Middleware\EsProfesor::class);;
 
 
 /*
