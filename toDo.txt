@@ -1,0 +1,26 @@
+COSAS QUE HACER:
+
++ Arriba, + Prioridad. (Exceptuando las validaciones que se harán más adelante).
+
+Añadir un apartado en las notificaciones para borrarlas.
+Que al presionar en las tareas del tipo cuestionario, te lleve directamente a la vista.
+Mejorar la vista de tareas (Muy mucho, ahora está impresentable).
+
+Crear usuario Administrador <-- Super Importante.
+
+Checkear como funciona la pagina con varias asignaturas.
+Checkear si se puede entregar despues de la fecha de entrega.
+
+
+###########################################################################
+### Añadir validaciones a los formularios, tanto frontend como backend. ###
+### |-> Formulario de registro.                                         ###
+### |-> Formulario de iniciar sesión.                                   ###
+### |-> Implementar correo del centro.                                  ###
+###########################################################################
+
+Mirar si se puede de alguna manera evitar recargar la página para que se cargan las noificaciones.
+
+Subir a un hosting con dominio.
+
+
