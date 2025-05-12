@@ -23,7 +23,7 @@ class CalendarioController extends Controller
         foreach ($tareas as $tarea) {
             $eventos[] = [
                 'id' => $tarea->id,
-                'tipo' => 'tarea',
+                'tipo' => $tarea->tipo,
                 'titulo' => $tarea->titulo,
                 'descripcion' => $tarea->descripcion,
                 'fecha' => Carbon::parse($tarea->fecha_limite)->format('Y-m-d'),

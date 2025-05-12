@@ -29,10 +29,12 @@ class CuestionarioController extends Controller
             'enunciado' => $data['enunciado'],
         ]);
 
-        foreach ($data['respuestas'] as $respuesta) {
+        $correctaIndex = $request->input('respuestas_correcta');
+
+        foreach ($data['respuestas'] as $index => $respuesta) {
             $pregunta->respuestas()->create([
                 'texto' => $respuesta['texto'],
-                'es_correcta' => ($respuesta['es_correcta'] ?? '0') === '1',
+                'es_correcta' => ((string)$index === (string)$correctaIndex),
             ]);
         }
 
