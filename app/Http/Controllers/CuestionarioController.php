@@ -74,7 +74,7 @@ class CuestionarioController extends Controller
             );
         }
 
-        return redirect()->route('tareas.show', $tarea)->with('success', 'Respuestas enviadas correctamente.');
+        return redirect()->route('tareas.ver.estudiante', $tarea)->with('success', 'Respuestas enviadas correctamente.');
     }
 
     public function estadisticas(Tarea $tarea)

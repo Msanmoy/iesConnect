@@ -41,95 +41,93 @@
                 </a>
             </div>
             <hr>
-        @endif
-
-
-        @php
-            $nivel = $progreso->nivel_asignado->value;
-            $niveles = ['sencillo', 'intermedio', 'avanzado'];
-            $puedeEntregar = false;
-
-            switch ($nivel) {
-                case 'sencillo':
-                    $puedeEntregar = !$progreso->entregado_sencillo;
-                    $nivelActual = 'sencillo';
-                    break;
-                case 'intermedio':
-                    if (!$progreso->entregado_intermedio) {
-                        $puedeEntregar = true;
-                        $nivelActual = 'intermedio';
-                    }
-                    break;
-                case 'avanzado':
-                    if (!$progreso->entregado_avanzado) {
-                        $puedeEntregar = true;
-                        $nivelActual = 'avanzado';
-                    }
-                    break;
-            }
-        @endphp
-
-        @if ($puedeEntregar ?? false)
-            <form action="{{ route('entregas.store', $progreso) }}" method="POST" enctype="multipart/form-data" class="card shadow-sm p-4 mb-4">
-                @csrf
-                <input type="hidden" name="nivel" value="{{ $nivelActual }}">
-
-                <div class="mb-3">
-                    <label for="archivo" class="form-label">Selecciona tu archivo</label>
-                    <input type="file" name="archivo" id="archivo" class="form-control" required>
-                    <small class="text-muted">Archivos permitidos: PDF, imágenes, documentos. Máx. 20MB.</small>
-                </div>
-
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-upload me-1"></i> Subir entrega ({{ ucfirst($nivelActual) }})
-                    </button>
-                </div>
-            </form>
         @else
-            <div class="alert alert-success">
-                Ya has entregado tu trabajo para el nivel actual ({{ ucfirst($nivel) }}).
-            </div>
-        @endif
+            @php
+                $nivel = $progreso->nivel_asignado->value;
+                $niveles = ['sencillo', 'intermedio', 'avanzado'];
+                $puedeEntregar = false;
 
-        @if ($progreso->entregas->count())
-            <h5>Historial de entregas</h5>
-            <ul class="list-unstyled">
-                @foreach ($progreso->entregas as $entrega)
-                    <li class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="bi bi-file-earmark-arrow-down"></i>
-                                <a href="{{ asset('storage/' . $entrega->archivo) }}" target="_blank">
-                                    {{ ucfirst($entrega->nivel) }} – {{ \Carbon\Carbon::parse($entrega->fecha_entrega)->format('d/m/Y H:i') }}
-                                </a>
+                switch ($nivel) {
+                    case 'sencillo':
+                        $puedeEntregar = !$progreso->entregado_sencillo;
+                        $nivelActual = 'sencillo';
+                        break;
+                    case 'intermedio':
+                        if (!$progreso->entregado_intermedio) {
+                            $puedeEntregar = true;
+                            $nivelActual = 'intermedio';
+                        }
+                        break;
+                    case 'avanzado':
+                        if (!$progreso->entregado_avanzado) {
+                            $puedeEntregar = true;
+                            $nivelActual = 'avanzado';
+                        }
+                        break;
+                }
+            @endphp
+
+            @if ($puedeEntregar ?? false)
+                <form action="{{ route('entregas.store', $progreso) }}" method="POST" enctype="multipart/form-data" class="card shadow-sm p-4 mb-4">
+                    @csrf
+                    <input type="hidden" name="nivel" value="{{ $nivelActual }}">
+
+                    <div class="mb-3">
+                        <label for="archivo" class="form-label">Selecciona tu archivo</label>
+                        <input type="file" name="archivo" id="archivo" class="form-control" required>
+                        <small class="text-muted">Archivos permitidos: PDF, imágenes, documentos. Máx. 20MB.</small>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload me-1"></i> Subir entrega ({{ ucfirst($nivelActual) }})
+                        </button>
+                    </div>
+                </form>
+            @else
+                <div class="alert alert-success">
+                    Ya has entregado tu trabajo para el nivel actual ({{ ucfirst($nivel) }}).
+                </div>
+            @endif
+
+            @if ($progreso->entregas->count())
+                <h5>Historial de entregas</h5>
+                <ul class="list-unstyled">
+                    @foreach ($progreso->entregas as $entrega)
+                        <li class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-file-earmark-arrow-down"></i>
+                                    <a href="{{ asset('storage/' . $entrega->archivo) }}" target="_blank">
+                                        {{ ucfirst($entrega->nivel) }} – {{ \Carbon\Carbon::parse($entrega->fecha_entrega)->format('d/m/Y H:i') }}
+                                    </a>
+                                </div>
+
+                                @if ($entrega->nota !== null)
+                                    <span class="badge bg-success">
+                                Nota: {{ $entrega->nota }}
+                            </span>
+                                @else
+                                    <span class="badge bg-secondary">
+                                Sin calificar
+                            </span>
+                                @endif
                             </div>
 
-                            @if ($entrega->nota !== null)
-                                <span class="badge bg-success">
-                            Nota: {{ $entrega->nota }}
-                        </span>
+                            @if ($entrega->comentario)
+                                <div class="text-muted small mt-1">
+                                    <i class="bi bi-chat-left-text"></i> {{ $entrega->comentario }}
+                                </div>
                             @else
-                                <span class="badge bg-secondary">
-                            Sin calificar
-                        </span>
+                                <div class="text-muted small mt-1">
+                                    <i class="bi bi-hourglass-split"></i> En espera de corrección
+                                </div>
                             @endif
-                        </div>
-
-                        @if ($entrega->comentario)
-                            <div class="text-muted small mt-1">
-                                <i class="bi bi-chat-left-text"></i> {{ $entrega->comentario }}
-                            </div>
-                        @else
-                            <div class="text-muted small mt-1">
-                                <i class="bi bi-hourglass-split"></i> En espera de corrección
-                            </div>
-                        @endif
-                    </li>
-                @endforeach
-            </ul>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
         @endif
-
 
         <div class="mt-4">
             <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">
