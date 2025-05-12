@@ -1,43 +1,45 @@
 @extends('layouts.app')
 
-@section('title', 'Resultado del cuestionario')
+@section('title', 'Responder cuestionario')
 
 @section('content')
     <div class="container-xl">
-        <h2 class="mb-4">Resultado: {{ $tarea->titulo }}</h2>
+        <h2 class="mb-4">{{ $tarea->titulo }}</h2>
 
-        @foreach ($tarea->preguntas as $pregunta)
-            @php
-                $respuestaEst = $respuestasEstudiante[$pregunta->id] ?? null;
-            @endphp
+        <p class="text-muted">{{ $tarea->descripcion }}</p>
 
-            <div class="mb-4">
-                <strong>{{ $loop->iteration }}. {{ $pregunta->enunciado }}</strong>
-                <div class="mt-2">
-                    @foreach ($pregunta->respuestas as $respuesta)
-                        @php
-                            $esSeleccionada = $respuestaEst && $respuestaEst->respuesta_id == $respuesta->id;
-                            $esCorrecta = $respuesta->es_correcta;
-                            $clase = $esCorrecta ? 'text-success' : ($esSeleccionada ? 'text-danger' : '');
-                        @endphp
+        <form action="{{ route('cuestionarios.responder.guardar', $tarea) }}" method="POST">
+            @csrf
 
-                        <div class="form-check {{ $clase }}">
-                            <input class="form-check-input"
-                                   type="radio"
-                                   disabled
-                                   @if($esSeleccionada) checked @endif>
-                            <label class="form-check-label">
-                                {{ $respuesta->texto }}
-                                @if($esCorrecta)
-                                    <span class="badge bg-success ms-2">Correcta</span>
-                                @elseif($esSeleccionada)
-                                    <span class="badge bg-danger ms-2">Incorrecta</span>
-                                @endif
-                            </label>
-                        </div>
-                    @endforeach
+            @foreach($tarea->preguntas as $pregunta)
+                <div class="mb-4">
+                    <strong>{{ $loop->iteration }}. {{ $pregunta->enunciado }}</strong>
+
+                    <div class="mt-2">
+                        @foreach($pregunta->respuestas as $respuesta)
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    name="respuestas[{{ $pregunta->id }}]"
+                                    id="respuesta_{{ $respuesta->id }}"
+                                    value="{{ $respuesta->id }}"
+                                    required
+                                >
+                                <label class="form-check-label" for="respuesta_{{ $respuesta->id }}">
+                                    {{ $respuesta->texto }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
+            @endforeach
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send me-1"></i> Enviar respuestas
+                </button>
             </div>
-        @endforeach
+        </form>
     </div>
 @endsection

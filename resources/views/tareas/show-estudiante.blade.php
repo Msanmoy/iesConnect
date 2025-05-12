@@ -33,6 +33,17 @@
 
         <h5 class="mb-3">Subir tu entrega</h5>
 
+        @if ($tarea->tipo === 'cuestionario')
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <span>Esta es una tarea tipo cuestionario. Puedes responderlo directamente.</span>
+                <a href="{{ route('cuestionarios.responder', $tarea) }}" class="btn btn-primary">
+                    <i class="bi bi-play-circle me-1"></i> Comenzar cuestionario
+                </a>
+            </div>
+            <hr>
+        @endif
+
+
         @php
             $nivel = $progreso->nivel_asignado->value;
             $niveles = ['sencillo', 'intermedio', 'avanzado'];

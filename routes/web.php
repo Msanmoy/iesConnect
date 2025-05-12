@@ -110,9 +110,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/cuestionarios/{tarea}/edit', [CuestionarioController::class, 'edit'])->name('cuestionarios.edit');
     Route::post('/cuestionarios/{tarea}/preguntas', [CuestionarioController::class, 'storePregunta'])->name('cuestionarios.preguntas.store');
-
-    Route::get('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'formularioEstudiente'])->name('cuestionarios.responder');
     Route::post('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'guardarRespuestas'])->name('cuestionarios.responder.guardar');
+
+
+    Route::get('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'formularioEstudiante'])->name('cuestionarios.responder');
 
     Route::get('/cuestionarios/{tarea}/resultado', [CuestionarioController::class, 'verResultado'])->name('cuestionarios.resultado');
 

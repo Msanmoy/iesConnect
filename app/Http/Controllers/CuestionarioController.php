@@ -155,7 +155,31 @@ class CuestionarioController extends Controller
         }
     }
 
+    public function verResultado(Tarea $tarea)
+    {
+        $usuario = auth()->user();
 
+        $tarea->load(['preguntas.respuestas']);
 
+        $respuestasEstudiante = \App\Models\RespuestaEstudiante::where('usuario_id', $usuario->id)
+            ->whereIn('pregunta_id', $tarea->preguntas->pluck('id'))
+            ->with('respuesta')
+            ->get()
+            ->keyBy('pregunta_id');
+
+        $total = $tarea->preguntas->count();
+        $correctas = 0;
+
+        foreach ($tarea->preguntas as $pregunta) {
+            $respuestaEstudiante = $respuestasEstudiante[$pregunta->id] ?? null;
+            if ($respuestaEstudiante && $respuestaEstudiante->respuesta->es_correcta) {
+                $correctas++;
+            }
+        }
+
+        $porcentaje = $total > 0 ? round(($correctas / $total) * 100) : 0;
+
+        return view('cuestionarios.resultado', compact('tarea', 'respuestasEstudiante', 'correctas', 'total', 'porcentaje'));
+    }
 
 }
