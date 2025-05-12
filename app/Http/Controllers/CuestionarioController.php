@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\RespuestaEstudiante;
+use App\Models\Tarea;
+use Illuminate\Http\Request;
+
+class CuestionarioController extends Controller
+{
+    public function edit(Tarea $tarea)
+    {
+        $tarea->load('preguntas.respuestas');
+        return view('cuestionarios.edit', compact('tarea'));
+    }
+
+    public function storePregunta(Request $request, Tarea $tarea)
+    {
+        $data = $request->validate([
+            'enunciado' => 'required|string',
+            'respuestas' => 'required|array|min:2',
+            'respuestas.*.texto' => 'required|string',
+            'respuestas.*.es_correcta' => 'boolean',
+        ]);
+
+        $pregunta = $tarea->preguntas()->create([
+            'enunciado' => $data['enunciado'],
+        ]);
+
+        foreach ($data['respuestas'] as $respuesta) {
+            $pregunta->respuestas()->create([
+                'texto' => $respuesta['texto'],
+                'es_correcta' => $respuesta['es_correcta'] ?? false,
+            ]);
+        }
+
+        return back()->with('success', 'Pregunta añadida correctamente.');
+    }
+
+    public function formularioEstudiante(Tarea $tarea)
+    {
+        $usuario = auth()->user();
+
+        $yaRespondio = RespuestaEstudiante::where('usuario_id', $usuario->id)
+            ->whereIn('pregunta_id', $tarea->preguntas->pluck('id'))
+            ->exists();
+
+        if ($yaRespondio) {
+            return redirect()->route('cuestionarios.resultado', $tarea);
+        }
+
+        $tarea->load('preguntas.respuestas');
+        return view('cuestionarios.responder', compact('tarea'));
+    }
+
+
+    public function guardarRespuestas(Request $request, Tarea $tarea)
+    {
+        $usuario = auth()->user();
+
+        foreach ($request->input('respuestas', []) as $preguntaId => $respuestaId) {
+            RespuestaEstudiante::updateOrCreate(
+                [
+                    'usuario_id' => $usuario->id,
+                    'pregunta_id' => $preguntaId,
+                ],
+                [
+                    'respuesta_id' => $respuestaId,
+                ]
+            );
+        }
+
+        return redirect()->route('tareas.show', $tarea)->with('success', 'Respuestas enviadas correctamente.');
+    }
+
+    public function estadisticas(Tarea $tarea)
+    {
+        $this->autorizarTarea($tarea); // solo profesores
+
+        $tarea->load(['preguntas.respuestas']);
+
+        $totalEstudiantes = $tarea->asignatura->estudiantes()->count();
+
+        $respondieron = RespuestaEstudiante::whereIn('pregunta_id', $tarea->preguntas->pluck('id'))
+            ->distinct('usuario_id')
+            ->count('usuario_id');
+
+        // Cálculo por pregunta
+        $estadisticasPreguntas = $tarea->preguntas->map(function ($pregunta) {
+            $totalRespuestas = $pregunta->respuestasEstudiante()->count();
+            $respuestasCorrectas = RespuestaEstudiante::where('pregunta_id', $pregunta->id)
+                ->whereHas('respuesta', fn($q) => $q->where('es_correcta', true))
+                ->count();
+
+            return [
+                'pregunta' => $pregunta->enunciado,
+                'total' => $totalRespuestas,
+                'correctas' => $respuestasCorrectas,
+                'porcentaje' => $totalRespuestas > 0 ? round(($respuestasCorrectas / $totalRespuestas) * 100) : 0,
+            ];
+        });
+
+        return view('cuestionarios.estadisticas', compact('tarea', 'totalEstudiantes', 'respondieron', 'estadisticasPreguntas'));
+    }
+
+
+
+}

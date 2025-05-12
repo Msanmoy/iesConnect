@@ -54,31 +54,46 @@ class TareaController extends Controller
 
     public function store(Request $request)
     {
+
+
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'fecha_limite' => 'nullable|date',
             'asignatura_id' => 'required|exists:asignaturas,id',
+            'tipo' => 'required|in:tarea,cuestionario,pregunta,material,reutilizar',
+            'archivos' => 'nullable|array',
+            'archivos.*.*' => 'file|max:20480',
         ]);
+
+
 
         $tarea = Tarea::create([
             'titulo' => $request->titulo,
             'descripcion' => $request->descripcion,
             'fecha_limite' => $request->fecha_limite,
             'asignatura_id' => $request->asignatura_id,
+            'tipo' => $request->tipo,
         ]);
 
+
         if ($request->hasFile('archivos')) {
-            foreach ($request->file('archivos') as $nivel => $archivo) {
-                $ruta = $archivo->store('tareas', 'public');
-                $tarea->archivos()->create([
-                    'nombre_archivo' => $archivo->getClientOriginalName(),
-                    'ruta_archivo' => $ruta,
-                    'tipo_archivo' => $archivo->getMimeType(),
-                    'nivel' => $nivel,
-                ]);
+            foreach ($request->file('archivos') as $nivel => $archivosNivel) {
+                foreach ($archivosNivel as $archivo) {
+                    $ruta = $archivo->store('tareas', 'public');
+
+
+
+                    $tarea->archivos()->create([
+                        'nombre_archivo' => $archivo->getClientOriginalName(),
+                        'ruta_archivo' => $ruta,
+                        'tipo_archivo' => $archivo->getMimeType(),
+                        'nivel' => $nivel,
+                    ]);
+                }
             }
         }
+
 
         $estudiantes = $tarea->asignatura->estudiantes;
 
@@ -95,8 +110,11 @@ class TareaController extends Controller
                route('tareas.ver.estudiante', $tarea->id),
             ));
         }
+        if ($tarea->tipo === 'cuestionario') {
+            return redirect()->route('cuestionarios.edit', $tarea);
+        }
 
-        return redirect()->route('tareas.show', $tarea)->with('success', 'Tarea creada correctamente.');;
+        return redirect()->route('tareas.show', $tarea)->with('success', 'Tarea creada correctamente.');
     }
 
 

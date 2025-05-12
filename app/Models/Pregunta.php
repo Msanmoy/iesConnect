@@ -9,17 +9,26 @@ class Pregunta extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['titulo', 'fase_id'];
+    protected $fillable = [
+        'tarea_id',
+        'enunciado',
+    ];
 
-    public function fase()
+    public function tarea()
     {
-        return $this->belongsTo(Fase::class);
+        return $this->belongsTo(Tarea::class);
     }
 
     public function respuestas()
     {
         return $this->hasMany(Respuesta::class);
     }
+
+    public function respuestasEstudiante()
+    {
+        return $this->hasMany(RespuestaEstudiante::class);
+    }
+
 }
 
 

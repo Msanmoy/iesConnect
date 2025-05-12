@@ -131,7 +131,6 @@
     </div>
 </footer>
 
-<script src="{{ asset('js/bootstrap.bundle.js') }}"></script>
 @stack('scripts')
 </body>
 </html>

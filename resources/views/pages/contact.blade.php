@@ -3,7 +3,6 @@
 @section('title', 'Contacto')
 
 @section('content')
-    <main class="container-xl my-5">
         <h1 class="text-center fw-bold">Contacto</h1>
         <p class="text-center text-muted">¿Tienes alguna pregunta? Envíanos un mensaje.</p>
         <div class="row justify-content-center">
@@ -26,5 +25,4 @@
                 </form>
             </div>
         </div>
-    </main>
 @endsection

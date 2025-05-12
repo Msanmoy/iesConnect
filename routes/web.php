@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CuestionarioController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\ProgresoTareaController;
@@ -47,6 +48,11 @@ Route::delete('/archivos/{archivo}', [ArchivoTareaController::class, 'destroy'])
 
 Route::post('/asignaturas/{asignatura}/regenerar-codigo', [AsignaturaController::class, 'regenerarCodigo'])->name('asignaturas.regenerar-codigo')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::put('/asignaturas/{asignatura}/personalizar', [AsignaturaController::class, 'personalizar'])->name('asignaturas.personalizar')->middleware(\App\Http\Middleware\EsProfesor::class);
+
+Route::get('/cuestionarios/{tarea}/estadisticas', [CuestionarioController::class, 'estadisticas'])
+    ->middleware(\App\Http\Middleware\EsProfesor::class)
+    ->name('cuestionarios.estadisticas');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +103,16 @@ Route::middleware(['auth'])->group(function () {
         $notification->markAsRead();
         return redirect($notification->data['link']);
     })->name('notification.read');
+
+
+    Route::get('/cuestionarios/{tarea}/edit', [CuestionarioController::class, 'edit'])->name('cuestionarios.edit');
+    Route::post('/cuestionarios/{tarea}/preguntas', [CuestionarioController::class, 'storePregunta'])->name('cuestionarios.preguntas.store');
+
+    Route::get('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'formularioEstudiente'])->name('cuestionarios.responder');
+    Route::post('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'guardarRespuestas'])->name('cuestionarios.responder.guardar');
+
+    Route::get('/cuestionarios/{tarea}/resultado', [CuestionarioController::class, 'verResultado'])->name('cuestionarios.resultado');
+
 
 });
 

@@ -15,6 +15,7 @@ class Tarea extends Model
         'titulo',
         'descripcion',
         'fecha_limite',
+        'tipo',
     ];
     protected $casts = [
         'fecha_limite' => 'datetime',
@@ -39,6 +40,17 @@ class Tarea extends Model
     {
         return $this->hasMany(ProgresoTarea::class);
     }
+
+    public function preguntas()
+    {
+        return $this->hasMany(Pregunta::class);
+    }
+
+    public function respuestas()
+    {
+        return $this->hasMany(Respuesta::class);
+    }
+
 }
 
 
