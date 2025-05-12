@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pregunta;
 use App\Models\RespuestaEstudiante;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class CuestionarioController extends Controller
 
     public function storePregunta(Request $request, Tarea $tarea)
     {
+
         $data = $request->validate([
             'enunciado' => 'required|string',
             'respuestas' => 'required|array|min:2',
@@ -30,7 +32,7 @@ class CuestionarioController extends Controller
         foreach ($data['respuestas'] as $respuesta) {
             $pregunta->respuestas()->create([
                 'texto' => $respuesta['texto'],
-                'es_correcta' => $respuesta['es_correcta'] ?? false,
+                'es_correcta' => ($respuesta['es_correcta'] ?? '0') === '1',
             ]);
         }
 
@@ -102,6 +104,57 @@ class CuestionarioController extends Controller
 
         return view('cuestionarios.estadisticas', compact('tarea', 'totalEstudiantes', 'respondieron', 'estadisticasPreguntas'));
     }
+
+    public function updatePregunta(Request $request, Pregunta $pregunta)
+    {
+        $data = $request->validate([
+            'enunciado' => 'required|string',
+            'respuestas' => 'required|array|min:2',
+            'respuestas.*.id' => 'nullable|exists:respuestas,id',
+            'respuestas.*.texto' => 'required|string',
+        ]);
+
+        $correctaIndex = $request->input("correcta_{$pregunta->id}");
+
+        $pregunta->update(['enunciado' => $data['enunciado']]);
+
+        foreach ($data['respuestas'] as $index => $respuestaData) {
+            $respuestaData['es_correcta'] = ((string)$correctaIndex === (string)$index);
+
+            if (!empty($respuestaData['id'])) {
+                $respuesta = Respuesta::find($respuestaData['id']);
+                if ($respuesta && $respuesta->pregunta_id === $pregunta->id) {
+                    $respuesta->update([
+                        'texto' => $respuestaData['texto'],
+                        'es_correcta' => $respuestaData['es_correcta'],
+                    ]);
+                }
+            } else {
+                $pregunta->respuestas()->create([
+                    'texto' => $respuestaData['texto'],
+                    'es_correcta' => $respuestaData['es_correcta'],
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Pregunta actualizada correctamente.');
+    }
+
+    public function destroyPregunta(Pregunta $pregunta)
+    {
+        $this->autorizarTarea($pregunta->tarea);
+        $pregunta->delete();
+
+        return back()->with('success', 'Pregunta eliminada correctamente.');
+    }
+
+    private function autorizarTarea(Tarea $tarea)
+    {
+        if ($tarea->asignatura->usuario_id !== auth()->id()) {
+            abort(403, 'No autorizado.');
+        }
+    }
+
 
 
 

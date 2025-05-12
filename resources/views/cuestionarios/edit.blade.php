@@ -41,29 +41,57 @@
                     <i class="bi bi-plus"></i> Añadir respuesta
                 </button>
             </div>
-
-            <input type="hidden" name="respuestas[0][es_correcta]" value="false">
-            <input type="hidden" name="respuestas[1][es_correcta]" value="false">
-
             <button type="submit" class="btn btn-primary">Guardar pregunta</button>
         </form>
 
         <hr class="my-4">
 
         <h4 class="mb-3">Preguntas actuales</h4>
+
         @foreach($tarea->preguntas as $pregunta)
-            <div class="mb-3">
-                <strong>{{ $loop->iteration }}. {{ $pregunta->enunciado }}</strong>
-                <ul>
-                    @foreach($pregunta->respuestas as $respuesta)
-                        <li>
-                            {{ $respuesta->texto }}
-                            @if($respuesta->es_correcta)
-                                <span class="badge bg-success ms-2">Correcta</span>
-                            @endif
-                        </li>
-                    @endforeach
-                </ul>
+            <div class="mb-4 border rounded p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>{{ $loop->iteration }}. {{ $pregunta->enunciado }}</strong>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#editPregunta{{ $pregunta->id }}">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                </div>
+
+                <div class="collapse mt-3" id="editPregunta{{ $pregunta->id }}">
+                    <form method="POST" action="{{ route('cuestionarios.preguntas.update', $pregunta) }}">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="mb-2">
+                            <label class="form-label">Enunciado</label>
+                            <input type="text" name="enunciado" class="form-control" value="{{ $pregunta->enunciado }}" required>
+                        </div>
+
+                        <label class="form-label">Respuestas</label>
+                        @foreach($pregunta->respuestas as $respuesta)
+                            <div class="input-group mb-2">
+                                <input type="hidden" name="respuestas[{{ $loop->index }}][id]" value="{{ $respuesta->id }}">
+                                <input type="text" class="form-control" name="respuestas[{{ $loop->index }}][texto]" value="{{ $respuesta->texto }}" required>
+                                <div class="input-group-text">
+                                    <input type="radio" name="correcta_{{ $pregunta->id }}" value="{{ $loop->index }}" {{ $respuesta->es_correcta ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-sm btn-success">💾 Guardar cambios</button>
+                        </div>
+                    </form>
+
+                    <form method="POST" action="{{ route('cuestionarios.preguntas.destroy', $pregunta) }}" class="mt-3" onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i> Eliminar pregunta
+                        </button>
+                    </form>
+
+                </div>
             </div>
         @endforeach
     </div>
@@ -72,11 +100,18 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            let index = 2;
+            const form = document.querySelector('form[action*="cuestionarios/preguntas"]');
+            const container = document.getElementById('respuestas-container');
+            const addBtn = document.getElementById('add-respuesta');
 
-            document.getElementById('add-respuesta').addEventListener('click', () => {
-                const container = document.getElementById('respuestas-container');
+            if (!form || !container || !addBtn) {
+                console.warn('Formulario de preguntas no encontrado.');
+                return;
+            }
 
+            let index = container.querySelectorAll('.respuesta').length;
+
+            addBtn.addEventListener('click', () => {
                 const div = document.createElement('div');
                 div.className = 'respuesta mb-2 input-group';
 
@@ -94,25 +129,46 @@
                 radio.type = 'radio';
                 radio.name = 'respuestas_correcta';
                 radio.value = index;
+                radio.title = 'Marcar como correcta';
 
                 radioDiv.appendChild(radio);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn btn-outline-danger btn-sm ms-2';
+                removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                removeBtn.title = 'Eliminar respuesta';
+                removeBtn.onclick = () => div.remove();
+
                 div.appendChild(input);
                 div.appendChild(radioDiv);
-                container.appendChild(div);
+                div.appendChild(removeBtn);
 
+                container.appendChild(div);
                 index++;
             });
 
-            // On form submit, mark selected radio as 'es_correcta'
-            document.querySelector('form').addEventListener('submit', function (e) {
-                const radios = document.querySelectorAll('input[name="respuestas_correcta"]');
-                radios.forEach(radio => {
-                    const i = radio.value;
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = `respuestas[${i}][es_correcta]`;
-                    input.value = radio.checked ? '1' : '0';
-                    this.appendChild(input);
+            form.addEventListener('submit', function (e) {
+                const seleccionada = form.querySelector('input[name="respuestas_correcta"]:checked');
+                if (!seleccionada) {
+                    e.preventDefault();
+                    alert('Debes marcar una respuesta como correcta.');
+                    return;
+                }
+
+                const correctaIndex = parseInt(seleccionada.value);
+
+                // Elimina anteriores
+                form.querySelectorAll('input[name$="[es_correcta]"]').forEach(el => el.remove());
+
+                const respuestas = form.querySelectorAll('#respuestas-container .respuesta');
+
+                respuestas.forEach((div, i) => {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = `respuestas[${i}][es_correcta]`;
+                    hidden.value = (i === correctaIndex) ? '1' : '0';
+                    form.appendChild(hidden);
                 });
             });
         });
