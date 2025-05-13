@@ -44,5 +44,6 @@ class Kernel extends HttpKernel
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
 
         'esProfesor' => \App\Http\Middleware\EsProfesor::class,
+        'esAdministrador' => \App\Http\Middleware\AdministradorOnly::class,
     ];
 }

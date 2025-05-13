@@ -48,6 +48,11 @@ class Usuario extends Authenticatable
         return $this->rol === 'PROFESOR';
     }
 
+    public function esAdministrador()
+    {
+        return $this->rol === 'ADMINISTRADOR';
+    }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new CustomResetPassword($token));

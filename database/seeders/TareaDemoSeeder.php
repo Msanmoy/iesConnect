@@ -15,6 +15,14 @@ class TareaDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        // Crear Administrador
+        $administrador = Usuario::create([
+            'nombre' => 'Administrador',
+            'email' => 'admin@demo.com',
+            'password' => Hash::make('password'),
+            'rol' => 'ADMINISTRADOR',
+        ]);
+
         // Crear profesor
         $profesor = Usuario::create([
             'nombre' => 'Laura Profesora',

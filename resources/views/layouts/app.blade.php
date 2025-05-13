@@ -22,17 +22,28 @@
         <a class="navbar-brand d-none d-lg-block" href="{{ route('home') }}">
             <img src="{{ asset('images/logo.png') }}" alt="IES Vega de Mijas" style="height: 80px;">
         </a>
-
-        <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('asignaturas.index') }}">Asignaturas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
-                </li>
-            </ul>
-        </div>
+        @auth
+        @if(auth()->user()->rol !== 'ADMINISTRADOR')
+            <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('asignaturas.index') }}">Asignaturas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('calendario') }}">Calendario</a>
+                    </li>
+                </ul>
+            </div>
+        @else
+            <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.index') }}">Panel de Control</a>
+                    </li>
+                </ul>
+            </div>
+        @endif
+        @endauth
 
         <div class="d-flex align-items-center border-start ms-auto">
 

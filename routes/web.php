@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminPanelController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CuestionarioController;
 use App\Http\Controllers\TareaController;
@@ -123,6 +124,21 @@ Route::middleware(['auth'])->group(function () {
 
 
 });
+
+### Rutas para Administradores ###
+
+Route::get('/admin', [AdminPanelController::class, 'dashboard'])->name('admin.index')->middleware(\App\Http\Middleware\AdministradorOnly::class);
+Route::get('/admin/asignaturas', [AdminPanelController::class, 'asignaturas'])->name('admin.asignaturas')->middleware(\App\Http\Middleware\AdministradorOnly::class);
+Route::get('/admin/usuarios', [AdminPanelController::class, 'usuarios'])->name('admin.usuarios')->middleware(\App\Http\Middleware\AdministradorOnly::class);
+Route::post('/admin/usuarios', [AdminPanelController::class, 'crearProfesor'])->name('admin.usuarios.store')->middleware(\App\Http\Middleware\AdministradorOnly::class);
+Route::post('/admin/asignaturas', [AdminPanelController::class, 'crearAsignatura'])->name('admin.asignaturas.store')->middleware(\App\Http\Middleware\AdministradorOnly::class);
+Route::post('/admin/asignaturas/asignar', [AdminPanelController::class, 'asignarProfesor'])->name('admin.asignaturas.asignar')->middleware(\App\Http\Middleware\AdministradorOnly::class);
+Route::delete('/admin/asignaturas/{asignatura}', [AdminPanelController::class, 'destroyAsignatura'])->name('admin.asignaturas.destroy')->middleware(\App\Http\Middleware\AdministradorOnly::class);
+Route::delete('/admin/usuarios/{usuario}', [AdminPanelController::class, 'eliminarUsuario'])->name('admin.usuarios.destroy')->middleware(\App\Http\Middleware\AdministradorOnly::class);
+
+
+
+
 
 
 /*
