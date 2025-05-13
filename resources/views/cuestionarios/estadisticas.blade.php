@@ -19,7 +19,7 @@
         @foreach ($estadisticasPreguntas as $i => $stat)
             <div class="mb-4">
                 <strong>{{ $loop->iteration }}. {{ $stat['pregunta'] }}</strong>
-                <canvas id="graficoPregunta{{ $i }}" height="150"></canvas>
+                <canvas id="graficoPregunta{{ $i }}" width="400" height="100" style="max-width: 100%;"></canvas>
             </div>
         @endforeach
     </div>
@@ -36,9 +36,10 @@
                 data: {
                     labels: {!! json_encode($stat['respuestas']->pluck('texto')) !!},
                     datasets: [{
-                        label: 'Respuestas seleccionadas',
-                        data: {!! json_encode($stat['respuestas']->pluck('conteo')) !!},
-                        backgroundColor: {!! json_encode($stat['respuestas']->map(fn($r) => $r['correcta'] ? '#198754' : '#0d6efd')) !!},
+                        labels: {!! json_encode(collect($stat['respuestas'])->pluck('texto')) !!},
+                        data: {!! json_encode(collect($stat['respuestas'])->pluck('conteo')) !!},
+                        backgroundColor: {!! json_encode(collect($stat['respuestas'])->map(fn($r) => $r['correcta'] ? '#198754' : '#0d6efd')->values()) !!}
+
                     }]
                 },
                 options: {
@@ -47,13 +48,28 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                stepSize: 1
+                                stepSize: 1,
+                                font: {
+                                    size: 16
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 16
+                                }
                             }
                         }
                     },
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        tooltip: {
+                            bodyFont: {
+                                size: 16
+                            }
                         }
                     }
                 }

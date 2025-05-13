@@ -91,13 +91,21 @@ class CuestionarioController extends Controller
 
         // Cálculo por pregunta
         $estadisticasPreguntas = $tarea->preguntas->map(function ($pregunta) {
-            $totalRespuestas = $pregunta->respuestasEstudiante()->count();
-            $respuestasCorrectas = RespuestaEstudiante::where('pregunta_id', $pregunta->id)
-                ->whereHas('respuesta', fn($q) => $q->where('es_correcta', true))
-                ->count();
+            $respuestas = $pregunta->respuestas->map(function ($respuesta) {
+                $conteo = $respuesta->respuestasEstudiante()->count();
+                return [
+                    'texto' => $respuesta->texto,
+                    'conteo' => $conteo,
+                    'correcta' => $respuesta->es_correcta,
+                ];
+            });
+
+            $totalRespuestas = $respuestas->sum('conteo');
+            $respuestasCorrectas = $respuestas->filter(fn($r) => $r['correcta'])->sum('conteo');
 
             return [
                 'pregunta' => $pregunta->enunciado,
+                'respuestas' => $respuestas,
                 'total' => $totalRespuestas,
                 'correctas' => $respuestasCorrectas,
                 'porcentaje' => $totalRespuestas > 0 ? round(($respuestasCorrectas / $totalRespuestas) * 100) : 0,

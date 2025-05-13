@@ -19,5 +19,10 @@ class Respuesta extends Model
     {
         return $this->belongsTo(Pregunta::class);
     }
+
+    public function respuestasEstudiante()
+    {
+        return $this->hasMany(RespuestaEstudiante::class);
+    }
 }
 
