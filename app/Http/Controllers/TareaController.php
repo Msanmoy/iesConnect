@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ArchivoTarea;
 use App\Models\Asignatura;
 use App\Models\Tarea;
+use App\Notifications\NewTaskNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -104,11 +105,15 @@ class TareaController extends Controller
             ]);
         }
 
+        $usuarioActual = auth()->user();
+
         foreach ($tarea->asignatura->estudiantes as $estudiante) {
-            $estudiante->notify(new \App\Notifications\NewTaskNotification(
-               'Se ha creado una nueva tarea: ' . $tarea->titulo,
-               route('tareas.ver.estudiante', $tarea->id),
-            ));
+            if ($estudiante->id !== $usuarioActual->id) {
+                $estudiante->notify(new NewTaskNotification(
+                    'Se ha creado una nueva tarea: ' . $tarea->titulo,
+                    route('tareas.ver.estudiante', $tarea->id)
+                ));
+            }
         }
         if ($tarea->tipo === 'cuestionario') {
             return redirect()->route('cuestionarios.edit', $tarea);

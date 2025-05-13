@@ -28,11 +28,15 @@ class PublicacionController extends Controller
             'contenido' => $request->contenido,
         ]);
 
+        $usuarioActual = Auth::user();
+
         foreach ($asignatura->estudiantes as $estudiante) {
-            $estudiante->notify(new NewClassMessageNotification(
-                'Se ha publicado un nuevo mensaje en: ' . $asignatura->nombre,
-                route('asignaturas.show', $asignatura->slug),
-            ));
+            if ($estudiante->id !== $usuarioActual->id) {
+                $estudiante->notify(new NewClassMessageNotification(
+                    'Se ha publicado un nuevo mensaje en: ' . $asignatura->nombre,
+                    route('asignaturas.show', $asignatura->slug),
+                ));
+            }
         }
 
         return redirect()->route('asignaturas.show', $asignatura->slug)->with('success', 'Publicación enviada correctamente.');

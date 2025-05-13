@@ -31,7 +31,7 @@
                             @if(auth()->user()->rol === 'ESTUDIANTE')
                                 <a href="{{ route('cuestionarios.responder', $tarea) }}" class="btn btn-sm btn-primary">Ver cuestionario</a>
                             @else
-                                <a href="{{ route('cuestionarios.estadisticas', $tarea) }}" class="btn btn-sm btn-primary">Ver cuestionario</a>
+                                <a href="{{ route('cuestionarios.estadisticas', $tarea) }}" class="btn btn-sm btn-outline-primary">Ver cuestionario</a>
                             @endif
 
                         @else

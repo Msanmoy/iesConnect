@@ -48,11 +48,18 @@
 
                 <ul class="dropdown-menu dropdown-menu-end">
                     @forelse(auth()->user()->unreadNotifications as $notification)
-                        <li>
-                            <a href="{{ route('notification.read', $notification->id) }}" class="dropdown-item">
-                            <strong>{{ $notification->data['title'] }}</strong><br>
+                        <li class="d-flex justify-content-between align-items-start px-2 py-1">
+                            <a href="{{ route('notification.read', $notification->id) }}" class="dropdown-item flex-grow-1">
+                                <strong>{{ $notification->data['title'] }}</strong><br>
                                 {{ $notification->data['message'] }}
                             </a>
+                            <form action="{{ route('notification.delete', $notification->id) }}" method="POST" class="ms-2">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Eliminar">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
                         </li>
                     @empty
                         <li><span class="dropdown-item">Sin notificaciones</span></li>

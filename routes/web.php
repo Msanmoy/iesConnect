@@ -107,6 +107,10 @@ Route::middleware(['auth'])->group(function () {
         return redirect($notification->data['link']);
     })->name('notification.read');
 
+    Route::delete('/notificaciones/{notification}', [App\Http\Controllers\NotificacionController::class, 'destroy'])
+        ->name('notification.delete');
+
+
 
     Route::get('/cuestionarios/{tarea}/edit', [CuestionarioController::class, 'edit'])->name('cuestionarios.edit');
     Route::post('/cuestionarios/{tarea}/preguntas', [CuestionarioController::class, 'storePregunta'])->name('cuestionarios.preguntas.store');
