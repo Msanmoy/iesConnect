@@ -39,8 +39,10 @@ Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store')-
 Route::get('/tareas/{tarea}/edit', [TareaController::class, 'edit'])->name('tareas.edit')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy')->middleware(\App\Http\Middleware\EsProfesor::class);
-Route::put('/cuestionarios/preguntas/{pregunta}', [CuestionarioController::class, 'updatePregunta'])->name('cuestionarios.preguntas.update')->middleware(\App\Http\Middleware\EsProfesor::class);;
-Route::delete('/cuestionarios/preguntas/{pregunta}', [CuestionarioController::class, 'destroyPregunta'])->name('cuestionarios.preguntas.destroy');
+Route::put('/cuestionarios/preguntas/{pregunta}', [CuestionarioController::class, 'updatePregunta'])->name('cuestionarios.preguntas.update')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::delete('/cuestionarios/preguntas/{pregunta}', [CuestionarioController::class, 'destroyPregunta'])->name('cuestionarios.preguntas.destroy')->middleware(\App\Http\Middleware\EsProfesor::class);
+
+Route::put('/cuestionarios/{tarea}/actualizar-notas', [CuestionarioController::class, 'actualizarNotas'])->name('cuestionarios.actualizarNotas')->middleware(\App\Http\Middleware\EsProfesor::class);;
 
 
 Route::get('/tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'create'])->name('progreso.create')->middleware(\App\Http\Middleware\EsProfesor::class);

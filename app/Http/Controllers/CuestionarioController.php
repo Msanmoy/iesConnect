@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pregunta;
+use App\Models\Respuesta;
 use App\Models\RespuestaEstudiante;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
@@ -112,7 +113,15 @@ class CuestionarioController extends Controller
             ];
         });
 
-        return view('cuestionarios.estadisticas', compact('tarea', 'totalEstudiantes', 'respondieron', 'estadisticasPreguntas'));
+        $respuestasAlumnos = RespuestaEstudiante::with('estudiante')
+            ->whereIn('pregunta_id', $tarea->preguntas->pluck('id'))
+            ->get()
+            ->groupBy('usuario_id')
+            ->map(function ($respuestas) {
+                return $respuestas->sortByDesc('updated_at')->first();
+            });
+
+        return view('cuestionarios.estadisticas', compact('tarea', 'totalEstudiantes', 'respondieron', 'estadisticasPreguntas', 'respuestasAlumnos'));;
     }
 
     public function updatePregunta(Request $request, Pregunta $pregunta)
@@ -191,5 +200,23 @@ class CuestionarioController extends Controller
 
         return view('cuestionarios.resultado', compact('tarea', 'respuestasEstudiante', 'correctas', 'total', 'porcentaje'));
     }
+
+
+    public function actualizarNotas(Request $request, Tarea $tarea)
+    {
+        $this->autorizarTarea($tarea);
+
+        foreach ($request->input('notas', []) as $respuestaId => $nuevaNota) {
+            $respuesta = \App\Models\RespuestaEstudiante::find($respuestaId);
+
+            if ($respuesta && is_numeric($nuevaNota)) {
+                $respuesta->nota = $nuevaNota;
+                $respuesta->save();
+            }
+        }
+
+        return back()->with('success', 'Notas actualizadas correctamente.');
+    }
+
 
 }
