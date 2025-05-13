@@ -84,20 +84,25 @@ class EntregaController extends Controller
 
             $niveles = ['sencillo', 'intermedio', 'avanzado'];
             $nivelActual = $progreso->nivel_asignado->value;
-
             $indiceActual = array_search($nivelActual, $niveles);
 
-            if ($indiceActual !== false) {
+            if ($entrega->nivel === $nivelActual && $indiceActual !== false) {
                 if ($nivelActual === 'avanzado') {
                     $progreso->finalizado = true;
                     $progreso->save();
                 } elseif ($indiceActual < count($niveles) - 1) {
                     $nuevoNivel = $niveles[$indiceActual + 1];
-                    $progreso->nivel_asignado = $nuevoNivel;
-                    $progreso->save();
+
+                    $yaEntregado = $progreso->entregas->contains('nivel', $nuevoNivel);
+
+                    if (! $yaEntregado) {
+                        $progreso->nivel_asignado = $nuevoNivel;
+                        $progreso->save();
+                    }
                 }
             }
         }
+
 
         $tarea = $entrega->progreso->tarea;
         $estudiante = $entrega->progreso->estudiante;

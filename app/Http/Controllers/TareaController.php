@@ -131,7 +131,9 @@ class TareaController extends Controller
 
         $tarea->load(['asignatura', 'progresos.estudiante', 'progresos.entregas']);
 
-        return view('tareas.show', compact('tarea'));
+        $estudiantes = $tarea->asignatura->estudiantes;
+
+        return view('tareas.show', compact('tarea', 'estudiantes'));
     }
 
     public function showEstudiante(Tarea $tarea)

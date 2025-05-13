@@ -4,149 +4,238 @@
 
 @section('content')
     <div class="container-xl">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>{{ $tarea->titulo }}</h2>
+        {{-- Pestañas --}}
+        <ul class="nav nav-tabs mb-4" id="tareaTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="instrucciones-tab" data-bs-toggle="tab" data-bs-target="#instrucciones" type="button" role="tab">Instrucciones</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="trabajo-tab" data-bs-toggle="tab" data-bs-target="#trabajo" type="button" role="tab">Trabajo de los alumnos</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="asignar-tab" data-bs-toggle="tab" data-bs-target="#asignar" type="button" role="tab">Asignar niveles</button>
+            </li>
+        </ul>
 
-            @if(auth()->user()->rol === 'PROFESOR')
-                <div class="dropdown">
-                    <button class="btn btn-light border-0" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                        <li>
-                            <a href="{{ route('tareas.edit', $tarea) }}" class="dropdown-item">
-                                <i class="bi bi-pencil me-1"></i> Editar tarea
-                            </a>
-                        </li>
-                        <li>
-                            <form action="{{ route('tareas.destroy', $tarea) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta tarea?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <i class="bi bi-trash me-1"></i> Eliminar tarea
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
+        <div class="tab-content" id="tareaTabsContent">
+            {{-- Instrucciones --}}
+            <div class="tab-pane fade show active" id="instrucciones" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="bi bi-clipboard me-2 text-primary"></i>{{ $tarea->titulo }}</h3>
+
+                    @if(auth()->user()->rol === 'PROFESOR')
+                        <div class="dropdown">
+                            <button class="btn btn-light border-0" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a href="{{ route('tareas.edit', $tarea) }}" class="dropdown-item">✏️ Editar</a></li>
+                                <li>
+                                    <form action="{{ route('tareas.destroy', $tarea) }}" method="POST" onsubmit="return confirm('¿Eliminar esta tarea?');">
+                                        @csrf @method('DELETE')
+                                        <button class="dropdown-item text-danger">🗑️ Eliminar</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    @endif
                 </div>
-            @endif
-        </div>
 
-        <p>{{ $tarea->descripcion }}</p>
-        <p>
-            <strong>Asignatura:</strong> {{ $tarea->asignatura->nombre }} <br>
-            <strong>Fecha límite:</strong> {{ \Carbon\Carbon::parse($tarea->fecha_limite)->format('d/m/Y') }}
-        </p>
-        <hr>
+                <p class="text-muted mb-1">{{ $tarea->fecha_limite->format('d M Y') }} — {{ $tarea->puntos ?? '100' }} puntos</p>
+                <p>{{ $tarea->descripcion }}</p>
 
-        <!-- Archivos organizados por nivel -->
-        <h4 class="mb-3">Materiales de la Tarea</h4>
 
-        @php
-            $niveles = ['sencillo', 'intermedio', 'avanzado'];
-        @endphp
+            @foreach(['sencillo', 'intermedio', 'avanzado'] as $nivel)
+                    @php $archivos = $tarea->archivos->where('nivel', $nivel); @endphp
+                    @if($archivos->isNotEmpty())
+                        <h5 class="mt-4 text-capitalize">{{ $nivel }}</h5>
+                        <ul class="list-group mb-3">
+                            @foreach($archivos as $archivo)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>{{ $archivo->nombre_archivo }}</span>
+                                    <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}" class="btn btn-sm btn-outline-primary" target="_blank">📄 Ver</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                @endforeach
 
-        @foreach($niveles as $nivel)
-            @php
-                $archivosNivel = $tarea->archivos->where('nivel', $nivel);
-            @endphp
+                <hr>
+            </div>
 
-            @if($archivosNivel->isNotEmpty())
-                <h5 class="mt-3">{{ ucfirst($nivel) }}</h5>
-                <ul class="list-group mb-4">
-                    @foreach($archivosNivel as $archivo)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ $archivo->nombre_archivo }}
-                            <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                Ver archivo
-                            </a>
+            {{-- Trabajo de los alumnos --}}
+            <div class="tab-pane fade" id="trabajo" role="tabpanel">
+                @php
+                    $totalAsignados = $tarea->progresos->count();
+                    $totalEntregadas = $tarea->progresos->flatMap->entregas->count();
+                    $totalPendientes = $totalAsignados - $totalEntregadas;
+                @endphp
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold">{{ $tarea->titulo }}</h5>
+                    <div class="text-end text-muted">
+                    <span class="me-3">
+                        <i class="bi bi-check-circle text-success me-1"></i>
+                        Entregadas: <strong>{{ $totalEntregadas }}</strong>
+                    </span>
+                                    <span>
+                        <i class="bi bi-person text-primary me-1"></i>
+                        Asignadas: <strong>{{ $totalPendientes }}</strong>
+                    </span>
+                    </div>
+                </div>
+
+                {{-- Tabs por nivel --}}
+                <ul class="nav nav-pills mb-4" id="nivelesTabs" role="tablist">
+                    @foreach(['sencillo', 'intermedio', 'avanzado'] as $nivel)
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {{ $loop->first ? 'active' : '' }}"
+                                    id="nivel-{{ $nivel }}-tab"
+                                    data-bs-toggle="pill"
+                                    data-bs-target="#nivel-{{ $nivel }}"
+                                    type="button"
+                                    role="tab">
+                                {{ ucfirst($nivel) }}
+                            </button>
                         </li>
                     @endforeach
                 </ul>
-            @endif
-        @endforeach
 
-        <hr>
+                <div class="tab-content" id="nivelesTabsContent">
+                    @foreach(['sencillo', 'intermedio', 'avanzado'] as $nivel)
+                        <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="nivel-{{ $nivel }}" role="tabpanel">
+                            @php
+                                $progresosNivel = $tarea->progresos->filter(function ($progreso) use ($nivel) {
+                                    return $progreso->entregas->contains('nivel', $nivel);
+                                });
+                            @endphp
+                            @if ($progresosNivel->isEmpty())
+                                <div class="alert alert-light border">No hay estudiantes que hayan entregado en este nivel.</div>
+                            @else
+                                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                    @foreach ($progresosNivel as $progreso)
+                                        @php
+                                            $entrega = $progreso->entregas->firstWhere('nivel', $nivel);
+                                            $estaEnOtroNivel = $progreso->nivel_asignado->value !== $nivel;
+                                        @endphp
 
-        <h4 class="mb-3">Entregas por Estudiante</h4>
+                                        <div class="col">
+                                            <div class="card shadow-sm border-0 h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <h5 class="card-title mb-0">{{ $progreso->estudiante->nombre }}</h5>
+                                                        <span class="badge bg-secondary text-uppercase">{{ $nivel }}</span>
+                                                    </div>
 
-        @auth
+                                                    @if ($estaEnOtroNivel)
+                                                        <div class="mb-2 text-info small">
+                                                            <i class="bi bi-arrow-right-circle me-1"></i>
+                                                            Actualmente en nivel <strong>{{ ucfirst($progreso->nivel_asignado->value) }}</strong>
+                                                        </div>
+                                                    @endif
+
+                                                    <p class="text-success mb-2"><i class="bi bi-check-circle me-1"></i> Ha entregado</p>
+                                                    <p class="mb-2 text-muted">Entregado el {{ $entrega->fecha_entrega->format('d/m/Y H:i') }}</p>
+
+                                                    <a href="{{ asset('storage/' . $entrega->archivo) }}" class="btn btn-sm btn-outline-primary mb-3" target="_blank">
+                                                        Ver entrega
+                                                    </a>
+
+                                                    <form action="{{ route('entregas.feedback', $entrega) }}" method="POST" class="mt-auto">
+                                                        @csrf
+                                                        @method('PUT')
+
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Comentario</label>
+                                                            <textarea name="comentario" class="form-control" rows="2">{{ $entrega->comentario }}</textarea>
+                                                        </div>
+
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Nota</label>
+                                                            <input type="number" name="nota" class="form-control" value="{{ $entrega->nota }}" step="0.1" min="0" max="10">
+                                                        </div>
+
+                                                        <div class="text-end">
+                                                            <button class="btn btn-success btn-sm">
+                                                                <i class="bi bi-check2-circle me-1"></i> Guardar feedback
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
             @if(auth()->user()->rol === 'PROFESOR')
-                <div class="mb-4 text-end">
-                    <a href="{{ route('progreso.create', $tarea) }}" class="btn btn-outline-primary">
-                        <i class="bi bi-person-plus me-1"></i> Asignar niveles a estudiantes
-                    </a>
+                <div class="tab-pane fade" id="asignar" role="tabpanel">
+                    <h4 class="mb-4">Asignar niveles a estudiantes – <span class="text-muted">{{ $tarea->titulo }}</span></h4>
+
+                    @if ($estudiantes->isEmpty())
+                        <div class="alert alert-warning">No hay estudiantes asignados a esta asignatura.</div>
+                    @else
+                        <form action="{{ route('progreso.store', $tarea) }}" method="POST">
+                            @csrf
+
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Nivel asignado</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($estudiantes as $estudiante)
+                                    @php
+                                        $progreso = $tarea->progresos->firstWhere('usuario_id', $estudiante->id);
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $estudiante->nombre }}</td>
+                                        <td>
+                                            <input type="hidden" name="usuario_id[]" value="{{ $estudiante->id }}">
+
+                                            @if ($progreso)
+                                                <input type="hidden" name="progreso_id[{{ $estudiante->id }}]" value="{{ $progreso->id }}">
+                                                <select name="nivel_asignado[{{ $estudiante->id }}]" class="form-select form-select-sm w-auto d-inline-block">
+                                                    <option value="sencillo" {{ $progreso->nivel_asignado->value === 'sencillo' ? 'selected' : '' }}>Sencillo</option>
+                                                    <option value="intermedio" {{ $progreso->nivel_asignado->value === 'intermedio' ? 'selected' : '' }}>Intermedio</option>
+                                                    <option value="avanzado" {{ $progreso->nivel_asignado->value === 'avanzado' ? 'selected' : '' }}>Avanzado</option>
+                                                </select>
+                                            @else
+                                                <select name="nivel_asignado[{{ $estudiante->id }}]" class="form-select form-select-sm w-auto d-inline-block">
+                                                    <option value="sencillo">Sencillo</option>
+                                                    <option value="intermedio">Intermedio</option>
+                                                    <option value="avanzado">Avanzado</option>
+                                                </select>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-1"></i> Asignar niveles
+                                </button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
             @endif
-        @endauth
 
-        @if ($tarea->progresos->isEmpty())
-            <div class="alert alert-info">No hay entregas asignadas o registradas para esta tarea.</div>
-        @else
-            <div class="accordion" id="accordionProgresos">
-                @foreach ($tarea->progresos as $progreso)
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading{{ $progreso->id }}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $progreso->id }}" aria-expanded="false" aria-controls="collapse{{ $progreso->id }}">
-                                {{ $progreso->estudiante->nombre }}
-                                <span class="badge bg-secondary ms-2">
-                                    Nivel asignado: {{ ucfirst($progreso->nivel_asignado->value) }}
-                                </span>
-                            </button>
-                        </h2>
-                        <div id="collapse{{ $progreso->id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $progreso->id }}" data-bs-parent="#accordionProgresos">
-                            <div class="accordion-body">
-                                @if ($progreso->entregas->isNotEmpty())
-                                    <ul class="list-group">
-                                        @foreach ($progreso->entregas as $entrega)
-                                            <li class="list-group-item">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <strong>{{ ucfirst($entrega->nivel) }}</strong>
-                                                        <span class="text-muted">– {{ $entrega->fecha_entrega->format('d/m/Y H:i') }}</span>
-                                                    </div>
-                                                    <a href="{{ asset('storage/' . $entrega->archivo) }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                                        Ver archivo
-                                                    </a>
-                                                </div>
 
-                                                <form action="{{ route('entregas.feedback', $entrega) }}" method="POST" class="mt-2">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Comentario</label>
-                                                        <textarea name="comentario" class="form-control" rows="2">{{ $entrega->comentario }}</textarea>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Nota</label>
-                                                        <input type="number" name="nota" class="form-control w-auto" value="{{ $entrega->nota }}" step="0.1" min="0" max="10">
-                                                    </div>
-                                                    <div class="text-end">
-                                                        <button class="btn btn-sm btn-success" type="submit">
-                                                            <i class="bi bi-save me-1"></i> Guardar feedback
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <div class="alert alert-warning mb-0">
-                                        Este estudiante aún no ha entregado nada.
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        @endif
 
-        <div class="mt-4">
+
+            <div class="mt-4">
             <a href="{{ route('asignaturas.trabajo', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Volver al tablón
             </a>
         </div>
-
     </div>
 @endsection
