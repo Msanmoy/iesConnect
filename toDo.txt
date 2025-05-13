@@ -6,7 +6,7 @@ Añadir un apartado en las notificaciones para borrarlas. -- HECHO
 Que al presionar en las tareas del tipo cuestionario, te lleve directamente a la vista.
 Mejorar la vista de tareas (Muy mucho, ahora está impresentable).
 
-Crear usuario Administrador <-- Super Importante.
+Crear usuario Administrador <-- Super Importante. -- HECHO
 
 Checkear como funciona la pagina con varias asignaturas.
 Checkear si se puede entregar despues de la fecha de entrega.
