@@ -2,7 +2,7 @@ COSAS QUE HACER:
 
 + Arriba, + Prioridad. (Exceptuando las validaciones que se harán más adelante).
 
-Añadir un apartado en las notificaciones para borrarlas.
+Añadir un apartado en las notificaciones para borrarlas. -- HECHO
 Que al presionar en las tareas del tipo cuestionario, te lleve directamente a la vista.
 Mejorar la vista de tareas (Muy mucho, ahora está impresentable).
 

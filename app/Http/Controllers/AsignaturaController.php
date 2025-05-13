@@ -78,6 +78,15 @@ class AsignaturaController extends Controller
 
         if (!$usuario->asignaturas()->where('asignatura_id', $asignatura->id)->exists()) {
             $usuario->asignaturas()->attach($asignatura->id);
+            $tareas = $asignatura->tareas;
+
+            foreach ($tareas as $tarea) {
+                $tarea->progresos()->create([
+                    'usuario_id' => $usuario->id,
+                    'nivel_asignado' => 'sencillo',
+                ]);
+            }
+
         }
 
         return redirect()->back()->with('success', 'Te has unido a la asignatura correctamente.');
