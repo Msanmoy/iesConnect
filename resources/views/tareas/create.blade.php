@@ -9,6 +9,7 @@
         <form action="{{ route('tareas.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="asignatura_id" value="{{ $asignatura->id }}">
+
             <div class="mb-3">
                 <label for="tipo" class="form-label">Tipo de publicación</label>
                 <select name="tipo" id="tipo" class="form-select" required>
@@ -18,6 +19,11 @@
                     <option value="material">Material</option>
                     <option value="reutilizar">Reutilizar publicación</option>
                 </select>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" name="generica" id="generica">
+                <label class="form-check-label" for="generica">¿Tarea genérica (sin niveles)?</label>
             </div>
 
             <div class="mb-3">
@@ -30,7 +36,7 @@
                 <textarea name="descripcion" id="descripcion" rows="4" class="form-control"></textarea>
             </div>
 
-            <div id="niveles-section">
+            <div id="archivos-nivel-section">
                 <label class="form-label">Archivos por nivel</label>
                 @foreach(['sencillo', 'intermedio', 'avanzado'] as $nivel)
                     <div class="mb-2">
@@ -38,6 +44,11 @@
                         <input type="file" name="archivos[{{ $nivel }}][]" multiple class="form-control">
                     </div>
                 @endforeach
+            </div>
+
+            <div id="archivos-genericos-section" class="mb-3" style="display: none;">
+                <label for="archivos_genericos" class="form-label">Archivos para todos los estudiantes</label>
+                <input type="file" name="archivos_genericos[]" multiple class="form-control">
             </div>
 
             <div id="fecha-limite-section" class="mb-3">
@@ -51,6 +62,16 @@
                 </button>
             </div>
         </form>
+
+        @if ($errors->any())
+            <div class="alert alert-danger mt-3">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
     </div>
 @endsection
 
@@ -58,19 +79,24 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tipo = document.getElementById('tipo')
-            const niveles = document.getElementById('niveles-section')
+            const generica = document.getElementById('generica')
+            const niveles = document.getElementById('archivos-nivel-section')
+            const genericos = document.getElementById('archivos-genericos-section')
             const fechaLimite = document.getElementById('fecha-limite-section')
             const descripcion = document.getElementById('descripcion-section')
 
             function toggleSections() {
-                const value = tipo.value
-                niveles.style.display = (value === 'tarea') ? 'block' : 'none'
-                fechaLimite.style.display = (value === 'tarea' || value === 'cuestionario') ? 'block' : 'none'
-                descripcion.style.display = 'block';
+                const tipoValue = tipo.value
+                const isGenerica = generica.checked
 
+                niveles.style.display = (!isGenerica && tipoValue === 'tarea') ? 'block' : 'none'
+                genericos.style.display = (isGenerica && tipoValue === 'tarea') ? 'block' : 'none'
+                fechaLimite.style.display = (tipoValue === 'tarea' || tipoValue === 'cuestionario') ? 'block' : 'none'
+                descripcion.style.display = 'block'
             }
 
             tipo.addEventListener('change', toggleSections)
+            generica.addEventListener('change', toggleSections)
             toggleSections()
         })
     </script>

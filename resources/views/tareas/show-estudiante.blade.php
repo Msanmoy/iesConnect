@@ -4,132 +4,144 @@
 
 @section('content')
     <div class="container-xl">
-        <h2 class="mb-3">{{ $tarea->titulo }}</h2>
+        @php
+            $esGenerica = $tarea->archivos->whereNull('nivel')->isNotEmpty();
+            $nivel = $progreso->nivel_asignado->value ?? null;
 
-        <p class="mb-3">{{ $tarea->descripcion }}</p>
+            if (!$esGenerica) {
+                $puedeEntregar = match($nivel) {
+                    'sencillo' => !$progreso->entregado_sencillo,
+                    'intermedio' => !$progreso->entregado_intermedio,
+                    'avanzado' => !$progreso->entregado_avanzado,
+                    default => false
+                };
+            } else {
+                $puedeEntregar = !$progreso->entregas->count();
+            }
+        @endphp
 
-        <p>
-            <strong>Fecha límite:</strong>
-            {{ \Carbon\Carbon::parse($tarea->fecha_limite)->format('d/m/Y') }}
-        </p>
+        <h2 class="fw-bold mb-3">{{ $tarea->titulo }}</h2>
 
+        <p class="text-muted">{{ $tarea->descripcion }}</p>
+
+        <div class="mb-4">
+            <span class="badge bg-light text-dark me-2">
+                <i class="bi bi-calendar-event me-1"></i>
+                Fecha límite: {{ optional($tarea->fecha_limite)->format('d/m/Y') ?? 'No especificada' }}
+            </span>
+            <span class="badge bg-primary-subtle text-primary">{{ ucfirst($tarea->tipo) }}</span>
+        </div>
+
+        {{-- Nivel actual --}}
+        @if (!$esGenerica && $progreso)
+            <h5 class="mb-3">Tu nivel actual:
+                <span class="badge bg-primary text-uppercase">{{ ucfirst($nivel) }}</span>
+            </h5>
+        @endif
+
+        {{-- Archivos del profesor --}}
         @if ($tarea->archivos->count())
             <div class="mb-4">
-                <h5>Archivos proporcionados por el profesor</h5>
+                <h5 class="fw-semibold mb-3">
+                    <i class="bi bi-folder me-1"></i>
+                    Archivos del profesor
+                </h5>
+
                 <ul class="list-group">
                     @foreach ($tarea->archivos as $archivo)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>{{ $archivo->nombre_archivo }}</span>
-                            <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
-                                Ver
-                            </a>
-                        </li>
+                        @if ($esGenerica || ($progreso && $archivo->nivel === $nivel))
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ $archivo->nombre_archivo }}</span>
+                                <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                    Ver
+                                </a>
+                            </li>
+                        @endif
                     @endforeach
                 </ul>
             </div>
         @endif
 
-        <hr>
-
-        <h5 class="mb-3">Subir tu entrega</h5>
-
+        {{-- Cuestionario --}}
         @if ($tarea->tipo === 'cuestionario')
-            <div class="alert alert-info d-flex justify-content-between align-items-center">
-                <span>Esta es una tarea tipo cuestionario. Puedes responderlo directamente.</span>
+            <div class="alert alert-info d-flex justify-content-between align-items-center shadow-sm">
+                <span><i class="bi bi-info-circle me-2"></i>Esta tarea es un cuestionario. Puedes comenzarlo ahora.</span>
                 <a href="{{ route('cuestionarios.responder', $tarea) }}" class="btn btn-primary">
-                    <i class="bi bi-play-circle me-1"></i> Comenzar cuestionario
+                    <i class="bi bi-play-circle me-1"></i> Comenzar
                 </a>
             </div>
             <hr>
         @else
-            @php
-                $nivel = $progreso->nivel_asignado->value;
-                $niveles = ['sencillo', 'intermedio', 'avanzado'];
-                $puedeEntregar = false;
+            {{-- Entrega --}}
+            <h5 class="fw-semibold mb-3">📤 Tu entrega</h5>
 
-                switch ($nivel) {
-                    case 'sencillo':
-                        $puedeEntregar = !$progreso->entregado_sencillo;
-                        $nivelActual = 'sencillo';
-                        break;
-                    case 'intermedio':
-                        if (!$progreso->entregado_intermedio) {
-                            $puedeEntregar = true;
-                            $nivelActual = 'intermedio';
-                        }
-                        break;
-                    case 'avanzado':
-                        if (!$progreso->entregado_avanzado) {
-                            $puedeEntregar = true;
-                            $nivelActual = 'avanzado';
-                        }
-                        break;
-                }
-            @endphp
-
-            @if ($puedeEntregar ?? false)
-                <form action="{{ route('entregas.store', $progreso) }}" method="POST" enctype="multipart/form-data" class="card shadow-sm p-4 mb-4">
+            @if ($puedeEntregar)
+                <form action="{{ route('entregas.store', $progreso) }}" method="POST" enctype="multipart/form-data" class="card shadow-sm p-4 mb-4 border-0">
                     @csrf
-                    <input type="hidden" name="nivel" value="{{ $nivelActual }}">
+                    @if (!$esGenerica)
+                        <input type="hidden" name="nivel" value="{{ $nivel }}">
+                    @endif
 
                     <div class="mb-3">
-                        <label for="archivo" class="form-label">Selecciona tu archivo</label>
+                        <label for="archivo" class="form-label">Archivo</label>
                         <input type="file" name="archivo" id="archivo" class="form-control" required>
-                        <small class="text-muted">Archivos permitidos: PDF, imágenes, documentos. Máx. 20MB.</small>
+                        <small class="form-text text-muted">Formatos aceptados: PDF, imágenes, documentos (máx. 20MB)</small>
                     </div>
 
-                    <div class="d-flex justify-content-end">
+                    <div class="text-end">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-upload me-1"></i> Subir entrega ({{ ucfirst($nivelActual) }})
+                            <i class="bi bi-upload me-1"></i> Subir entrega{{ $esGenerica ? '' : ' (' . ucfirst($nivel) . ')' }}
                         </button>
                     </div>
                 </form>
             @else
-                <div class="alert alert-success">
-                    Ya has entregado tu trabajo para el nivel actual ({{ ucfirst($nivel) }}).
+                <div class="alert alert-success shadow-sm">
+                    Ya has entregado{{ $esGenerica ? '' : ' el trabajo para el nivel ' . ucfirst($nivel) }}.
                 </div>
             @endif
 
+            {{-- Historial de entregas --}}
             @if ($progreso->entregas->count())
-                <h5>Historial de entregas</h5>
-                <ul class="list-unstyled">
+                <h5 class="fw-semibold mb-3">📁 Historial de entregas</h5>
+                <div class="row g-3">
                     @foreach ($progreso->entregas as $entrega)
-                        <li class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="bi bi-file-earmark-arrow-down"></i>
-                                    <a href="{{ asset('storage/' . $entrega->archivo) }}" target="_blank">
-                                        {{ ucfirst($entrega->nivel) }} – {{ \Carbon\Carbon::parse($entrega->fecha_entrega)->format('d/m/Y H:i') }}
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0 h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong class="text-primary">
+                                            {{ $esGenerica ? 'Entrega' : ucfirst($entrega->nivel) }}
+                                        </strong>
+                                        <span class="badge {{ $entrega->nota !== null ? 'bg-success' : 'bg-secondary' }}">
+                                            {{ $entrega->nota !== null ? "Nota: $entrega->nota" : 'Sin calificar' }}
+                                        </span>
+                                    </div>
+
+                                    <p class="text-muted mb-1">
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ $entrega->fecha_entrega->format('d/m/Y H:i') }}
+                                    </p>
+
+                                    <a href="{{ asset('storage/' . $entrega->archivo) }}" class="btn btn-outline-primary btn-sm mb-2" target="_blank">
+                                        <i class="bi bi-file-earmark-arrow-down me-1"></i> Ver entrega
                                     </a>
-                                </div>
 
-                                @if ($entrega->nota !== null)
-                                    <span class="badge bg-success">
-                                Nota: {{ $entrega->nota }}
-                            </span>
-                                @else
-                                    <span class="badge bg-secondary">
-                                Sin calificar
-                            </span>
-                                @endif
+                                    <div class="text-muted small">
+                                        @if ($entrega->comentario)
+                                            <i class="bi bi-chat-left-text me-1"></i> {{ $entrega->comentario }}
+                                        @else
+                                            <i class="bi bi-hourglass-split me-1"></i> En espera de corrección
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-
-                            @if ($entrega->comentario)
-                                <div class="text-muted small mt-1">
-                                    <i class="bi bi-chat-left-text"></i> {{ $entrega->comentario }}
-                                </div>
-                            @else
-                                <div class="text-muted small mt-1">
-                                    <i class="bi bi-hourglass-split"></i> En espera de corrección
-                                </div>
-                            @endif
-                        </li>
+                        </div>
                     @endforeach
-                </ul>
+                </div>
             @endif
         @endif
 
-        <div class="mt-4">
+        <div class="mt-5">
             <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Volver a mis tareas
             </a>

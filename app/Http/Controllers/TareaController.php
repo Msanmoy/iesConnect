@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class TareaController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,16 +25,14 @@ class TareaController extends Controller
             $tareas = Tarea::with('asignatura')
                 ->whereHas('asignatura', fn($q) => $q->where('usuario_id', $usuario->id))
                 ->get();
-        } else if ($usuario->rol == 'ESTUDIANTE'){
+        } else if ($usuario->rol == 'ESTUDIANTE') {
             $tareas = Tarea::with([
                 'asignatura',
                 'progresos' => function ($q) use ($usuario) {
                     $q->where('usuario_id', $usuario->id)->with('entregas');
                 }
             ])
-                ->whereHas('progresos', function ($q) use ($usuario) {
-                    $q->where('usuario_id', $usuario->id);
-                })
+                ->whereHas('progresos', fn($q) => $q->where('usuario_id', $usuario->id))
                 ->get();
         } else {
             abort(403, 'No autorizado.');
@@ -52,22 +49,22 @@ class TareaController extends Controller
         return view('tareas.create', compact('asignatura'));
     }
 
-
     public function store(Request $request)
     {
-
-
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'fecha_limite' => 'nullable|date',
             'asignatura_id' => 'required|exists:asignaturas,id',
             'tipo' => 'required|in:tarea,cuestionario,pregunta,material,reutilizar',
+            'generica' => 'nullable',
+            'archivos_genericos.*' => 'nullable|file|max:20480',
             'archivos' => 'nullable|array',
-            'archivos.*.*' => 'file|max:20480',
+            'archivos.*' => 'array',
+            'archivos.*.*' => 'file|max:51200',
         ]);
 
-
+        $esGenerica = $request->has('generica');
 
         $tarea = Tarea::create([
             'titulo' => $request->titulo,
@@ -77,36 +74,55 @@ class TareaController extends Controller
             'tipo' => $request->tipo,
         ]);
 
+        // Subida de archivos
+        if ($esGenerica) {
+            $archivosGenericos = $request->file('archivos_genericos');
+            if (is_array($archivosGenericos)) {
+                foreach ($archivosGenericos as $archivo) {
+                    if ($archivo && $archivo->isValid()) {
+                        $ruta = $archivo->store('tareas', 'public');
 
-        if ($request->hasFile('archivos')) {
-            foreach ($request->file('archivos') as $nivel => $archivosNivel) {
-                foreach ($archivosNivel as $archivo) {
-                    $ruta = $archivo->store('tareas', 'public');
+                        $tarea->archivos()->create([
+                            'nombre_archivo' => $archivo->getClientOriginalName(),
+                            'ruta_archivo' => $ruta,
+                            'tipo_archivo' => $archivo->getMimeType(),
+                            'nivel' => null,
+                        ]);
+                    }
+                }
+            }
+        } else {
+            $archivosPorNivel = $request->file('archivos');
+            if (is_array($archivosPorNivel)) {
+                foreach ($archivosPorNivel as $nivel => $archivosNivel) {
+                    foreach ($archivosNivel as $archivo) {
+                        if ($archivo && $archivo->isValid()) {
+                            $ruta = $archivo->store('tareas', 'public');
 
-
-
-                    $tarea->archivos()->create([
-                        'nombre_archivo' => $archivo->getClientOriginalName(),
-                        'ruta_archivo' => $ruta,
-                        'tipo_archivo' => $archivo->getMimeType(),
-                        'nivel' => $nivel,
-                    ]);
+                            $tarea->archivos()->create([
+                                'nombre_archivo' => $archivo->getClientOriginalName(),
+                                'ruta_archivo' => $ruta,
+                                'tipo_archivo' => $archivo->getMimeType(),
+                                'nivel' => $nivel,
+                            ]);
+                        }
+                    }
                 }
             }
         }
 
-
-        $estudiantes = $tarea->asignatura->estudiantes;
-
-        foreach ($estudiantes as $estudiante) {
-            $tarea->progresos()->create([
-                'usuario_id' => $estudiante->id,
-                'nivel_asignado' => 'sencillo',
-            ]);
+        // Crear progreso si no es genérica
+        if (!$esGenerica) {
+            foreach ($tarea->asignatura->estudiantes as $estudiante) {
+                $tarea->progresos()->create([
+                    'usuario_id' => $estudiante->id,
+                    'nivel_asignado' => 'sencillo',
+                ]);
+            }
         }
 
+        // Notificaciones
         $usuarioActual = auth()->user();
-
         foreach ($tarea->asignatura->estudiantes as $estudiante) {
             if ($estudiante->id !== $usuarioActual->id) {
                 $estudiante->notify(new NewTaskNotification(
@@ -115,6 +131,7 @@ class TareaController extends Controller
                 ));
             }
         }
+
         if ($tarea->tipo === 'cuestionario') {
             return redirect()->route('cuestionarios.edit', $tarea);
         }
@@ -123,14 +140,11 @@ class TareaController extends Controller
     }
 
 
-
-
     public function show(Tarea $tarea)
     {
         $this->autorizarTarea($tarea);
 
         $tarea->load(['asignatura', 'progresos.estudiante', 'progresos.entregas']);
-
         $estudiantes = $tarea->asignatura->estudiantes;
 
         return view('tareas.show', compact('tarea', 'estudiantes'));
@@ -143,7 +157,7 @@ class TareaController extends Controller
         $progreso = $tarea->progresos()
             ->where('usuario_id', $usuario->id)
             ->with('entregas')
-            ->firstOrFail();
+            ->first();
 
         $tarea->load('archivos');
 
@@ -167,6 +181,7 @@ class TareaController extends Controller
             'descripcion' => 'nullable|string',
             'fecha_limite' => 'nullable|date',
             'archivos' => 'nullable|array',
+            'archivos.*' => 'array',
             'archivos.*.*' => 'file|max:2048',
         ]);
 
@@ -176,26 +191,23 @@ class TareaController extends Controller
             'fecha_limite' => $request->fecha_limite,
         ]);
 
-        if ($request->has('archivos')) {
-            foreach ($request->archivos as $nivel => $archivosNivel) {
+        if ($request->hasFile('archivos')) {
+            foreach ($request->file('archivos') as $nivel => $archivosNivel) {
                 foreach ($archivosNivel as $archivo) {
-                    if ($archivo) {
-                        $path = $archivo->store('archivos_tarea', 'public');
+                    $path = $archivo->store('archivos_tarea', 'public');
 
-                        $tarea->archivos()->create([
-                            'nombre_archivo' => $archivo->getClientOriginalName(),
-                            'ruta_archivo' => $path,
-                            'tipo_archivo' => $archivo->getClientMimeType(),
-                            'nivel' => $nivel,
-                        ]);
-                    }
+                    $tarea->archivos()->create([
+                        'nombre_archivo' => $archivo->getClientOriginalName(),
+                        'ruta_archivo' => $path,
+                        'tipo_archivo' => $archivo->getClientMimeType(),
+                        'nivel' => $nivel,
+                    ]);
                 }
             }
         }
 
         return redirect()->route('tareas.show', $tarea)->with('success', 'Tarea actualizada correctamente.');
     }
-
 
     public function destroy(Tarea $tarea)
     {
@@ -217,5 +229,4 @@ class TareaController extends Controller
             abort(403, 'No autorizado.');
         }
     }
-
 }
