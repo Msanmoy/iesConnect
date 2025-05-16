@@ -9,7 +9,6 @@
         "@popperjs/core": "^2.11.6",
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.8.2",
-        "bootstrap": "^5.2.3",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.2.0",
         "prettier": "^3.5.3",
@@ -24,7 +23,6 @@
         "@fullcalendar/interaction": "^6.1.17",
         "@fullcalendar/timegrid": "^6.1.17",
         "@popperjs/core": "^2.11.8",
-        "boostrap": "^2.0.0",
         "bootstrap": "^5.3.4",
         "sortablejs": "^1.15.6"
     }

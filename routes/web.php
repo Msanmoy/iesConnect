@@ -104,6 +104,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/stickywall', [StickyWallController::class, 'index'])->name('stickywall.index');
     Route::post('/stickywall/update-order', [StickyWallController::class, 'updateOrder'])->name('stickywall.updateorder');
     Route::post('/stickywall/store-or-update', [StickyWallController::class, 'storeOrUpdate'])->name('stickywall.storeOrUpdate');
+    Route::delete('/stickywall/delete/{id}', [StickyWallController::class, 'destroy']);
+
 
 });
 

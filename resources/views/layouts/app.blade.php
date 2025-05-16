@@ -7,10 +7,7 @@
     <title>@yield('title', 'IESConnect')</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @vite('resoruces/css/app.css')
-    @vite('resoruces/js/app.js')
 
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -133,7 +130,6 @@
     </div>
 </footer>
 
-<script src="{{ asset('js/bootstrap.bundle.js') }}"></script>
 @stack('scripts')
 </body>
 </html>

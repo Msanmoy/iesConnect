@@ -36,22 +36,43 @@ class StickyWallController extends Controller
             'content' => 'nullable|string',
         ]);
 
-        if (isset($validated['id'])) {
-            $note = \App\Models\Note::where('id', $validated['id'])->where('user_id', auth()->id())->firstOrFail();
+        $usuarioId = auth()->id(); // seguimos usando auth()
+
+        if (!$usuarioId) {
+            return response()->json(['success' => false, 'message' => 'Usuario no autenticado'], 403);
+        }
+
+        if (!empty($validated['id'])) {
+            $note = Note::where('id', $validated['id'])
+                ->where('usuario_id', $usuarioId)
+                ->firstOrFail();
+
             $note->update([
                 'title' => $validated['title'],
                 'content' => $validated['content'],
             ]);
         } else {
-            $note = \App\Models\Note::create([
-                'user_id' => auth()->id(), // MUY IMPORTANTE
+            $note = Note::create([
+                'usuario_id' => $usuarioId,
                 'title' => $validated['title'],
                 'content' => $validated['content'],
-                'position' => (\App\Models\Note::where('user_id', auth()->id())->max('position') ?? 0) + 1,
+                'position' => Note::where('usuario_id', $usuarioId)->max('position') + 1 ?? 1,
             ]);
         }
 
         return response()->json(['success' => true, 'note' => $note]);
     }
+
+    public function destroy($id)
+    {
+        $note = Note::where('id', $id)->where('usuario_id', auth()->id())->firstOrFail();
+        $note->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+
+
+
 
 }
