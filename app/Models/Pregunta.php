@@ -2,21 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Pregunta extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'tarea_id',
+        'cuestionario_id',
+        'nivel',
         'enunciado',
+        'puntos',
+        'tipo',
+        'orden',
     ];
 
-    public function tarea()
+    public function cuestionario()
     {
-        return $this->belongsTo(Tarea::class);
+        return $this->belongsTo(Cuestionario::class);
     }
 
     public function respuestas()
@@ -24,11 +25,11 @@ class Pregunta extends Model
         return $this->hasMany(Respuesta::class);
     }
 
-    public function respuestasEstudiante()
+    public function respuestasEstudiantes()
     {
         return $this->hasMany(RespuestaEstudiante::class);
     }
-
 }
+
 
 

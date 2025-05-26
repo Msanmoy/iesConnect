@@ -41,14 +41,9 @@ class Tarea extends Model
         return $this->hasMany(ProgresoTarea::class);
     }
 
-    public function preguntas()
+    public function cuestionario()
     {
-        return $this->hasMany(Pregunta::class);
-    }
-
-    public function respuestas()
-    {
-        return $this->hasMany(Respuesta::class);
+        return $this->hasOne(Cuestionario::class);
     }
 
 }

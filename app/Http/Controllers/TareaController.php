@@ -133,7 +133,7 @@ class TareaController extends Controller
         }
 
         if ($tarea->tipo === 'cuestionario') {
-            return redirect()->route('cuestionarios.edit', $tarea);
+            return redirect()->route('cuestionarios.build', $tarea);
         }
 
         return redirect()->route('tareas.show', $tarea)->with('success', 'Tarea creada correctamente.');

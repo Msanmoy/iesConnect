@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminPanelController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CuestionarioController;
+use App\Http\Controllers\CuestionarioPreguntaController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\ProgresoTareaController;
@@ -39,11 +40,14 @@ Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store')-
 Route::get('/tareas/{tarea}/edit', [TareaController::class, 'edit'])->name('tareas.edit')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy')->middleware(\App\Http\Middleware\EsProfesor::class);
-Route::put('/cuestionarios/preguntas/{pregunta}', [CuestionarioController::class, 'updatePregunta'])->name('cuestionarios.preguntas.update')->middleware(\App\Http\Middleware\EsProfesor::class);
-Route::delete('/cuestionarios/preguntas/{pregunta}', [CuestionarioController::class, 'destroyPregunta'])->name('cuestionarios.preguntas.destroy')->middleware(\App\Http\Middleware\EsProfesor::class);
 
-Route::put('/cuestionarios/{tarea}/actualizar-notas', [CuestionarioController::class, 'actualizarNotas'])->name('cuestionarios.actualizarNotas')->middleware(\App\Http\Middleware\EsProfesor::class);;
-
+//Cuestionarios
+Route::get('/cuestionarios/{tarea}/build', [CuestionarioController::class, 'build'])->name('cuestionarios.build')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::post('/cuestionarios/{cuestionario}/preguntas', [CuestionarioPreguntaController::class, 'store'])->name('cuestionarios.preguntas.store')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::put('/cuestionarios/preguntas/{pregunta}', [CuestionarioPreguntaController::class, 'update'])->name('cuestionarios.preguntas.update')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::delete('/cuestionarios/preguntas/{pregunta}', [CuestionarioPreguntaController::class, 'destroy'])->name('cuestionarios.preguntas.destroy')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::post('/cuestionarios/reordenar', [CuestionarioPreguntaController::class, 'reordenar'])->name('cuestionarios.preguntas.reordenar')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::get('/cuestionarios/{tarea}/estadisticas', [CuestionarioController::class, 'estadisticas'])->name('cuestionarios.estadisticas');
 
 Route::get('/tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'create'])->name('progreso.create')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::post('/tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'store'])->name('progreso.store')->middleware(\App\Http\Middleware\EsProfesor::class);
@@ -57,7 +61,7 @@ Route::put('/asignaturas/{asignatura}/personalizar', [AsignaturaController::clas
 
 Route::get('/cuestionarios/{tarea}/estadisticas', [CuestionarioController::class, 'estadisticas'])->middleware(\App\Http\Middleware\EsProfesor::class)->name('cuestionarios.estadisticas');
 
-Route::delete('/asignaturas/{asignatura}/expulsar/{alumno}', [AsignaturaController::class, 'expulsar'])->name('asignatura.expulsar')->middleware(\App\Http\Middleware\EsProfesor::class);;
+Route::delete('/asignaturas/{asignatura}/expulsar/{alumno}', [AsignaturaController::class, 'expulsar'])->name('asignatura.expulsar')->middleware(\App\Http\Middleware\EsProfesor::class);
 
 
 /*
@@ -115,13 +119,9 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-    Route::get('/cuestionarios/{tarea}/edit', [CuestionarioController::class, 'edit'])->name('cuestionarios.edit');
-    Route::post('/cuestionarios/{tarea}/preguntas', [CuestionarioController::class, 'storePregunta'])->name('cuestionarios.preguntas.store');
-    Route::post('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'guardarRespuestas'])->name('cuestionarios.responder.guardar');
-
-
+    // Cuestionarios Estudiante
     Route::get('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'formularioEstudiante'])->name('cuestionarios.responder');
-
+    Route::post('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'guardarRespuestas'])->name('cuestionarios.responder.guardar');
     Route::get('/cuestionarios/{tarea}/resultado', [CuestionarioController::class, 'verResultado'])->name('cuestionarios.resultado');
 
 
