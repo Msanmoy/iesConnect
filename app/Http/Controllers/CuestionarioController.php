@@ -23,7 +23,12 @@ class CuestionarioController extends Controller
 
         $cuestionario->load('preguntas.respuestas');
 
-        return view('cuestionarios.build', compact('tarea', 'cuestionario'));
+        return view('cuestionarios.build', [
+            'tarea' => $tarea,
+            'cuestionario' => $cuestionario,
+            'esGenerica' => $tarea->es_generica,
+            'preguntasPorNivel' => $cuestionario->preguntas->groupBy('nivel'),
+        ]);
     }
 
     public function estadisticas(Tarea $tarea)
@@ -55,7 +60,21 @@ class CuestionarioController extends Controller
             ];
         }
 
-        return view('cuestionarios.estadisticas', compact('tarea', 'resumen'));
+        $respuestasPorUsuario = \App\Models\RespuestaEstudiante::whereIn('pregunta_id', $cuestionario->preguntas->pluck('id'))
+            ->with('pregunta')
+            ->get()
+            ->groupBy('usuario_id');
+
+        $notasAlumnos = $respuestasPorUsuario->map(function ($respuestas, $usuarioId) {
+            $nota = $respuestas->sum('nota');
+            $nombre = \App\Models\Usuario::find($usuarioId)?->name ?? 'Sin nombre';
+            return [
+                'usuario' => $nombre,
+                'nota' => $nota,
+            ];
+        })->values();
+
+        return view('cuestionarios.estadisticas', compact('tarea', 'resumen', 'notasAlumnos'));
     }
 
 

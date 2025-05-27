@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminPanelController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CuestionarioController;
 use App\Http\Controllers\CuestionarioPreguntaController;
+use App\Http\Controllers\CuestionarioRespuestaController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\ProgresoTareaController;
@@ -47,8 +48,9 @@ Route::post('/cuestionarios/{cuestionario}/preguntas', [CuestionarioPreguntaCont
 Route::put('/cuestionarios/preguntas/{pregunta}', [CuestionarioPreguntaController::class, 'update'])->name('cuestionarios.preguntas.update')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::delete('/cuestionarios/preguntas/{pregunta}', [CuestionarioPreguntaController::class, 'destroy'])->name('cuestionarios.preguntas.destroy')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::post('/cuestionarios/reordenar', [CuestionarioPreguntaController::class, 'reordenar'])->name('cuestionarios.preguntas.reordenar')->middleware(\App\Http\Middleware\EsProfesor::class);
-Route::get('/cuestionarios/{tarea}/estadisticas', [CuestionarioController::class, 'estadisticas'])->name('cuestionarios.estadisticas');
-
+Route::get('/cuestionarios/{tarea}/estadisticas', [CuestionarioController::class, 'estadisticas'])->name('cuestionarios.estadisticas')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::get('/cuestionarios/{tarea}/respuestas', [CuestionarioRespuestaController::class, 'revisar'])->name('cuestionarios.revisar')->middleware(\App\Http\Middleware\EsProfesor::class);
+Route::post('/cuestionarios/{tarea}/respuestas/guardar', [CuestionarioRespuestaController::class, 'guardarNotas'])->name('cuestionarios.respuestas.guardar')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::get('/tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'create'])->name('progreso.create')->middleware(\App\Http\Middleware\EsProfesor::class);
 Route::post('/tareas/{tarea}/asignar-nivel', [ProgresoTareaController::class, 'store'])->name('progreso.store')->middleware(\App\Http\Middleware\EsProfesor::class);
 
@@ -123,6 +125,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'formularioEstudiante'])->name('cuestionarios.responder');
     Route::post('/cuestionarios/{tarea}/responder', [CuestionarioController::class, 'guardarRespuestas'])->name('cuestionarios.responder.guardar');
     Route::get('/cuestionarios/{tarea}/resultado', [CuestionarioController::class, 'verResultado'])->name('cuestionarios.resultado');
+
 
 
 });

@@ -10,6 +10,18 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <style>
+        .card-header {
+            font-size: 1.1rem;
+        }
+        .card-body p {
+            font-size: 1rem;
+        }
+        input[type="number"] {
+            max-width: 160px;
+        }
+    </style>
+
 </head>
 <body class="d-flex flex-column min-vh-100">
 
@@ -150,5 +162,18 @@
 </footer>
 
 @stack('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('a[href^="#pregunta-"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const destino = document.querySelector(this.getAttribute('href'));
+                if (destino) {
+                    destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

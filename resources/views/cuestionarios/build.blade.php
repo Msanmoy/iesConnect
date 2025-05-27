@@ -3,39 +3,54 @@
 @section('title', 'Construir cuestionario')
 
 @section('content')
-    <div class="container-xl py-4">
-        <h2 class="mb-4">Construir cuestionario: {{ $tarea->titulo }}</h2>
+    <div class="container-xl py-4 row">
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        <div class="col-md-3 d-none d-md-block">
+            @include('cuestionarios.partials.sidebar', [
+                'preguntasPorNivel' => $preguntasPorNivel,
+                'esGenerica' => $esGenerica
+            ])
+        </div>
+        <div class="col-md-9">
+            <h2 class="mb-4">⚙️ Constructor: {{ $tarea->titulo }}</h2>
 
-        @if ($tarea->es_generica)
-            @include('cuestionarios.partials.formulario', ['nivel' => null, 'cuestionario' => $cuestionario])
-            @include('cuestionarios.partials.lista', ['nivel' => null, 'preguntas' => $cuestionario->preguntas->sortBy('orden')])
-        @else
-            <ul class="nav nav-tabs mb-4" role="tablist">
-                @foreach (['sencillo', 'intermedio', 'avanzado'] as $nivel)
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link @if($loop->first) active @endif" data-bs-toggle="tab" data-bs-target="#nivel-{{ $nivel }}" type="button" role="tab">
-                            {{ ucfirst($nivel) }}
-                        </button>
-                    </li>
-                @endforeach
-            </ul>
+            @if(!$esGenerica)
+                <ul class="nav nav-tabs mb-4" id="nivelTabs" role="tablist">
+                    @foreach(['sencillo', 'intermedio', 'avanzado'] as $i => $nivel)
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @if($i === 0) active @endif" id="tab-{{ $nivel }}"
+                                    data-bs-toggle="tab" data-bs-target="#contenido-{{ $nivel }}"
+                                    type="button" role="tab">
+                                {{ ucfirst($nivel) }}
+                            </button>
+                        </li>
+                    @endforeach
+                </ul>
 
-            <div class="tab-content">
-                @foreach (['sencillo', 'intermedio', 'avanzado'] as $nivel)
-                    <div class="tab-pane fade @if($loop->first) show active @endif" id="nivel-{{ $nivel }}" role="tabpanel">
-                        @include('cuestionarios.partials.formulario', ['nivel' => $nivel, 'cuestionario' => $cuestionario])
-                        @include('cuestionarios.partials.lista', [
-                            'nivel' => $nivel,
-                            'preguntas' => $cuestionario->preguntas->where('nivel', $nivel)->sortBy('orden')
-                        ])
-                    </div>
-                @endforeach
-            </div>
-        @endif
+                <div class="tab-content">
+                    @foreach(['sencillo', 'intermedio', 'avanzado'] as $i => $nivel)
+                        <div class="tab-pane fade @if($i === 0) show active @endif" id="contenido-{{ $nivel }}" role="tabpanel">
+                            @include('cuestionarios.partials.nivel', [
+                                'nivel' => $nivel,
+                                'preguntas' => $preguntasPorNivel->get($nivel, collect()),
+                                'cuestionario' => $cuestionario
+                            ])
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                {{-- Cuestionario genérico --}}
+                @include('cuestionarios.partials.nivel', [
+                    'nivel' => 'genérico',
+                    'preguntas' => $cuestionario->preguntas,
+                    'cuestionario' => $cuestionario
+                ])
+            @endif
+
+            <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary mt-3">
+                <i class="bi bi-arrow-left-circle me-1"></i> Volver a tareas
+            </a>
+        </div>
     </div>
 @endsection
 

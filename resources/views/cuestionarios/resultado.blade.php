@@ -1,120 +1,49 @@
 @extends('layouts.app')
 
-@section('title', 'Resultado del cuestionario')
+@section('title', 'Resultados del cuestionario')
 
 @section('content')
-    <div class="container-xl">
-        <h2 class="mb-4">{{ $tarea->titulo }}</h2>
+    <div class="container-xl py-4">
+        <h2 class="mb-4">🎯 Resultados: {{ $tarea->titulo }}</h2>
 
         <div class="alert alert-info">
-            Has respondido <strong>{{ $total }}</strong> preguntas.<br>
-            Acertaste <strong>{{ $correctas }}</strong> de ellas. <br>
-            <strong>Resultado:</strong> {{ $porcentaje }}%
-            <br>
-
-            @php
-                $mensaje = match (true) {
-                    $porcentaje === 100 => '¡Excelente! Has acertado todo. ¡Sigue así! 🎉',
-                    $porcentaje >= 80 => '¡Muy bien! Estás dominando el tema. 💪',
-                    $porcentaje >= 60 => 'Buen trabajo, pero aún puedes mejorar. 🔄',
-                    $porcentaje >= 40 => 'Ánimo, repasa un poco más y lo lograrás. 📚',
-                    default => 'No te preocupes, ¡sigue practicando! 🚀',
-                };
-            @endphp
-            <strong>{{ $mensaje }}</strong>
-
-
+            Has obtenido <strong>{{ number_format($total, 2) }}</strong> puntos de <strong>{{ $maximo }}</strong>.
+            ({{ round(($total / max($maximo, 1)) * 100) }}%)
         </div>
 
-        <hr>
+        @foreach($resultado as $i => $item)
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-3">{{ $i + 1 }}. {{ $item['pregunta']->enunciado }} <span class="text-muted">({{ $item['pregunta']->puntos }} pts)</span></h5>
 
-        <h4 class="mb-3">Detalle de respuestas</h4>
-
-        @foreach($tarea->preguntas as $pregunta)
-            @php
-                $respuestaEstudiante = $respuestasEstudiante[$pregunta->id] ?? null;
-                $respuestaSeleccionada = $respuestaEstudiante?->respuesta;
-            @endphp
-
-            <div class="mb-4 p-3 border rounded">
-                <strong>{{ $loop->iteration }}. {{ $pregunta->enunciado }}</strong>
-
-                <ul class="list-group mt-2">
-                    @foreach($pregunta->respuestas as $respuesta)
-                        @php
-                            $esSeleccionada = $respuestaSeleccionada && $respuesta->id === $respuestaSeleccionada->id;
-                            $esCorrecta = $respuesta->es_correcta;
-                        @endphp
-
-                        <li class="list-group-item d-flex justify-content-between align-items-center
-                            @if($esCorrecta) list-group-item-success @elseif($esSeleccionada) list-group-item-danger @endif
-                        ">
-                            {{ $respuesta->texto }}
-
-                            @if($esCorrecta)
-                                <span class="badge bg-success">Correcta</span>
-                            @elseif($esSeleccionada)
-                                <span class="badge bg-danger">Tu respuesta</span>
-                            @endif
-                        </li>
-                    @endforeach
-                </ul>
+                    @if($item['pregunta']->tipo === 'test')
+                        <ul class="list-group">
+                            @foreach($item['pregunta']->respuestas as $respuesta)
+                                <li class="list-group-item
+                                @if($respuesta->es_correcta) list-group-item-success
+                                @elseif($item['respuesta_estudiante']?->respuesta_id === $respuesta->id) list-group-item-danger
+                                @endif">
+                                    {{ $respuesta->texto }}
+                                    @if($respuesta->es_correcta)
+                                        <span class="badge bg-success float-end">Correcta</span>
+                                    @elseif($item['respuesta_estudiante']?->respuesta_id === $respuesta->id)
+                                        <span class="badge bg-danger float-end">Tu respuesta</span>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p><strong>Tu respuesta:</strong></p>
+                        <div class="border p-2 bg-light rounded">
+                            {{ $item['respuesta_estudiante']?->respuesta_texto ?? 'No respondida' }}
+                        </div>
+                        <p class="mt-2">
+                            <strong>Nota:</strong>
+                            {{ $item['nota'] !== null ? $item['nota'] . ' puntos' : 'Pendiente de corrección' }}
+                        </p>
+                    @endif
+                </div>
             </div>
         @endforeach
-
-        <div class="my-5">
-            <h5 class="mb-3 text-center">Resumen visual</h5>
-            <div class="text-left" style="max-width: 250px; margin: 0 auto;">
-                <canvas id="graficoResultados" width="200" height="200"></canvas>
-            </div>
-        </div>
-
-        <div class="mt-4">
-            <a href="{{ route('tareas.ver.estudiante', $tarea) }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Volver a la tarea
-            </a>
-        </div>
     </div>
-
-
 @endsection
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const ctx = document.getElementById('graficoResultados');
-
-            if (ctx && window.Chart) {
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Correctas', 'Incorrectas'],
-                        datasets: [{
-                            label: 'Resultados',
-                            data: [{{ $correctas }}, {{ $total - $correctas }}],
-                            backgroundColor: ['#198754', '#dc3545'],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.label + ': ' + context.raw + ' respuestas';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            } else {
-                console.warn('Chart.js no está disponible o canvas no encontrado.');
-            }
-        });
-    </script>
-@endpush
