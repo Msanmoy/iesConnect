@@ -1,4 +1,4 @@
-<form action="{{ route('cuestionarios.preguntas.store', $cuestionario) }}" method="POST" class="mb-4">
+<form id="formulario-pregunta-{{ $pregunta->id }}" action="{{ route('cuestionarios.preguntas.store', $cuestionario) }}" method="POST" class="mb-4">
     @csrf
     @if ($nivel)
         <input type="hidden" name="nivel" value="{{ $nivel }}">
@@ -26,16 +26,14 @@
     </div>
 
     <div class="bloque-respuestas" id="bloque-respuestas-{{ $nivel ?? 'generico' }}">
-    <div id="respuestas-container-{{ $nivel ?? 'generico' }}">
-        @for ($i = 0; $i < 2; $i++)
-            <div class="input-group mb-2">
-                <input type="text" name="respuestas[{{ $i }}][texto]" class="form-control" placeholder="Respuesta {{ $i + 1 }}" required>
-                <div class="input-group-text">
-                    <input type="radio" name="respuestas_correcta" value="{{ $i }}" required>
+        <div id="respuestas-container-{{ $pregunta->id }}">
+            @foreach ($pregunta->respuestas as $respuesta)
+                <div class="respuesta-item">
+                    <input type="text" name="respuestas[{{ $loop->index }}][texto]" value="{{ $respuesta->texto }}">
+                    <button type="button" class="btn-eliminar-respuesta">Eliminar</button>
                 </div>
-            </div>
-        @endfor
-    </div>
+            @endforeach
+        </div>
 
     <button type="button" class="btn btn-sm btn-outline-secondary mb-3 add-respuesta" data-nivel="{{ $nivel ?? 'generico' }}">
         <i class="bi bi-plus"></i> Añadir respuesta
@@ -47,68 +45,43 @@
 </form>
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.add-respuesta').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const nivel = btn.dataset.nivel;
-                    const container = document.getElementById(`respuestas-container-${nivel}`);
-                    const index = container.querySelectorAll('input[type="text"]').length;
-
-                    const div = document.createElement('div');
-                    div.className = 'input-group mb-2';
-                    div.innerHTML = `
-                <input type="text" name="respuestas[${index}][texto]" class="form-control" placeholder="Respuesta ${index + 1}" required>
-                <div class="input-group-text">
-                    <input type="radio" name="respuestas_correcta" value="${index}" required>
-                </div>
-            `;
-                    container.appendChild(div);
-                    div.classList.add('fade-slide-enter');
-                    setTimeout(() => {
-                        div.classList.remove('fade-slide-enter');
-                        div.classList.add('fade-slide-enter-active');
-                    }, 10);
-                });
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.tipo-pregunta-select').forEach(select => {
-                select.addEventListener('change', () => {
-                    const nivel = select.dataset.nivel;
-                    const bloque = document.getElementById(`bloque-respuestas-${nivel}`);
-                    if (select.value === 'abierta') {
-                        bloque.style.display = 'none';
-                    } else {
-                        bloque.style.display = 'block';
-                    }
-                });
-            });
-        });
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
-        const lista = document.getElementById('lista-preguntas');
-        Sortable.create(lista, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            onEnd: () => {
-                const orden = [...lista.children].map((li, index) => ({
-                    id: li.dataset.id,
-                    posicion: index + 1
-                }));
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Identificar el form por su ID
+            const form = document.getElementById('formulario-pregunta-{{ $pregunta->id }}');
+            const container = document.getElementById('respuestas-container-{{ $pregunta->id }}');
+            const btnAgregar = document.getElementById('btn-agregar-respuesta-{{ $pregunta->id }}');
 
-                fetch('{{ route("cuestionarios.preguntas.reordenar") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ orden })
-                });
-            }
+            // 2. Manejar submit (si necesitas lógica extra antes de enviar)
+            form.addEventListener('submit', e => {
+                // ej. validar que haya al menos 2 respuestas
+                const respuestas = container.querySelectorAll('.respuesta-item');
+                if (respuestas.length < 2) {
+                    e.preventDefault();
+                    alert('Debes añadir al menos dos respuestas.');
+                }
+            });
+
+            // 3. Agregar nueva respuesta dinámicamente
+            btnAgregar.addEventListener('click', () => {
+                const index = container.querySelectorAll('.respuesta-item').length;
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('respuesta-item');
+                wrapper.innerHTML = `
+      <input type="text" name="respuestas[${index}][texto]" placeholder="Texto de la respuesta">
+      <button type="button" class="btn-eliminar-respuesta">Eliminar</button>
+    `;
+                container.appendChild(wrapper);
+            });
+
+            // 4. Delegación de evento para eliminar cualquier respuesta (incluso las nuevas)
+            container.addEventListener('click', e => {
+                if (e.target.matches('.btn-eliminar-respuesta')) {
+                    e.target.closest('.respuesta-item').remove();
+                    // (Opcional) reindexar los name de cada input si lo necesitas
+                }
+            });
         });
     </script>
-
 @endpush

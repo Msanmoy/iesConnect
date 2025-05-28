@@ -3,7 +3,7 @@
 @section('title', 'Construir cuestionario')
 
 @section('content')
-    <div class="container-xl py-4 row">
+    <div class="container-xl py-4 m-auto row">
 
         <div class="col-md-3 d-none d-md-block">
             @include('cuestionarios.partials.sidebar', [
@@ -57,39 +57,40 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
-        document.querySelectorAll('[id^="lista-preguntas"]').forEach((ul) => {
-            Sortable.create(ul, {
-                animation: 150,
-                onEnd: () => {
-                    const orden = [...ul.children].map((li, index) => ({
-                        id: li.dataset.id,
-                        posicion: index + 1
-                    }));
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[id^="lista-preguntas"]').forEach((ul) => {
+                Sortable.create(ul, {
+                    animation: 150,
+                    onEnd: () => {
+                        const orden = [...ul.children].map((li, index) => ({
+                            id: li.dataset.id,
+                            posicion: index + 1
+                        }));
 
-                    fetch('{{ route("cuestionarios.preguntas.reordenar") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ orden })
-                    });
-                }
+                        fetch('{{ route("cuestionarios.preguntas.reordenar") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ orden })
+                        });
+                    }
+                });
             });
-        });
-    </script>
 
-    <script>
-        document.querySelectorAll('.tipo-pregunta-select').forEach(select => {
-            select.addEventListener('change', () => {
-                const id = select.dataset.id;
-                const bloque = document.getElementById(`bloque-respuestas-${id}`);
-                if (select.value === 'abierta') {
-                    bloque.style.display = 'none';
-                } else {
-                    bloque.style.display = 'block';
-                }
+            document.querySelectorAll('.tipo-pregunta-select').forEach(select => {
+                select.addEventListener('change', () => {
+                    const id = select.dataset.id;
+                    const bloque = document.getElementById(`bloque-respuestas-${id}`);
+                    if (select.value === 'abierta') {
+                        bloque.style.display = 'none';
+                    } else {
+                        bloque.style.display = 'block';
+                    }
+                });
             });
-        });
+        })
+
     </script>
 @endpush

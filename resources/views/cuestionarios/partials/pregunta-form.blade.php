@@ -2,9 +2,11 @@
     <div class="card-body">
         <h6 class="fw-semibold mb-3">➕ Añadir nueva pregunta</h6>
 
-        <form method="POST" action="{{ route('cuestionarios.preguntas.store', $cuestionario) }}">
+        {{-- Usamos class en lugar de id para soportar múltiples formularios en distintos tabs --}}
+        <form class="form-nueva-pregunta" method="POST" action="{{ route('cuestionarios.preguntas.store', $cuestionario) }}">
             @csrf
 
+            {{-- Nivel (genérico/intermedio/avanzado) --}}
             <input type="hidden" name="nivel" value="{{ $nivel !== 'genérico' ? $nivel : null }}">
 
             <div class="mb-3">
@@ -27,6 +29,8 @@
 
             <div class="respuestas-wrapper">
                 <label class="form-label">Respuestas (test)</label>
+
+                {{-- Respuestas por defecto (2) --}}
                 <div class="respuesta mb-2 input-group">
                     <input type="text" name="respuestas[0][texto]" class="form-control" placeholder="Respuesta 1" required>
                     <div class="input-group-text">
@@ -39,8 +43,9 @@
                         <input type="radio" name="respuestas_correcta" value="1" title="Marcar como correcta">
                     </div>
                 </div>
+
                 <div class="text-end">
-                    <button type="button" class="btn btn-sm btn-secondary" id="add-respuesta">
+                    <button type="button" class="btn btn-sm btn-secondary btn-add-respuesta">
                         <i class="bi bi-plus-circle me-1"></i> Añadir otra respuesta
                     </button>
                 </div>
@@ -55,44 +60,57 @@
     </div>
 </div>
 
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.currentScript.closest('form');
-            const addBtn = form.querySelector('#add-respuesta');
-            const wrapper = form.querySelector('.respuestas-wrapper');
-            const tipoSelector = form.querySelector('.tipo-selector');
+@once
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('form.form-nueva-pregunta').forEach(form => {
+                    const wrapper = form.querySelector('.respuestas-wrapper');
+                    const addBtn  = form.querySelector('.btn-add-respuesta');
+                    const tipoSel = form.querySelector('.tipo-selector');
+                    let index     = wrapper.querySelectorAll('.respuesta').length;
 
-            let index = 2;
+                    // Añadir nueva respuesta
+                    addBtn.addEventListener('click', () => {
+                        const div = document.createElement('div');
+                        div.className = 'respuesta mb-2 input-group';
+                        div.innerHTML = `
+            <input type="text"
+                   name="respuestas[${index}][texto]"
+                   class="form-control"
+                   placeholder="Respuesta ${index + 1}"
+                   required>
+            <div class="input-group-text">
+              <input type="radio"
+                     name="respuestas_correcta"
+                     value="${index}"
+                     title="Marcar como correcta">
+            </div>
+            <button type="button"
+                    class="btn btn-sm btn-outline-danger ms-2 btn-eliminar-respuesta"
+                    title="Eliminar">
+              <i class="bi bi-x-circle"></i>
+            </button>
+          `;
+                        wrapper.querySelector('.text-end').before(div);
+                        index++;
+                    });
 
-            addBtn?.addEventListener('click', () => {
-                const div = document.createElement('div');
-                div.className = 'respuesta mb-2 input-group';
+                    // Eliminar respuesta (delegación)
+                    wrapper.addEventListener('click', e => {
+                        if (e.target.closest('.btn-eliminar-respuesta')) {
+                            e.target.closest('.respuesta').remove();
+                            index--;
+                        }
+                    });
 
-                div.innerHTML = `
-                <input type="text" name="respuestas[${index}][texto]" class="form-control" placeholder="Respuesta ${index + 1}" required>
-                <div class="input-group-text">
-                    <input type="radio" name="respuestas_correcta" value="${index}" title="Marcar como correcta">
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-danger ms-2" title="Eliminar" onclick="this.closest('.respuesta').remove()">
-                    <i class="bi bi-x-circle"></i>
-                </button>
-            `;
-
-                wrapper.insertBefore(div, addBtn.closest('div'));
-                index++;
+                    // Mostrar u ocultar respuestas según tipo
+                    tipoSel.addEventListener('change', () => {
+                        wrapper.style.display = (tipoSel.value === 'test') ? 'block' : 'none';
+                    });
+                    tipoSel.dispatchEvent(new Event('change'));
+                });
             });
-
-            tipoSelector?.addEventListener('change', (e) => {
-                const tipo = e.target.value;
-                if (tipo === 'test') {
-                    wrapper.style.display = 'block';
-                } else {
-                    wrapper.style.display = 'none';
-                }
-            });
-
-            tipoSelector.dispatchEvent(new Event('change'));
-        });
-    </script>
-@endpush
+        </script>
+    @endpush
+@endonce
