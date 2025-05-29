@@ -2,11 +2,9 @@
     <div class="card-body">
         <h6 class="fw-semibold mb-3">➕ Añadir nueva pregunta</h6>
 
-        {{-- Usamos class en lugar de id para soportar múltiples formularios en distintos tabs --}}
         <form class="form-nueva-pregunta" method="POST" action="{{ route('cuestionarios.preguntas.store', $cuestionario) }}">
             @csrf
 
-            {{-- Nivel (genérico/intermedio/avanzado) --}}
             <input type="hidden" name="nivel" value="{{ $nivel !== 'genérico' ? $nivel : null }}">
 
             <div class="mb-3">
@@ -30,7 +28,6 @@
             <div class="respuestas-wrapper">
                 <label class="form-label">Respuestas (test)</label>
 
-                {{-- Respuestas por defecto (2) --}}
                 <div class="respuesta mb-2 input-group">
                     <input type="text" name="respuestas[0][texto]" class="form-control" placeholder="Respuesta 1" required>
                     <div class="input-group-text">
@@ -70,7 +67,6 @@
                     const tipoSel = form.querySelector('.tipo-selector');
                     let index     = wrapper.querySelectorAll('.respuesta').length;
 
-                    // Añadir nueva respuesta
                     addBtn.addEventListener('click', () => {
                         const div = document.createElement('div');
                         div.className = 'respuesta mb-2 input-group';
@@ -96,7 +92,6 @@
                         index++;
                     });
 
-                    // Eliminar respuesta (delegación)
                     wrapper.addEventListener('click', e => {
                         if (e.target.closest('.btn-eliminar-respuesta')) {
                             e.target.closest('.respuesta').remove();
@@ -104,7 +99,6 @@
                         }
                     });
 
-                    // Mostrar u ocultar respuestas según tipo
                     tipoSel.addEventListener('change', () => {
                         wrapper.style.display = (tipoSel.value === 'test') ? 'block' : 'none';
                     });

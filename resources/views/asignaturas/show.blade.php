@@ -166,19 +166,10 @@
                                 <small class="text-muted">{{ $tarea->created_at->format('H:i') }}</small>
                             </div>
                             <div>
-                                @if($tarea->tipo === 'cuestionario')
-                                    @if(auth()->user()->rol === 'ESTUDIANTE')
-                                        <a href="{{ route('cuestionarios.responder', $tarea) }}" class="btn btn-sm btn-primary">Ver cuestionario</a>
-                                    @else
-                                        <a href="{{ route('cuestionarios.estadisticas', $tarea) }}" class="btn btn-sm btn-outline-primary">Ver cuestionario</a>
-                                    @endif
-
+                                @if(auth()->user()->rol === 'ESTUDIANTE')
+                                    <a href="{{ route('tareas.ver.estudiante', $tarea) }}" class="btn btn-sm btn-primary">Ver tarea</a>
                                 @else
-                                    @if(auth()->user()->rol === 'ESTUDIANTE')
-                                        <a href="{{ route('tareas.ver.estudiante', $tarea) }}" class="btn btn-sm btn-primary">Ver tarea</a>
-                                    @else
-                                        <a href="{{ route('tareas.show', $tarea) }}" class="btn btn-sm btn-outline-primary">Detalles</a>
-                                    @endif
+                                    <a href="{{ route('tareas.show', $tarea) }}" class="btn btn-sm btn-outline-primary">Detalles</a>
                                 @endif
                             </div>
                         </div>

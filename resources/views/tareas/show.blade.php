@@ -31,6 +31,28 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3><i class="bi bi-clipboard me-2 text-primary"></i>{{ $tarea->titulo }}</h3>
 
+                    @if($tarea->tipo === 'cuestionario')
+                        @if(auth()->user()->rol === 'PROFESOR')
+                            <div class="dropdown">
+                                <button class="btn btn-light border-0" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a href="{{ route('cuestionarios.build', $tarea) }}" class="dropdown-item">✏️ Editar</a></li>
+                                    <li>
+                                        <form action="{{ route('tareas.destroy', $tarea) }}" method="POST" onsubmit="return confirm('¿Eliminar esta tarea?');">
+                                            @csrf @method('DELETE')
+                                            <button class="dropdown-item text-danger">🗑️ Eliminar</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        @endif
+                </div>
+
+                <p class="text-muted mb-1">{{ $tarea->fecha_limite ?? 'Sin fecha limite' }} — {{ $tarea->puntos ?? '10' }} puntos</p>
+                <p>{{ $tarea->descripcion }}</p>
+                @else
                     @if(auth()->user()->rol === 'PROFESOR')
                         <div class="dropdown">
                             <button class="btn btn-light border-0" type="button" data-bs-toggle="dropdown">
@@ -47,46 +69,46 @@
                             </ul>
                         </div>
                     @endif
-                </div>
+                    </div>
 
-                <p class="text-muted mb-1">{{ $tarea->fecha_limite ?? 'Sin fecha limite' }} — {{ $tarea->puntos ?? '10' }} puntos</p>
-                <p>{{ $tarea->descripcion }}</p>
+                    <p class="text-muted mb-1">{{ $tarea->fecha_limite ?? 'Sin fecha limite' }} — {{ $tarea->puntos ?? '10' }} puntos</p>
+                    <p>{{ $tarea->descripcion }}</p>
 
 
-                @php
-                    $archivosAgrupados = $tarea->archivos->groupBy('nivel');
-                @endphp
+                    @php
+                        $archivosAgrupados = $tarea->archivos->groupBy('nivel');
+                    @endphp
 
-                @if ($archivosAgrupados->count())
-                    @if ($archivosAgrupados->has(null))
-                        {{-- Tarea genérica (sin niveles) --}}
-                        <h5 class="mt-4">Archivos para todos los estudiantes</h5>
-                        <ul class="list-group mb-3">
-                            @foreach ($archivosAgrupados->get(null) as $archivo)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>{{ $archivo->nombre_archivo }}</span>
-                                    <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}" class="btn btn-sm btn-outline-primary" target="_blank">📄 Ver</a>
-                                </li>
+                    @if ($archivosAgrupados->count())
+                        @if ($archivosAgrupados->has(null))
+                            {{-- Tarea genérica (sin niveles) --}}
+                            <h5 class="mt-4">Archivos para todos los estudiantes</h5>
+                            <ul class="list-group mb-3">
+                                @foreach ($archivosAgrupados->get(null) as $archivo)
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ $archivo->nombre_archivo }}</span>
+                                        <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}" class="btn btn-sm btn-outline-primary" target="_blank">📄 Ver</a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            {{-- Tarea con niveles --}}
+                            @foreach(['sencillo', 'intermedio', 'avanzado'] as $nivel)
+                                @if ($archivosAgrupados->has($nivel))
+                                    <h5 class="mt-4 text-capitalize">{{ $nivel }}</h5>
+                                    <ul class="list-group mb-3">
+                                        @foreach ($archivosAgrupados->get($nivel) as $archivo)
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>{{ $archivo->nombre_archivo }}</span>
+                                                <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}" class="btn btn-sm btn-outline-primary" target="_blank">📄 Ver</a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
                             @endforeach
-                        </ul>
-                    @else
-                        {{-- Tarea con niveles --}}
-                        @foreach(['sencillo', 'intermedio', 'avanzado'] as $nivel)
-                            @if ($archivosAgrupados->has($nivel))
-                                <h5 class="mt-4 text-capitalize">{{ $nivel }}</h5>
-                                <ul class="list-group mb-3">
-                                    @foreach ($archivosAgrupados->get($nivel) as $archivo)
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>{{ $archivo->nombre_archivo }}</span>
-                                            <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}" class="btn btn-sm btn-outline-primary" target="_blank">📄 Ver</a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @endif
-                        @endforeach
+                        @endif
                     @endif
                 @endif
-
                 <hr>
             </div>
 
