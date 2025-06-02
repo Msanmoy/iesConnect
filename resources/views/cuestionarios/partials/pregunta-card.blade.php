@@ -46,32 +46,41 @@
         @endif
     </div>
     <div class="collapse mt-3" id="editarPregunta{{ $pregunta->id }}">
-        <form method="POST" action="{{ route('cuestionarios.preguntas.update', $pregunta) }}">
+        <form action="{{ route('cuestionarios.preguntas.update', $pregunta->id) }}" method="POST" class="mb-4">
             @csrf
             @method('PUT')
 
-            <div class="mb-2">
+            <div class="mb-3">
                 <label class="form-label">Enunciado</label>
-                <input type="text" name="enunciado" class="form-control" value="{{ $pregunta->enunciado }}" required>
+                <input type="text" name="enunciado" class="form-control" value="{{ old('enunciado', $pregunta->enunciado) }}">
             </div>
 
-            <label class="form-label">Respuestas</label>
-            @foreach($pregunta->respuestas as $i => $respuesta)
-                <div class="input-group mb-2">
-                    <input type="hidden" name="respuestas[{{ $i }}][id]" value="{{ $respuesta->id }}">
-                    <input type="text" name="respuestas[{{ $i }}][texto]" class="form-control" value="{{ $respuesta->texto }}" required>
-                    <div class="input-group-text">
-                        <input type="radio" name="correcta" value="{{ $i }}" {{ $respuesta->es_correcta ? 'checked' : '' }}>
-                    </div>
-                </div>
-            @endforeach
-
-            <div class="text-end">
-                <button class="btn btn-sm btn-success" type="submit">
-                    <i class="bi bi-save me-1"></i> Guardar
-                </button>
+            <div class="mb-3">
+                <label class="form-label">Puntos</label>
+                <input type="number" name="puntos" class="form-control" value="{{ old('puntos', $pregunta->puntos) }}" min="0">
             </div>
+
+            <input type="hidden" name="tipo" value="test">
+
+            <div class="mb-3">
+                <label class="form-label">Respuestas</label>
+                <ul class="list-group" id="lista-preguntas-{{ $pregunta->id }}">
+                    @foreach ($pregunta->respuestas as $i => $respuesta)
+                        <li class="list-group-item d-flex align-items-center gap-2" data-id="{{ $respuesta->id }}">
+                            {{-- Radio para marcar la correcta --}}
+                            <input type="radio" name="respuesta_correcta" value="{{ $respuesta->id }}" @checked($respuesta->es_correcta)>
+
+                            {{-- Texto de la respuesta --}}
+                            <input type="hidden" name="respuestas[{{ $i }}][id]" value="{{ $respuesta->id }}">
+                            <input type="text" name="respuestas[{{ $i }}][texto]" class="form-control" value="{{ $respuesta->texto }}">
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            <button type="submit" class="btn btn-primary">💾 Guardar cambios</button>
         </form>
+
     </div>
 
 </div>

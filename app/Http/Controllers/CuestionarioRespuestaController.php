@@ -14,7 +14,6 @@ class CuestionarioRespuestaController extends Controller
         $usuario = auth()->user();
         $cuestionario = $tarea->cuestionario()->with('preguntas.respuestas')->firstOrFail();
 
-        // Evitar que responda dos veces
         $yaRespondio = RespuestaEstudiante::where('usuario_id', $usuario->id)
             ->whereIn('pregunta_id', $cuestionario->preguntas->pluck('id'))
             ->exists();

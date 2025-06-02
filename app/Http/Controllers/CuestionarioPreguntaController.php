@@ -62,8 +62,8 @@ class CuestionarioPreguntaController extends Controller
         ]);
 
         if ($data['tipo'] === 'test' && isset($data['respuestas'])) {
-            foreach ($data['respuestas'] as $i => $respuestaData) {
-                $respuestaData['es_correcta'] = ((string)$i === (string)$data['respuesta_correcta']);
+            foreach ($data['respuestas'] as $respuestaData) {
+                $respuestaData['es_correcta'] = ((string)($respuestaData['id'] ?? '') === (string)$data['respuesta_correcta']);
 
                 if (!empty($respuestaData['id'])) {
                     $respuesta = Respuesta::find($respuestaData['id']);
