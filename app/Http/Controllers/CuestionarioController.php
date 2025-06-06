@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cuestionario;
+use App\Models\RespuestaEstudiante;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CuestionarioController extends Controller
 {
@@ -84,4 +86,101 @@ class CuestionarioController extends Controller
             abort(403, 'No autorizado.');
         }
     }
+
+    public function formularioEstudiante(Tarea $tarea)
+    {
+        $cuestionario = $tarea->cuestionario()->with('preguntas.respuestas')->firstOrFail();
+
+        return view('cuestionarios.responder', compact('cuestionario', 'tarea'));
+    }
+
+    public function guardarRespuestas(Request $request, Tarea $tarea)
+    {
+        $cuestionario = $tarea->cuestionario()
+            ->with(['preguntas.respuestas'])
+            ->firstOrFail();
+
+        $usuarioId = Auth::id();
+
+        foreach ($cuestionario->preguntas as $pregunta) {
+            $campo = 'pregunta_' . $pregunta->id;
+            $respuesta = $request->input($campo);
+
+            if (!is_null($respuesta)) {
+                if ($pregunta->tipo === 'test') {
+                    RespuestaEstudiante::updateOrCreate(
+                        [
+                            'pregunta_id' => $pregunta->id,
+                            'usuario_id' => $usuarioId,
+                        ],
+                        [
+                            'respuesta_id' => (int) $respuesta,
+                            'respuesta_abierta' => null,
+                        ]
+                    );
+                } else {
+                    RespuestaEstudiante::updateOrCreate(
+                        [
+                            'pregunta_id' => $pregunta->id,
+                            'usuario_id' => $usuarioId,
+                        ],
+                        [
+                            'respuesta_abierta' => $respuesta,
+                            'respuesta_id' => null,
+                        ]
+                    );
+                }
+            }
+        }
+
+        return redirect()->route('cuestionarios.resultado', $tarea)->with('success', 'Respuestas enviadas correctamente');
+    }
+
+
+    public function verResultado(Tarea $tarea)
+    {
+        $cuestionario = $tarea->cuestionario()
+            ->with(['preguntas.respuestas', 'preguntas'])
+            ->firstOrFail();
+
+        $preguntas = $cuestionario->preguntas;
+        $usuarioId = auth()->id();
+
+        $resultado = [];
+        $total = 0;
+        $maximo = 0;
+
+        foreach ($preguntas as $pregunta) {
+            $respuesta = \App\Models\RespuestaEstudiante::where('pregunta_id', $pregunta->id)
+                ->where('usuario_id', $usuarioId)
+                ->first();
+
+            $nota = 0;
+
+            if ($pregunta->tipo === 'test') {
+                $respuestaCorrecta = $pregunta->respuestas->firstWhere('es_correcta', true);
+                if ($respuesta && $respuestaCorrecta && $respuesta->respuesta_id === $respuestaCorrecta->id) {
+                    $nota = $pregunta->puntos;
+                    $total += $nota;
+                }
+            } else {
+
+                $nota = $respuesta->nota ?? null;
+                if ($nota !== null) {
+                    $total += $nota;
+                }
+            }
+
+            $maximo += $pregunta->puntos;
+
+            $resultado[] = [
+                'pregunta' => $pregunta,
+                'respuesta_estudiante' => $respuesta,
+                'nota' => $nota,
+            ];
+        }
+
+        return view('cuestionarios.resultado', compact('tarea', 'resultado', 'total', 'maximo'));
+    }
+
 }

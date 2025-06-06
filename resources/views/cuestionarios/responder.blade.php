@@ -9,7 +9,7 @@
         <form method="POST" action="{{ route('cuestionarios.responder.guardar', $tarea) }}">
             @csrf
 
-            @forelse($preguntas as $i => $pregunta)
+            @forelse($cuestionario->preguntas as $i => $pregunta)
                 <div class="card mb-4 shadow-sm">
                     <div class="card-body">
                         <h5 class="mb-3">{{ $i + 1 }}. {{ $pregunta->enunciado }} <span class="text-muted">({{ $pregunta->puntos }} pts)</span></h5>

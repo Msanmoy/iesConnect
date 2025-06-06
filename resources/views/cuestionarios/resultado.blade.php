@@ -45,5 +45,9 @@
                 </div>
             </div>
         @endforeach
+
+        <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-circle me-1"></i> Volver a tareas
+        </a>
     </div>
 @endsection

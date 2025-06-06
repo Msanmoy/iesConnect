@@ -19,8 +19,6 @@
                         <select name="tipo" id="tipo" class="form-select" required>
                             <option value="tarea">Tarea</option>
                             <option value="cuestionario">Tarea de cuestionario</option>
-                            <option value="pregunta">Pregunta</option>
-                            <option value="material">Material</option>
                         </select>
                     </div>
 

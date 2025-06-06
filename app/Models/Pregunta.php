@@ -25,9 +25,9 @@ class Pregunta extends Model
         return $this->hasMany(Respuesta::class);
     }
 
-    public function respuestasEstudiantes()
+    public function respuestaEstudiante()
     {
-        return $this->hasMany(RespuestaEstudiante::class);
+        return $this->hasMany(\App\Models\RespuestaEstudiante::class, 'pregunta_id');
     }
 }
 
