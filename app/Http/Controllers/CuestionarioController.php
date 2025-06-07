@@ -67,14 +67,38 @@ class CuestionarioController extends Controller
             ->get()
             ->groupBy('usuario_id');
 
-        $notasAlumnos = $respuestasPorUsuario->map(function ($respuestas, $usuarioId) {
-            $nota = $respuestas->sum('nota');
-            $nombre = \App\Models\Usuario::find($usuarioId)?->name ?? 'Sin nombre';
-            return [
-                'usuario' => $nombre,
-                'nota' => $nota,
-            ];
-        })->values();
+        $cuestionarioId = $tarea->cuestionario->id;
+
+        $notasAlumnos = RespuestaEstudiante::whereHas('pregunta', function ($query) use ($cuestionarioId) {
+            $query->where('cuestionario_id', $cuestionarioId);
+        })
+            ->with(['usuario', 'pregunta.respuestas'])
+            ->get()
+            ->groupBy('usuario_id')
+            ->map(function ($respuestas, $usuarioId) {
+                $usuario = $respuestas->first()->usuario;
+                $nota = 0;
+
+                foreach ($respuestas as $respuesta) {
+                    $pregunta = $respuesta->pregunta;
+
+                    if ($pregunta->tipo === 'test') {
+                        $correcta = $pregunta->respuestas->firstWhere('es_correcta', true);
+                        if ($respuesta->respuesta_id === $correcta?->id) {
+                            $nota += $pregunta->puntos;
+                        }
+                    } elseif ($pregunta->tipo === 'abierta') {
+                        $nota += $respuesta->nota ?? 0;
+                    }
+                }
+
+                return [
+                    'usuario' => $usuario?->nombre ?? 'Alumno sin nombre',
+                    'nota' => $nota,
+                ];
+            })
+            ->values();
+
 
         return view('cuestionarios.estadisticas', compact('tarea', 'resumen', 'notasAlumnos'));
     }
@@ -97,44 +121,48 @@ class CuestionarioController extends Controller
     public function guardarRespuestas(Request $request, Tarea $tarea)
     {
         $cuestionario = $tarea->cuestionario()
-            ->with(['preguntas.respuestas'])
+            ->with('preguntas')
             ->firstOrFail();
 
-        $usuarioId = Auth::id();
+        $usuarioId = auth()->id();
+
+        $respuestasTest = $request->input('respuestas', []);
+        $respuestasAbiertas = $request->input('respuestas_abiertas', []);
 
         foreach ($cuestionario->preguntas as $pregunta) {
-            $campo = 'pregunta_' . $pregunta->id;
-            $respuesta = $request->input($campo);
+            // Si es tipo test
+            if ($pregunta->tipo === 'test' && isset($respuestasTest[$pregunta->id])) {
+                RespuestaEstudiante::updateOrCreate(
+                    [
+                        'pregunta_id' => $pregunta->id,
+                        'usuario_id' => $usuarioId,
+                    ],
+                    [
+                        'respuesta_id' => (int) $respuestasTest[$pregunta->id],
+                        'respuesta_abierta' => null,
+                    ]
+                );
+            }
 
-            if (!is_null($respuesta)) {
-                if ($pregunta->tipo === 'test') {
-                    RespuestaEstudiante::updateOrCreate(
-                        [
-                            'pregunta_id' => $pregunta->id,
-                            'usuario_id' => $usuarioId,
-                        ],
-                        [
-                            'respuesta_id' => (int) $respuesta,
-                            'respuesta_abierta' => null,
-                        ]
-                    );
-                } else {
-                    RespuestaEstudiante::updateOrCreate(
-                        [
-                            'pregunta_id' => $pregunta->id,
-                            'usuario_id' => $usuarioId,
-                        ],
-                        [
-                            'respuesta_abierta' => $respuesta,
-                            'respuesta_id' => null,
-                        ]
-                    );
-                }
+            // Si es tipo abierta
+            if ($pregunta->tipo === 'abierta' && isset($respuestasAbiertas[$pregunta->id])) {
+                RespuestaEstudiante::updateOrCreate(
+                    [
+                        'pregunta_id' => $pregunta->id,
+                        'usuario_id' => $usuarioId,
+                    ],
+                    [
+                        'respuesta_abierta' => $respuestasAbiertas[$pregunta->id],
+                        'respuesta_id' => null,
+                    ]
+                );
             }
         }
 
-        return redirect()->route('cuestionarios.resultado', $tarea)->with('success', 'Respuestas enviadas correctamente');
+        return redirect()->route('cuestionarios.resultado', $tarea)
+            ->with('success', 'Respuestas enviadas correctamente');
     }
+
 
 
     public function verResultado(Tarea $tarea)

@@ -62,4 +62,5 @@ class Usuario extends Authenticatable
     {
         return $this->hasMany(Publicacion::class);
     }
+
 }

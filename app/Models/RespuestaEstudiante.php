@@ -28,5 +28,10 @@ class RespuestaEstudiante extends Model
     {
         return $this->belongsTo(Respuesta::class);
     }
+
+    public function usuario()
+    {
+        return $this->belongsTo(\App\Models\Usuario::class, 'usuario_id');
+    }
 }
 
