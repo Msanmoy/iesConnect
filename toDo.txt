@@ -2,8 +2,10 @@ COSAS QUE HACER:
 
 + Arriba, + Prioridad. (Exceptuando las validaciones que se harán más adelante).
 
+
+El orden de las respuestas no funciona correctamente, añadir botón que las reordene aleatoreamente.
 Añadir un apartado en las notificaciones para borrarlas. -- HECHO
-Que al presionar en las tareas del tipo cuestionario, te lleve directamente a la vista.
+Que al presionar en las tareas del tipo cuestionario, te lleve directamente a la vista. -- HECHO
 Mejorar la vista de tareas (Muy mucho, ahora está impresentable).
 
 Crear usuario Administrador <-- Super Importante. -- HECHO
