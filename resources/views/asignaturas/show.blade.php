@@ -169,7 +169,11 @@
                                 @if(auth()->user()->rol === 'ESTUDIANTE')
                                     <a href="{{ route('tareas.ver.estudiante', $tarea) }}" class="btn btn-sm btn-primary">Ver tarea</a>
                                 @else
-                                    <a href="{{ route('tareas.show', $tarea) }}" class="btn btn-sm btn-outline-primary">Detalles</a>
+                                    @if($tarea->tipo === 'cuestionario')
+                                        <a href="{{ route('cuestionarios.estadisticas', $tarea) }}" class="btn btn-sm btn-outline-primary">Estadisticas</a>
+                                    @else
+                                        <a href="{{ route('tareas.show', $tarea) }}" class="btn btn-sm btn-outline-primary">Detalles</a>
+                                    @endif
                                 @endif
                             </div>
                         </div>
