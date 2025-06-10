@@ -2,170 +2,108 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cuestionario;
 use App\Models\Pregunta;
-use App\Models\Respuesta;
 use App\Models\RespuestaEstudiante;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CuestionarioController extends Controller
 {
-    public function edit(Tarea $tarea)
+    public function build(Tarea $tarea)
     {
-        $tarea->load('preguntas.respuestas');
-        return view('cuestionarios.edit', compact('tarea'));
-    }
+        $this->autorizarTarea($tarea);
 
-    public function storePregunta(Request $request, Tarea $tarea)
-    {
+        $cuestionario = $tarea->cuestionario;
 
-        $data = $request->validate([
-            'enunciado' => 'required|string',
-            'respuestas' => 'required|array|min:2',
-            'respuestas.*.texto' => 'required|string',
-            'respuestas.*.es_correcta' => 'boolean',
-        ]);
-
-        $pregunta = $tarea->preguntas()->create([
-            'enunciado' => $data['enunciado'],
-        ]);
-
-        $correctaIndex = $request->input('respuestas_correcta');
-
-        foreach ($data['respuestas'] as $index => $respuesta) {
-            $pregunta->respuestas()->create([
-                'texto' => $respuesta['texto'],
-                'es_correcta' => ((string)$index === (string)$correctaIndex),
+        if (!$cuestionario) {
+            $cuestionario = $tarea->cuestionario()->create([
+                'fecha_publicacion' => now(),
+                'fecha_entrega' => now()->addDays(7),
             ]);
         }
 
-        return back()->with('success', 'Pregunta añadida correctamente.');
-    }
+        $cuestionario->load('preguntas.respuestas');
 
-    public function formularioEstudiante(Tarea $tarea)
-    {
-        $usuario = auth()->user();
-
-        $yaRespondio = RespuestaEstudiante::where('usuario_id', $usuario->id)
-            ->whereIn('pregunta_id', $tarea->preguntas->pluck('id'))
-            ->exists();
-
-        if ($yaRespondio) {
-            return redirect()->route('cuestionarios.resultado', $tarea);
-        }
-
-        $tarea->load('preguntas.respuestas');
-        return view('cuestionarios.responder', compact('tarea'));
-    }
-
-
-    public function guardarRespuestas(Request $request, Tarea $tarea)
-    {
-        $usuario = auth()->user();
-
-        foreach ($request->input('respuestas', []) as $preguntaId => $respuestaId) {
-            RespuestaEstudiante::updateOrCreate(
-                [
-                    'usuario_id' => $usuario->id,
-                    'pregunta_id' => $preguntaId,
-                ],
-                [
-                    'respuesta_id' => $respuestaId,
-                ]
-            );
-        }
-
-        return redirect()->route('tareas.ver.estudiante', $tarea)->with('success', 'Respuestas enviadas correctamente.');
+        return view('cuestionarios.build', [
+            'tarea' => $tarea,
+            'cuestionario' => $cuestionario,
+            'esGenerica' => $tarea->es_generica,
+            'preguntasPorNivel' => $cuestionario->preguntas->groupBy('nivel'),
+        ]);
     }
 
     public function estadisticas(Tarea $tarea)
     {
-        $this->autorizarTarea($tarea); // solo profesores
+        $this->autorizarTarea($tarea);
 
-        $tarea->load(['preguntas.respuestas']);
+        $cuestionario = $tarea->cuestionario()->with('preguntas.respuestas.respuestasEstudiante')->firstOrFail();
 
-        $totalEstudiantes = $tarea->asignatura->estudiantes()->count();
+        $resumen = [];
 
-        $respondieron = RespuestaEstudiante::whereIn('pregunta_id', $tarea->preguntas->pluck('id'))
-            ->distinct('usuario_id')
-            ->count('usuario_id');
-
-        // Cálculo por pregunta
-        $estadisticasPreguntas = $tarea->preguntas->map(function ($pregunta) {
+        foreach ($cuestionario->preguntas as $pregunta) {
             $respuestas = $pregunta->respuestas->map(function ($respuesta) {
-                $conteo = $respuesta->respuestasEstudiante()->count();
                 return [
                     'texto' => $respuesta->texto,
-                    'conteo' => $conteo,
+                    'conteo' => $respuesta->respuestasEstudiante->count(),
                     'correcta' => $respuesta->es_correcta,
                 ];
             });
 
-            $totalRespuestas = $respuestas->sum('conteo');
-            $respuestasCorrectas = $respuestas->filter(fn($r) => $r['correcta'])->sum('conteo');
+            $total = $respuestas->sum('conteo');
+            $correctas = $respuestas->filter(fn($r) => $r['correcta'])->sum('conteo');
 
-            return [
+            $resumen[] = [
                 'pregunta' => $pregunta->enunciado,
                 'respuestas' => $respuestas,
-                'total' => $totalRespuestas,
-                'correctas' => $respuestasCorrectas,
-                'porcentaje' => $totalRespuestas > 0 ? round(($respuestasCorrectas / $totalRespuestas) * 100) : 0,
+                'total' => $total,
+                'correctas' => $correctas,
+                'porcentaje' => $total > 0 ? round(($correctas / $total) * 100) : 0,
             ];
-        });
-
-        $respuestasAlumnos = RespuestaEstudiante::with('estudiante')
-            ->whereIn('pregunta_id', $tarea->preguntas->pluck('id'))
-            ->get()
-            ->groupBy('usuario_id')
-            ->map(function ($respuestas) {
-                return $respuestas->sortByDesc('updated_at')->first();
-            });
-
-        return view('cuestionarios.estadisticas', compact('tarea', 'totalEstudiantes', 'respondieron', 'estadisticasPreguntas', 'respuestasAlumnos'));;
-    }
-
-    public function updatePregunta(Request $request, Pregunta $pregunta)
-    {
-        $data = $request->validate([
-            'enunciado' => 'required|string',
-            'respuestas' => 'required|array|min:2',
-            'respuestas.*.id' => 'nullable|exists:respuestas,id',
-            'respuestas.*.texto' => 'required|string',
-        ]);
-
-        $correctaIndex = $request->input("correcta_{$pregunta->id}");
-
-        $pregunta->update(['enunciado' => $data['enunciado']]);
-
-        foreach ($data['respuestas'] as $index => $respuestaData) {
-            $respuestaData['es_correcta'] = ((string)$correctaIndex === (string)$index);
-
-            if (!empty($respuestaData['id'])) {
-                $respuesta = Respuesta::find($respuestaData['id']);
-                if ($respuesta && $respuesta->pregunta_id === $pregunta->id) {
-                    $respuesta->update([
-                        'texto' => $respuestaData['texto'],
-                        'es_correcta' => $respuestaData['es_correcta'],
-                    ]);
-                }
-            } else {
-                $pregunta->respuestas()->create([
-                    'texto' => $respuestaData['texto'],
-                    'es_correcta' => $respuestaData['es_correcta'],
-                ]);
-            }
         }
 
-        return back()->with('success', 'Pregunta actualizada correctamente.');
+        $respuestasPorUsuario = \App\Models\RespuestaEstudiante::whereIn('pregunta_id', $cuestionario->preguntas->pluck('id'))
+            ->with('pregunta')
+            ->get()
+            ->groupBy('usuario_id');
+
+        $cuestionarioId = $tarea->cuestionario->id;
+
+        $notasAlumnos = RespuestaEstudiante::whereHas('pregunta', function ($query) use ($cuestionarioId) {
+            $query->where('cuestionario_id', $cuestionarioId);
+        })
+            ->with(['usuario', 'pregunta.respuestas'])
+            ->get()
+            ->groupBy('usuario_id')
+            ->map(function ($respuestas, $usuarioId) {
+                $usuario = $respuestas->first()->usuario;
+                $nota = 0;
+
+                foreach ($respuestas as $respuesta) {
+                    $pregunta = $respuesta->pregunta;
+
+                    if ($pregunta->tipo === 'test') {
+                        $correcta = $pregunta->respuestas->firstWhere('es_correcta', true);
+                        if ($respuesta->respuesta_id === $correcta?->id) {
+                            $nota += $pregunta->puntos;
+                        }
+                    } elseif ($pregunta->tipo === 'abierta') {
+                        $nota += $respuesta->nota ?? 0;
+                    }
+                }
+
+                return [
+                    'usuario' => $usuario?->nombre ?? 'Alumno sin nombre',
+                    'nota' => $nota,
+                ];
+            })
+            ->values();
+
+
+        return view('cuestionarios.estadisticas', compact('tarea', 'resumen', 'notasAlumnos'));
     }
 
-    public function destroyPregunta(Pregunta $pregunta)
-    {
-        $this->autorizarTarea($pregunta->tarea);
-        $pregunta->delete();
-
-        return back()->with('success', 'Pregunta eliminada correctamente.');
-    }
 
     private function autorizarTarea(Tarea $tarea)
     {
@@ -174,49 +112,140 @@ class CuestionarioController extends Controller
         }
     }
 
+    public function formularioEstudiante(Tarea $tarea)
+    {
+        $cuestionario = $tarea->cuestionario()->firstOrFail();
+        $nivelActual = $this->nivelDesbloqueado($cuestionario->id);
+
+        $preguntas = $cuestionario->preguntas()
+            ->with('respuestas')
+            ->where('nivel', $nivelActual)
+            ->get();
+
+        return view('cuestionarios.responder', compact('cuestionario', 'tarea', 'preguntas', 'nivelActual'));
+    }
+
+    protected function nivelDesbloqueado($cuestionarioId)
+    {
+        $respuestas = RespuestaEstudiante::whereHas('pregunta', fn ($q) => $q->where('cuestionario_id', $cuestionarioId))
+            ->where('usuario_id', auth()->id())
+            ->get();
+
+        $niveles = ['sencillo', 'intermedio', 'avanzado'];
+
+        foreach ($niveles as $i => $nivel) {
+            $preguntas = Pregunta::where('cuestionario_id', $cuestionarioId)->where('nivel', $nivel)->get();
+            $respuestasNivel = $preguntas->filter(function ($pregunta) use ($respuestas) {
+                return $respuestas->where('pregunta_id', $pregunta->id)->isNotEmpty();
+            });
+
+            $aciertos = $preguntas->filter(function ($pregunta) use ($respuestas) {
+                $respuesta = $respuestas->firstWhere('pregunta_id', $pregunta->id);
+                $correcta = $pregunta->respuestas->firstWhere('es_correcta', true);
+                return $respuesta && $respuesta->respuesta_id === $correcta?->id;
+            });
+
+            if ($preguntas->count() === 0 || $aciertos->count() < $preguntas->count()) {
+                return $niveles[$i];
+            }
+        }
+
+        return 'avanzado';
+    }
+
+
+
+    public function guardarRespuestas(Request $request, Tarea $tarea)
+    {
+        $cuestionario = $tarea->cuestionario()
+            ->with('preguntas')
+            ->firstOrFail();
+
+        $usuarioId = auth()->id();
+
+        $respuestasTest = $request->input('respuestas', []);
+        $respuestasAbiertas = $request->input('respuestas_abiertas', []);
+
+        foreach ($cuestionario->preguntas as $pregunta) {
+            // Si es tipo test
+            if ($pregunta->tipo === 'test' && isset($respuestasTest[$pregunta->id])) {
+                RespuestaEstudiante::updateOrCreate(
+                    [
+                        'pregunta_id' => $pregunta->id,
+                        'usuario_id' => $usuarioId,
+                    ],
+                    [
+                        'respuesta_id' => (int) $respuestasTest[$pregunta->id],
+                        'respuesta_abierta' => null,
+                    ]
+                );
+            }
+
+            // Si es tipo abierta
+            if ($pregunta->tipo === 'abierta' && isset($respuestasAbiertas[$pregunta->id])) {
+                RespuestaEstudiante::updateOrCreate(
+                    [
+                        'pregunta_id' => $pregunta->id,
+                        'usuario_id' => $usuarioId,
+                    ],
+                    [
+                        'respuesta_abierta' => $respuestasAbiertas[$pregunta->id],
+                        'respuesta_id' => null,
+                    ]
+                );
+            }
+        }
+
+        return redirect()->route('cuestionarios.resultado', $tarea)
+            ->with('success', 'Respuestas enviadas correctamente');
+    }
+
+
+
     public function verResultado(Tarea $tarea)
     {
-        $usuario = auth()->user();
+        $cuestionario = $tarea->cuestionario()
+            ->with(['preguntas.respuestas', 'preguntas'])
+            ->firstOrFail();
 
-        $tarea->load(['preguntas.respuestas']);
+        $preguntas = $cuestionario->preguntas;
+        $usuarioId = auth()->id();
 
-        $respuestasEstudiante = \App\Models\RespuestaEstudiante::where('usuario_id', $usuario->id)
-            ->whereIn('pregunta_id', $tarea->preguntas->pluck('id'))
-            ->with('respuesta')
-            ->get()
-            ->keyBy('pregunta_id');
+        $resultado = [];
+        $total = 0;
+        $maximo = 0;
 
-        $total = $tarea->preguntas->count();
-        $correctas = 0;
+        foreach ($preguntas as $pregunta) {
+            $respuesta = \App\Models\RespuestaEstudiante::where('pregunta_id', $pregunta->id)
+                ->where('usuario_id', $usuarioId)
+                ->first();
 
-        foreach ($tarea->preguntas as $pregunta) {
-            $respuestaEstudiante = $respuestasEstudiante[$pregunta->id] ?? null;
-            if ($respuestaEstudiante && $respuestaEstudiante->respuesta->es_correcta) {
-                $correctas++;
+            $nota = 0;
+
+            if ($pregunta->tipo === 'test') {
+                $respuestaCorrecta = $pregunta->respuestas->firstWhere('es_correcta', true);
+                if ($respuesta && $respuestaCorrecta && $respuesta->respuesta_id === $respuestaCorrecta->id) {
+                    $nota = $pregunta->puntos;
+                    $total += $nota;
+                }
+            } else {
+
+                $nota = $respuesta->nota ?? null;
+                if ($nota !== null) {
+                    $total += $nota;
+                }
             }
+
+            $maximo += $pregunta->puntos;
+
+            $resultado[] = [
+                'pregunta' => $pregunta,
+                'respuesta_estudiante' => $respuesta,
+                'nota' => $nota,
+            ];
         }
 
-        $porcentaje = $total > 0 ? round(($correctas / $total) * 100) : 0;
-
-        return view('cuestionarios.resultado', compact('tarea', 'respuestasEstudiante', 'correctas', 'total', 'porcentaje'));
+        return view('cuestionarios.resultado', compact('tarea', 'resultado', 'total', 'maximo'));
     }
-
-
-    public function actualizarNotas(Request $request, Tarea $tarea)
-    {
-        $this->autorizarTarea($tarea);
-
-        foreach ($request->input('notas', []) as $respuestaId => $nuevaNota) {
-            $respuesta = \App\Models\RespuestaEstudiante::find($respuestaId);
-
-            if ($respuesta && is_numeric($nuevaNota)) {
-                $respuesta->nota = $nuevaNota;
-                $respuesta->save();
-            }
-        }
-
-        return back()->with('success', 'Notas actualizadas correctamente.');
-    }
-
 
 }

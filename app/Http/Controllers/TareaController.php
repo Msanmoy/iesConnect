@@ -56,7 +56,7 @@ class TareaController extends Controller
             'descripcion' => 'nullable|string',
             'fecha_limite' => 'nullable|date',
             'asignatura_id' => 'required|exists:asignaturas,id',
-            'tipo' => 'required|in:tarea,cuestionario,pregunta,material,reutilizar',
+            'tipo' => 'required|in:tarea,cuestionario',
             'generica' => 'nullable',
             'archivos_genericos.*' => 'nullable|file|max:20480',
             'archivos' => 'nullable|array',
@@ -133,7 +133,7 @@ class TareaController extends Controller
         }
 
         if ($tarea->tipo === 'cuestionario') {
-            return redirect()->route('cuestionarios.edit', $tarea);
+            return redirect()->route('cuestionarios.build', $tarea);
         }
 
         return redirect()->route('tareas.show', $tarea)->with('success', 'Tarea creada correctamente.');
@@ -158,6 +158,13 @@ class TareaController extends Controller
             ->where('usuario_id', $usuario->id)
             ->with('entregas')
             ->first();
+
+        if (!$progreso) {
+            $progreso = $tarea->progresos()->create([
+                'usuario_id' => $usuario->id,
+                'nivel_asignado' => 'sencillo',
+            ]);
+        }
 
         $tarea->load('archivos');
 

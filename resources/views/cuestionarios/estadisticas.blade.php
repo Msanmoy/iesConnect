@@ -1,172 +1,217 @@
+@php use Illuminate\Support\Str; @endphp
 @extends('layouts.app')
 
-@section('title', 'Cuestionario: ' . $tarea->titulo)
+@section('title', 'Estadísticas del cuestionario')
+
+@php
+    /*
+    |==========================================================================
+    |   PREPARAR DATOS PARA CHART.JS EN UNA SOLA ESTRUCTURA ─ stats
+    |==========================================================================*/
+    $porNivel = collect($resumen)->groupBy(fn($p) => $p['nivel'] ?? 'Sin nivel')->sortKeys();
+
+    $stats = [
+        'rendimiento' => [
+            'labels' => $notasAlumnos->pluck('usuario')->values(),
+            'notas'  => $notasAlumnos->pluck('nota')->values(),
+        ],
+        'niveles' => $porNivel->mapWithKeys(function ($preguntas, $nivel) {
+            $slug = Str::slug($nivel);
+            return [
+                $slug => [
+                    'labels'       => collect($preguntas)->pluck('pregunta')->values(),
+                    'porcentajes'  => collect($preguntas)->pluck('porcentaje')->values(),
+                    'preguntas'    => collect($preguntas)->map(function ($p) {
+                        return [
+                            'etiquetas' => $p['respuestas']->pluck('texto')->values(),
+                            'conteos'   => $p['respuestas']->pluck('conteo')->values(),
+                            'colores'   => $p['respuestas']->map(fn($r) => $r['correcta'] ? 'rgba(40,167,69,0.6)' : 'rgba(220,53,69,0.6)')->values(),
+                        ];
+                    })->values(),
+                ],
+            ];
+        })->toArray(),
+    ];
+@endphp
 
 @section('content')
-    <div class="container-xl">
-        <h2 class="fw-bold mb-4"><i class="bi bi-ui-checks-grid text-primary me-2"></i>Cuestionario – {{ $tarea->titulo }}</h2>
+    <div class="container-xl py-4">
+        <h2 class="mb-4">📊 Estadísticas del cuestionario: {{ $tarea->titulo }}</h2>
 
-        {{-- Tabs --}}
-        <ul class="nav nav-tabs mb-4" id="tabsCuestionario" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="respuestas-tab" data-bs-toggle="tab" data-bs-target="#respuestas" type="button" role="tab">
-                    Respuestas del alumnado
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="estadisticas-tab" data-bs-toggle="tab" data-bs-target="#estadisticas" type="button" role="tab">
-                    Estadísticas
-                </button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="tabsCuestionarioContent">
-            {{-- TAB: RESPUESTAS DEL ALUMNADO --}}
-            <div class="tab-pane fade show active" id="respuestas" role="tabpanel">
-                @if ($respuestasAlumnos->isEmpty())
-                    <div class="alert alert-warning">No hay respuestas registradas para este cuestionario.</div>
-                @else
-                    <form action="{{ route('cuestionarios.actualizarNotas', $tarea) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                <tr>
-                                    <th>Estudiante</th>
-                                    <th>Nota actual</th>
-                                    <th>Nueva nota</th>
-                                    <th>Última entrega</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach ($respuestasAlumnos as $respuesta)
-                                    <tr>
-                                        <td>{{ $respuesta->estudiante->nombre }}</td>
-                                        <td>{{ $respuesta->nota ?? '—' }}</td>
-                                        <td style="max-width: 100px;">
-                                            <input type="number" step="0.1" min="0" max="10"
-                                                   name="notas[{{ $respuesta->id }}]"
-                                                   class="form-control form-control-sm"
-                                                   value="{{ $respuesta->nota }}">
-                                        </td>
-                                        <td>{{ $respuesta->updated_at->format('d/m/Y H:i') }}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
+        @if($notasAlumnos->isEmpty())
+            <div class="alert alert-warning">Todavía no hay respuestas para este cuestionario.</div>
+        @else
+            <div class="row g-4 mb-5">
+                <div class="col-lg-7">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-transparent border-0">
+                            <h4 class="mb-0">📈 Rendimiento general del alumnado</h4>
                         </div>
-
-                        <div class="text-end mt-3">
-                            <button class="btn btn-success">
-                                <i class="bi bi-floppy me-1"></i> Guardar cambios
-                            </button>
-                        </div>
-                    </form>
-                @endif
-            </div>
-
-            {{-- TAB: ESTADÍSTICAS --}}
-            <div class="tab-pane fade" id="estadisticas" role="tabpanel">
-                <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-                    <div class="col">
-                        <div class="card shadow-sm border-0 rounded-4 p-3 text-center">
-                            <i class="bi bi-people-fill fs-1 text-secondary mb-2"></i>
-                            <p class="mb-1 text-muted">Estudiantes asignados</p>
-                            <h4 class="fw-bold">{{ $totalEstudiantes }}</h4>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card shadow-sm border-0 rounded-4 p-3 text-center">
-                            <i class="bi bi-check-circle-fill fs-1 text-success mb-2"></i>
-                            <p class="mb-1 text-muted">Han respondido</p>
-                            <h4 class="fw-bold">{{ $respondieron }}</h4>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card shadow-sm border-0 rounded-4 p-3 text-center">
-                            <i class="bi bi-graph-up-arrow fs-1 text-primary mb-2"></i>
-                            <p class="mb-1 text-muted">Participación</p>
-                            <h4 class="fw-bold">
-                                {{ $totalEstudiantes > 0 ? round(($respondieron / $totalEstudiantes) * 100) : 0 }}%
-                            </h4>
+                        <div class="card-body">
+                            <canvas id="graficoRendimiento" height="110"></canvas>
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-transparent border-0">
+                            <h4 class="mb-0">📋 Detalle de notas</h4>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0 align-middle">
+                                    <thead class="table-light text-center">
+                                    <tr>
+                                        <th style="width:60px">#</th>
+                                        <th>Estudiante</th>
+                                        <th style="width:120px">Nota</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="text-center">
+                                    @foreach ($notasAlumnos as $i => $alumno)
+                                        <tr>
+                                            <td>{{ $i + 1 }}</td>
+                                            <td class="text-start">{{ $alumno['usuario'] }}</td>
+                                            <td class="fw-semibold">{{ number_format($alumno['nota'], 2) }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <h4 class="fw-semibold mb-4">📊 Desglose por pregunta</h4>
+            <ul class="nav nav-pills mb-4" id="nivelTabs" role="tablist">
+                @foreach($porNivel as $nivel => $preguntasNivel)
+                    @php $slug = Str::slug($nivel); @endphp
+                    <li class="nav-item" role="presentation">
+                        <button class="bg-white nav-link @if($loop->first) active @endif" data-slug="{{ $slug }}" id="tab-{{ $slug }}" data-bs-toggle="pill" data-bs-target="#panel-{{ $slug }}" type="button" role="tab" aria-controls="panel-{{ $slug }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                        </button>
+                    </li>
+                @endforeach
+            </ul>
+            <div class="tab-content" id="nivelTabsContent">
+                @foreach($porNivel as $nivel => $preguntasNivel)
+                    @php $slug = Str::slug($nivel); @endphp
+                    <div class="tab-pane fade @if($loop->first) show active @endif" id="panel-{{ $slug }}" role="tabpanel" aria-labelledby="tab-{{ $slug }}">
+                        <h4 class="mb-3">📌 Detalles</h4>
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <canvas id="chartNivel{{ $slug }}" height="110"></canvas>
+                            </div>
+                        </div>
 
-                @foreach ($estadisticasPreguntas as $i => $stat)
-                    <div class="mb-5 p-4 bg-light rounded shadow-sm">
-                        <strong class="d-block mb-3 text-dark">{{ $loop->iteration }}. {{ $stat['pregunta'] }}</strong>
-                        <canvas id="graficoPregunta{{ $i }}" height="100" style="max-width: 100%;"></canvas>
+                        @foreach ($preguntasNivel as $idx => $pregunta)
+                            <div class="card mb-4 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ $pregunta['pregunta'] }}</h5>
+                                    <canvas id="chartPregunta{{ $slug }}{{ $idx }}" height="100"></canvas>
+                                    <p class="mt-2 text-muted mb-0">Total respuestas: {{ $pregunta['total'] }} | Correctas: {{ $pregunta['correctas'] }} ({{ $pregunta['porcentaje'] }}%)</p>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 @endforeach
             </div>
+        @endif
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle me-1"></i> Volver a tareas
+            </a>
+            <a href="{{ route('cuestionarios.build', $tarea) }}" class="btn btn-primary">
+                <i class="bi bi-pencil-square me-1"></i> Editar tarea
+            </a>
         </div>
     </div>
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            @foreach ($estadisticasPreguntas as $i => $stat)
-            const ctx{{ $i }} = document.getElementById('graficoPregunta{{ $i }}').getContext('2d');
+            const stats = @json($stats);
+            const charts = {};
 
-            new Chart(ctx{{ $i }}, {
+            charts.global = new Chart(document.getElementById('graficoRendimiento'), {
                 type: 'bar',
                 data: {
-                    labels: {!! json_encode($stat['respuestas']->pluck('texto')) !!},
+                    labels: stats.rendimiento.labels,
                     datasets: [{
-                        label: 'Respuestas',
-                        data: {!! json_encode(collect($stat['respuestas'])->pluck('conteo')) !!},
-                        backgroundColor: {!! json_encode(collect($stat['respuestas'])->map(fn($r) => $r['correcta'] ? '#198754' : '#0d6efd')->values()) !!},
-                        borderRadius: 5,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.8
+                        label: 'Nota',
+                        data: stats.rendimiento.notas,
+                        backgroundColor: 'rgba(54,162,235,0.7)'
                     }]
                 },
                 options: {
                     responsive: true,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1,
-                                font: {
-                                    size: 14,
-                                    family: "'Inter', sans-serif"
-                                }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: {
-                                    size: 14,
-                                    family: "'Inter', sans-serif"
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            bodyFont: {
-                                size: 14,
-                                family: "'Inter', sans-serif"
-                            },
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleFont: {
-                                size: 14
-                            }
-                        }
+                        y: { beginAtZero: true, title: { display: true, text: 'Nota' }, ticks: { stepSize: 1 } },
+                        x: { title: { display: true, text: 'Estudiante' } }
                     }
                 }
             });
-            @endforeach
+
+            const initNivelCharts = (slug) => {
+                if (charts[slug]) return; // ya creado
+
+                const nivel = stats.niveles[slug];
+                if (!nivel) return;
+
+                charts[slug] = {};
+                const ctxNivel = document.getElementById(`chartNivel${slug}`);
+                charts[slug].resumen = new Chart(ctxNivel, {
+                    type: 'bar',
+                    data: {
+                        labels: nivel.labels,
+                        datasets: [{
+                            label: '% Correctas',
+                            data: nivel.porcentajes,
+                            backgroundColor: 'rgba(40,167,69,0.6)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { tooltip: { callbacks: { label: ctx => `${ctx.raw}%` } } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, title: { display: true, text: '% Correctas' } }
+                        }
+                    }
+                });
+
+                nivel.preguntas.forEach((p, idx) => {
+                    charts[slug][idx] = new Chart(document.getElementById(`chartPregunta${slug}${idx}`), {
+                        type: 'bar',
+                        data: {
+                            labels: p.etiquetas,
+                            datasets: [{
+                                label: 'Veces seleccionada',
+                                data: p.conteos,
+                                backgroundColor: p.colores,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { beginAtZero: true, title: { display: true, text: 'Nº de respuestas' }, ticks: { stepSize: 1 } }
+                            }
+                        }
+                    });
+                });
+            };
+
+            const firstSlug = document.querySelector('#nivelTabs .nav-link.active')?.dataset.slug;
+            if (firstSlug) initNivelCharts(firstSlug);
+
+            document.querySelectorAll('#nivelTabs .nav-link').forEach(btn => {
+                btn.addEventListener('shown.bs.tab', e => {
+                    initNivelCharts(e.target.dataset.slug);
+                });
+            });
         });
     </script>
 @endpush

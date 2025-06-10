@@ -33,7 +33,7 @@
         </div>
 
         {{-- Nivel actual --}}
-        @if (!$esGenerica && $progreso)
+        @if (!$esGenerica && $progreso && $tarea->tipo !== 'cuestionario')
             <h5 class="mb-3">Tu nivel actual:
                 <span class="badge bg-primary text-uppercase">{{ ucfirst($nivel) }}</span>
             </h5>
@@ -141,9 +141,13 @@
             @endif
         @endif
 
-        <div class="mt-5">
+        <div class="mt-5 d-flex justify-content-between">
             <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Volver a mis tareas
+            </a>
+
+            <a href="{{ route('cuestionarios.resultado', $tarea->id) }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-right me-1"></i> Ver resultados
             </a>
         </div>
     </div>
