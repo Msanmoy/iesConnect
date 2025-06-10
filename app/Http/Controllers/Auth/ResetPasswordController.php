@@ -9,6 +9,5 @@ class ResetPasswordController extends Controller
 {
     use ResetsPasswords;
 
-    // Puedes personalizar la redirección después del reseteo
     protected $redirectTo = '/dashboard';
 }

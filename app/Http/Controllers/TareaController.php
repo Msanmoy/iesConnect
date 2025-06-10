@@ -74,7 +74,6 @@ class TareaController extends Controller
             'tipo' => $request->tipo,
         ]);
 
-        // Subida de archivos
         if ($esGenerica) {
             $archivosGenericos = $request->file('archivos_genericos');
             if (is_array($archivosGenericos)) {
@@ -111,7 +110,6 @@ class TareaController extends Controller
             }
         }
 
-        // Crear progreso si no es genérica
         if (!$esGenerica) {
             foreach ($tarea->asignatura->estudiantes as $estudiante) {
                 $tarea->progresos()->create([
@@ -121,7 +119,6 @@ class TareaController extends Controller
             }
         }
 
-        // Notificaciones
         $usuarioActual = auth()->user();
         foreach ($tarea->asignatura->estudiantes as $estudiante) {
             if ($estudiante->id !== $usuarioActual->id) {

@@ -6,7 +6,6 @@
     <div class="container-xl py-4">
         <h2 class="mb-4">🎯 Resultados: {{ $tarea->titulo }}</h2>
 
-        <!-- Resumen global -->
         <div class="alert alert-info shadow-sm">
             Has obtenido <strong>{{ number_format($total, 2) }}</strong> puntos de
             <strong>{{ $maximo }}</strong>.

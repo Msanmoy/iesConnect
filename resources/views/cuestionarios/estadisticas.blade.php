@@ -4,10 +4,7 @@
 @section('title', 'Estadísticas del cuestionario')
 
 @php
-    /*
-    |==========================================================================
-    |   PREPARAR DATOS PARA CHART.JS EN UNA SOLA ESTRUCTURA ─ stats
-    |==========================================================================*/
+
     $porNivel = collect($resumen)->groupBy(fn($p) => $p['nivel'] ?? 'Sin nivel')->sortKeys();
 
     $stats = [
@@ -156,7 +153,7 @@
             });
 
             const initNivelCharts = (slug) => {
-                if (charts[slug]) return; // ya creado
+                if (charts[slug]) return;
 
                 const nivel = stats.niveles[slug];
                 if (!nivel) return;

@@ -48,14 +48,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Identificar el form por su ID
             const form = document.getElementById('formulario-pregunta-{{ $pregunta->id }}');
             const container = document.getElementById('respuestas-container-{{ $pregunta->id }}');
             const btnAgregar = document.getElementById('btn-agregar-respuesta-{{ $pregunta->id }}');
 
-            // 2. Manejar submit (si necesitas lógica extra antes de enviar)
             form.addEventListener('submit', e => {
-                // ej. validar que haya al menos 2 respuestas
                 const respuestas = container.querySelectorAll('.respuesta-item');
                 if (respuestas.length < 2) {
                     e.preventDefault();
@@ -63,7 +60,6 @@
                 }
             });
 
-            // 3. Agregar nueva respuesta dinámicamente
             btnAgregar.addEventListener('click', () => {
                 const index = container.querySelectorAll('.respuesta-item').length;
                 const wrapper = document.createElement('div');
@@ -75,11 +71,9 @@
                 container.appendChild(wrapper);
             });
 
-            // 4. Delegación de evento para eliminar cualquier respuesta (incluso las nuevas)
             container.addEventListener('click', e => {
                 if (e.target.matches('.btn-eliminar-respuesta')) {
                     e.target.closest('.respuesta-item').remove();
-                    // (Opcional) reindexar los name de cada input si lo necesitas
                 }
             });
         });

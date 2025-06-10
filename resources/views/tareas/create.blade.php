@@ -22,7 +22,7 @@
                         </select>
                     </div>
 
-                    <div class="form-check form-switch mb-4">
+                    <div class="form-check form-switch mb-4" id="generica-section">
                         <input class="form-check-input" type="checkbox" name="generica" id="generica">
                         <label class="form-check-label fw-semibold" for="generica">¿Tarea genérica (sin niveles)?</label>
                     </div>
@@ -82,26 +82,45 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const tipo = document.getElementById('tipo')
-            const generica = document.getElementById('generica')
-            const niveles = document.getElementById('archivos-nivel-section')
-            const genericos = document.getElementById('archivos-genericos-section')
-            const fechaLimite = document.getElementById('fecha-limite-section')
-            const descripcion = document.getElementById('descripcion-section')
+            const tipo = document.getElementById('tipo');
+            const genericaInput = document.getElementById('generica');
+            const genericaSection = document.getElementById('generica-section');
+
+            const niveles = document.getElementById('archivos-nivel-section');
+            const genericos = document.getElementById('archivos-genericos-section');
+            const fechaLimite = document.getElementById('fecha-limite-section');
+            const descripcion = document.getElementById('descripcion-section');
 
             function toggleSections() {
-                const tipoValue = tipo.value
-                const isGenerica = generica.checked
+                const tipoValue = tipo.value;
+                const isGenerica = genericaInput.checked;
 
-                niveles.style.display = (!isGenerica && tipoValue === 'tarea') ? 'block' : 'none'
-                genericos.style.display = (isGenerica && tipoValue === 'tarea') ? 'block' : 'none'
-                fechaLimite.style.display = (tipoValue === 'tarea' || tipoValue === 'cuestionario') ? 'block' : 'none'
-                descripcion.style.display = 'block'
+                if (tipoValue === 'cuestionario') {
+                    genericaSection.style.display = 'none';
+                    genericaInput.checked = false;
+                    genericaInput.disabled = true;
+                } else {
+                    genericaSection.style.display = 'block';
+                    genericaInput.disabled = false;
+                }
+
+                if (tipoValue === 'tarea') {
+                    niveles.style.display = (!isGenerica) ? 'block' : 'none';
+                    genericos.style.display = (isGenerica) ? 'block' : 'none';
+                } else {
+                    niveles.style.display = 'none';
+                    genericos.style.display = 'none';
+                }
+
+                fechaLimite.style.display = (tipoValue === 'tarea' || tipoValue === 'cuestionario') ? 'block' : 'none';
+
+                descripcion.style.display = 'block';
             }
 
-            tipo.addEventListener('change', toggleSections)
-            generica.addEventListener('change', toggleSections)
-            toggleSections()
-        })
+            tipo.addEventListener('change', toggleSections);
+            genericaInput.addEventListener('change', toggleSections);
+
+            toggleSections();
+        });
     </script>
 @endpush

@@ -10,7 +10,6 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        {{-- Formulario para crear usuario --}}
         <div class="card shadow-sm border-0 rounded-3 p-4 mb-5">
             <form action="{{ route('admin.usuarios.store') }}" method="POST">
                 @csrf
@@ -46,7 +45,6 @@
             </form>
         </div>
 
-        {{-- Listado de profesores --}}
         <div class="card">
             <div class="card-header">
                 👨‍🏫 Profesores actuales

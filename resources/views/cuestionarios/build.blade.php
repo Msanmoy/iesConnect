@@ -39,7 +39,6 @@
                     @endforeach
                 </div>
             @else
-                {{-- Cuestionario genérico --}}
                 @include('cuestionarios.partials.nivel', [
                     'nivel' => 'genérico',
                     'preguntas' => $cuestionario->preguntas,

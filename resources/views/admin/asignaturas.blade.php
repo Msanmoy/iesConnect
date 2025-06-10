@@ -10,7 +10,6 @@
             <div class="alert alert-success shadow-sm">{{ session('success') }}</div>
         @endif
 
-        {{-- Crear Asignatura --}}
         <div class="card shadow-sm border-0 mb-5">
             <div class="card-body p-4">
                 <h4 class="mb-4 text-primary"><i class="bi bi-journal-plus me-2"></i>Crear nueva asignatura</h4>
@@ -62,7 +61,6 @@
             </div>
         </div>
 
-        {{-- Asignar profesor --}}
         <div class="card shadow-sm border-0 mb-5">
             <div class="card-body p-4">
                 <h4 class="mb-4 text-success"><i class="bi bi-person-plus me-2"></i>Asignar profesor a una asignatura</h4>
@@ -96,7 +94,6 @@
             </div>
         </div>
 
-        {{-- Listado de asignaturas --}}
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
                 <h4 class="mb-3 text-secondary"><i class="bi bi-list-ul me-2"></i>Asignaturas registradas</h4>

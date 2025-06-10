@@ -167,7 +167,6 @@ class CuestionarioController extends Controller
         $respuestasAbiertas = $request->input('respuestas_abiertas', []);
 
         foreach ($cuestionario->preguntas as $pregunta) {
-            // Si es tipo test
             if ($pregunta->tipo === 'test' && isset($respuestasTest[$pregunta->id])) {
                 RespuestaEstudiante::updateOrCreate(
                     [
@@ -181,7 +180,6 @@ class CuestionarioController extends Controller
                 );
             }
 
-            // Si es tipo abierta
             if ($pregunta->tipo === 'abierta' && isset($respuestasAbiertas[$pregunta->id])) {
                 RespuestaEstudiante::updateOrCreate(
                     [
