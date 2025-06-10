@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cuestionario;
+use App\Models\Pregunta;
 use App\Models\RespuestaEstudiante;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
@@ -113,10 +114,46 @@ class CuestionarioController extends Controller
 
     public function formularioEstudiante(Tarea $tarea)
     {
-        $cuestionario = $tarea->cuestionario()->with('preguntas.respuestas')->firstOrFail();
+        $cuestionario = $tarea->cuestionario()->firstOrFail();
+        $nivelActual = $this->nivelDesbloqueado($cuestionario->id);
 
-        return view('cuestionarios.responder', compact('cuestionario', 'tarea'));
+        $preguntas = $cuestionario->preguntas()
+            ->with('respuestas')
+            ->where('nivel', $nivelActual)
+            ->get();
+
+        return view('cuestionarios.responder', compact('cuestionario', 'tarea', 'preguntas', 'nivelActual'));
     }
+
+    protected function nivelDesbloqueado($cuestionarioId)
+    {
+        $respuestas = RespuestaEstudiante::whereHas('pregunta', fn ($q) => $q->where('cuestionario_id', $cuestionarioId))
+            ->where('usuario_id', auth()->id())
+            ->get();
+
+        $niveles = ['sencillo', 'intermedio', 'avanzado'];
+
+        foreach ($niveles as $i => $nivel) {
+            $preguntas = Pregunta::where('cuestionario_id', $cuestionarioId)->where('nivel', $nivel)->get();
+            $respuestasNivel = $preguntas->filter(function ($pregunta) use ($respuestas) {
+                return $respuestas->where('pregunta_id', $pregunta->id)->isNotEmpty();
+            });
+
+            $aciertos = $preguntas->filter(function ($pregunta) use ($respuestas) {
+                $respuesta = $respuestas->firstWhere('pregunta_id', $pregunta->id);
+                $correcta = $pregunta->respuestas->firstWhere('es_correcta', true);
+                return $respuesta && $respuesta->respuesta_id === $correcta?->id;
+            });
+
+            if ($preguntas->count() === 0 || $aciertos->count() < $preguntas->count()) {
+                return $niveles[$i];
+            }
+        }
+
+        return 'avanzado';
+    }
+
+
 
     public function guardarRespuestas(Request $request, Tarea $tarea)
     {
