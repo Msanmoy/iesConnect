@@ -25,38 +25,77 @@ class TareaDemoSeeder extends Seeder
 
         // Crear profesor
         $profesor = Usuario::create([
-            'nombre' => 'Laura Profesora',
+            'nombre' => 'Laura Martinez',
             'email' => 'laura@demo.com',
+            'password' => Hash::make('password'),
+            'rol' => 'PROFESOR',
+        ]);
+
+        $profesor1 = Usuario::create([
+            'nombre' => 'Juan Perez',
+            'email' => 'juanperez@demo.com',
             'password' => Hash::make('password'),
             'rol' => 'PROFESOR',
         ]);
 
         // Crear estudiantes
         $estudiante1 = Usuario::create([
-            'nombre' => 'Carlos Estudiante',
+            'nombre' => 'Carlos Bautista',
             'email' => 'carlos@demo.com',
             'password' => Hash::make('password'),
             'rol' => 'ESTUDIANTE',
         ]);
 
         $estudiante2 = Usuario::create([
-        'nombre' => 'Marta Estudiante',
+        'nombre' => 'Marta Díaz',
         'email' => 'marta@demo.com',
         'password' => Hash::make('password'),
         'rol' => 'ESTUDIANTE',
         ]);
 
+        $estudiante3 = Usuario::create([
+            'nombre' => 'Antonio Dominguez',
+            'email' => 'antonio@demo.com',
+            'password' => Hash::make('password'),
+            'rol' => 'ESTUDIANTE',
+        ]);
+
+        $estudiante4 = Usuario::create([
+            'nombre' => 'Sara Duarte',
+            'email' => 'sara@demo.com',
+            'password' => Hash::make('password'),
+            'rol' => 'ESTUDIANTE',
+        ]);
+
         // Crear asignatura
         $asignatura = Asignatura::create([
-        'nombre' => 'Programación Web',
+        'nombre' => 'Programación Web 1ºDAW',
         'descripcion' => 'Laravel y Vue',
         'codigo' => 'PRO2025',
         'usuario_id' => $profesor->id,
         'slug' => 'programacion',
         ]);
 
+        $asignatura2 = Asignatura::create([
+            'nombre' => 'Historia 3ºESO',
+            'descripcion' => 'Historia de 3ºESO',
+            'codigo' => 'HIS2025',
+            'usuario_id' => $profesor1->id,
+            'slug' => 'historia',
+        ]);
+
+        $asignatura3 = Asignatura::create([
+            'nombre' => 'Matemáticas 3ºESO',
+            'descripcion' => 'Matemáticas de 3ºESO',
+            'codigo' => 'MAT2025',
+            'usuario_id' => $profesor1->id,
+            'slug' => 'matematicas',
+        ]);
+
         // Relacionar estudiantes con asignatura
         $asignatura->estudiantes()->attach([$estudiante1->id, $estudiante2->id]);
+        $asignatura2->estudiantes()->attach([$estudiante3->id, $estudiante4->id]);
+        $asignatura3->estudiantes()->attach([$estudiante3->id, $estudiante4->id]);
 
         // Crear tarea
         $tarea = Tarea::create([
@@ -66,12 +105,26 @@ class TareaDemoSeeder extends Seeder
         'fecha_limite' => now()->addWeek(),
         ]);
 
+        $tarea1 = Tarea::create([
+            'asignatura_id' => $asignatura3->id,
+            'titulo' => 'Resuelve la ecuación',
+            'descripcion' => 'Debes resolver el cuadernillo de ecuaciones.',
+            'fecha_limite' => now()->addWeek(),
+        ]);
+
+        $tarea2 = Tarea::create([
+            'asignatura_id' => $asignatura2->id,
+            'titulo' => 'Realiza un resumen del tema 4',
+            'descripcion' => 'Debes crear un resumen del tema 4 del libro.',
+            'fecha_limite' => now()->addWeek(),
+        ]);
+
         // Asignar niveles y simular progreso
         $progreso1 = ProgresoTarea::create([
         'tarea_id' => $tarea->id,
         'usuario_id' => $estudiante1->id,
         'nivel_asignado' => NivelEnum::SENCILLO,
-        'entregado_sencillo' => true,
+        'entregado_sencillo' => false,
         'entregado_intermedio' => false,
         'entregado_avanzado' => false,
         ]);
@@ -85,11 +138,29 @@ class TareaDemoSeeder extends Seeder
         'entregado_avanzado' => false,
         ]);
 
+        $progreso3 = ProgresoTarea::create([
+            'tarea_id' => $tarea1->id,
+            'usuario_id' => $estudiante4->id,
+            'nivel_asignado' => NivelEnum::SENCILLO,
+            'entregado_sencillo' => false,
+            'entregado_intermedio' => false,
+            'entregado_avanzado' => false,
+        ]);
+
+        $progreso4 = ProgresoTarea::create([
+            'tarea_id' => $tarea1->id,
+            'usuario_id' => $estudiante3->id,
+            'nivel_asignado' => NivelEnum::AVANZADO,
+            'entregado_sencillo' => false,
+            'entregado_intermedio' => false,
+            'entregado_avanzado' => false,
+        ]);
+
         // Entrega simulada
         Entrega::create([
         'progreso_tarea_id' => $progreso1->id,
         'nivel' => 'sencillo',
-        'archivo' => 'entregas/demo_sencillo.pdf',
+        'archivo' => 'entregas/demo.pdf', // poner demo.pdf en la carpeta public/storage/entregas.
         'fecha_entrega' => now(),
         ]);
     }
