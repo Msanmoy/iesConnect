@@ -145,10 +145,11 @@
             <a href="{{ route('asignaturas.show', $tarea->asignatura->slug) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Volver a mis tareas
             </a>
-
+            @if($tarea->tipo === 'cuestionario')
             <a href="{{ route('cuestionarios.resultado', $tarea->id) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-right me-1"></i> Ver resultados
             </a>
+            @endif
         </div>
     </div>
 @endsection
